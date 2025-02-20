@@ -19,20 +19,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.TextStyle.Companion
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.ezzy.ccp.R
 import com.ezzy.ccp.icons.Close
 import com.ezzy.ccp.icons.EzzyIcons
 import com.ezzy.ccp.icons.Search
@@ -83,7 +78,6 @@ fun SearchComponent(
                     Text(
                         text = searchHint,
                         style = searchHintStyle.copy(color = searchHintColor)
-//                        MaterialTheme.typography.bodyMedium.copy(color = searchHintColor),
                     )
                 },
                 colors = TextFieldDefaults.colors(
@@ -110,7 +104,7 @@ fun SearchComponent(
                         imageVector = EzzyIcons.Close,
                         contentDescription = "close icon",
                         tint = Color.Black,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }

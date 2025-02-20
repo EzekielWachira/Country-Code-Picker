@@ -59,9 +59,11 @@ import com.ezzy.ccp.icons.EzzyIcons
 import com.ezzy.ccp.icons.Fiji
 import com.ezzy.ccp.icons.Finland
 import com.ezzy.ccp.icons.France
+import com.ezzy.ccp.icons.Georgia
 import com.ezzy.ccp.icons.Germany
 import com.ezzy.ccp.icons.Ghana
 import com.ezzy.ccp.icons.Greece
+import com.ezzy.ccp.icons.Guinea
 import com.ezzy.ccp.icons.Hungary
 import com.ezzy.ccp.icons.Iceland
 import com.ezzy.ccp.icons.India
@@ -78,29 +80,46 @@ import com.ezzy.ccp.icons.Kazakhstan
 import com.ezzy.ccp.icons.Kenya
 import com.ezzy.ccp.icons.Kiribati
 import com.ezzy.ccp.icons.Kuwait
+import com.ezzy.ccp.icons.Latvia
+import com.ezzy.ccp.icons.Lesotho
+import com.ezzy.ccp.icons.Liberia
 import com.ezzy.ccp.icons.Liechtenstein
 import com.ezzy.ccp.icons.Luxembourg
 import com.ezzy.ccp.icons.Malta
 import com.ezzy.ccp.icons.Marshall
+import com.ezzy.ccp.icons.Mexico
 import com.ezzy.ccp.icons.Micronesia
 import com.ezzy.ccp.icons.Monaco
 import com.ezzy.ccp.icons.Morocco
+import com.ezzy.ccp.icons.Namibia
 import com.ezzy.ccp.icons.NewZealand
+import com.ezzy.ccp.icons.Niger
+import com.ezzy.ccp.icons.Nigeria
+import com.ezzy.ccp.icons.Oman
 import com.ezzy.ccp.icons.Palau
 import com.ezzy.ccp.icons.PapuaNewGuinea
+import com.ezzy.ccp.icons.Poland
+import com.ezzy.ccp.icons.Portugal
 import com.ezzy.ccp.icons.Qatar
 import com.ezzy.ccp.icons.Rwanda
 import com.ezzy.ccp.icons.Samoa
 import com.ezzy.ccp.icons.SanMarino
 import com.ezzy.ccp.icons.SaudiArabia
+import com.ezzy.ccp.icons.Senegal
 import com.ezzy.ccp.icons.Seychelles
+import com.ezzy.ccp.icons.SierraLeone
 import com.ezzy.ccp.icons.SolomonIslands
 import com.ezzy.ccp.icons.SouthAfrica
 import com.ezzy.ccp.icons.SouthKorea
 import com.ezzy.ccp.icons.SouthSudan
+import com.ezzy.ccp.icons.Spain
 import com.ezzy.ccp.icons.Sudan
+import com.ezzy.ccp.icons.Sweden
+import com.ezzy.ccp.icons.Syria
 import com.ezzy.ccp.icons.Tanzania
+import com.ezzy.ccp.icons.Togo
 import com.ezzy.ccp.icons.Tonga
+import com.ezzy.ccp.icons.Tunisia
 import com.ezzy.ccp.icons.Turkey
 import com.ezzy.ccp.icons.Tuvalu
 import com.ezzy.ccp.icons.Uganda
@@ -109,6 +128,7 @@ import com.ezzy.ccp.icons.UnitedKingdom
 import com.ezzy.ccp.icons.UnitedStates
 import com.ezzy.ccp.icons.Vanuatu
 import com.ezzy.ccp.icons.VaticanCity
+import com.ezzy.ccp.icons.Yemen
 import com.ezzy.ccp.icons.Zambia
 import com.ezzy.ccp.icons.Zimbabwe
 import com.ezzy.ccp.model.Country
@@ -236,5 +256,27 @@ val countryList = listOf(
     Country(name = "South Africa", code = "ZA", dialCode = "+27", flag = EzzyIcons.SouthAfrica),
     Country(name = "Tanzania", code = "TZ", dialCode = "+255", flag = EzzyIcons.Tanzania),
     Country(name = "Turkey", code = "TR", dialCode = "+90", flag = EzzyIcons.Turkey),
-    Country(name = "Uganda", code = "UG", dialCode = "+256", flag = EzzyIcons.Uganda)
-)
+    Country(name = "Uganda", code = "UG", dialCode = "+256", flag = EzzyIcons.Uganda),
+
+    Country(name = "Mexico", code = "MX", dialCode = "+52", flag = EzzyIcons.Mexico),
+    Country(name = "Lesotho", code = "LS", dialCode = "+266", flag = EzzyIcons.Lesotho),
+    Country(name = "Namibia", code = "NA", dialCode = "+264", flag = EzzyIcons.Namibia),
+    Country(name = "Niger", code = "NE", dialCode = "+227", flag = EzzyIcons.Niger),
+    Country(name = "Nigeria", code = "NG", dialCode = "+234", flag = EzzyIcons.Nigeria),
+    Country(name = "Togo", code = "TG", dialCode = "+228", flag = EzzyIcons.Togo),
+    Country(name = "Senegal", code = "SN", dialCode = "+221", flag = EzzyIcons.Senegal),
+    Country(name = "Liberia", code = "LR", dialCode = "+231", flag = EzzyIcons.Liberia),
+    Country(name = "Guinea", code = "GN", dialCode = "+224", flag = EzzyIcons.Guinea),
+    Country(name = "Sierra Leone", code = "SL", dialCode = "+232", flag = EzzyIcons.SierraLeone),
+    Country(name = "Tunisia", code = "TN", dialCode = "+216", flag = EzzyIcons.Tunisia),
+    Country(name = "Yemen", code = "YE", dialCode = "+967", flag = EzzyIcons.Yemen),
+    Country(name = "Oman", code = "OM", dialCode = "+968", flag = EzzyIcons.Oman),
+    Country(name = "Syria", code = "SY", dialCode = "+963", flag = EzzyIcons.Syria),
+    Country(name = "Georgia", code = "GE", dialCode = "+995", flag = EzzyIcons.Georgia),
+    Country(name = "Sweden", code = "SE", dialCode = "+46", flag = EzzyIcons.Sweden),
+    Country(name = "Portugal", code = "PT", dialCode = "+351", flag = EzzyIcons.Portugal),
+    Country(name = "Spain", code = "ES", dialCode = "+34", flag = EzzyIcons.Spain),
+    Country(name = "Latvia", code = "LV", dialCode = "+371", flag = EzzyIcons.Latvia),
+    Country(name = "Poland", code = "PL", dialCode = "+48", flag = EzzyIcons.Poland),
+
+    )

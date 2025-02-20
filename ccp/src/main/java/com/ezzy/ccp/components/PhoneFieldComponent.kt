@@ -53,7 +53,6 @@ fun PhoneFieldComponent(
     onValueChange: (String) -> Unit = {},
     containerColor: Color = Color.White,
     cornerRadius: Dp = 16.dp,
-    phone: String = "",
     phoneHint: String = "Enter phone",
     phoneHintColor: Color = Color.Black,
     phoneHintStyle: TextStyle = TextStyle.Default,
@@ -61,20 +60,15 @@ fun PhoneFieldComponent(
 ) {
 
     var selectedCountry by remember { mutableStateOf<Country?>(null) }
-//    var phoneNumber by remember { mutableStateOf(phone) }
     var phoneNumber by remember { mutableStateOf(TextFieldValue("")) }
-    // Optimized derived state for formatted/unformatted phone and validity
     val phoneState by remember {
         derivedStateOf {
             formatAndValidatePhone(phoneNumber.text, selectedCountry?.code ?: "US")
         }
     }
     val (formattedPhone, unformattedPhone, formattedWithoutCountryCode, isValid) = phoneState
-//    val (formattedPhone, unformattedPhone, isValid) = phoneState
 
-// Notify parent when phone state changes
     LaunchedEffect(formattedWithoutCountryCode) {
-        // Move cursor to the end after formatting
         phoneNumber = phoneNumber.copy(
             text = formattedWithoutCountryCode,
             selection = TextRange(formattedWithoutCountryCode.length)
@@ -93,7 +87,6 @@ fun PhoneFieldComponent(
         ) {
             SelectedCountryComponent(
                 selectedCountry = selectedCountry ?: countryList.find { it.code.lowercase() == "us" },
-                onClick = {},
                 onSelectCountry = { country -> selectedCountry = country },
             )
 
@@ -142,15 +135,12 @@ fun PhoneFieldComponent(
 fun SelectedCountryComponent(
     modifier: Modifier = Modifier,
     selectedCountry: Country? = countryList.find { it.code == "US" },
-    onClick: () -> Unit,
     viewModel: PhoneViewModel = viewModel(),
     onSelectCountry: (Country) -> Unit = {}
 ) {
 
     var isCountryBottomSheetVisible by remember { mutableStateOf(false) }
-    var sheetState = rememberModalBottomSheetState()
     val context = LocalContext.current
-//    val activeCountry by viewModel.activeCountry.collectAsStateWithLifecycle()
 
     LaunchedEffect(true) {
         val countryCodeLocale = context.resources.configuration.locales[0].country
@@ -210,5 +200,5 @@ private fun PhoneFieldComponentPreview() {
 @Preview
 @Composable
 private fun SelectedCountryComponentPreview() {
-    SelectedCountryComponent(selectedCountry = countryList[0], onClick = {})
+    SelectedCountryComponent(selectedCountry = countryList[0])
 }

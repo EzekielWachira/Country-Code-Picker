@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -33,12 +31,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key.Companion.I
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ezzy.ccp.CountryViewModel
@@ -46,7 +42,6 @@ import com.ezzy.ccp.data.countryList
 import com.ezzy.ccp.icons.EzzyIcons
 import com.ezzy.ccp.icons.Grid
 import com.ezzy.ccp.icons.List
-import com.ezzy.ccp.icons.Search
 import com.ezzy.ccp.model.Country
 import com.ezzy.ccp.state.SearchState
 
@@ -62,7 +57,6 @@ fun CountriesBottomSheet(
     viewModel: CountryViewModel = viewModel(),
 ) {
 
-    val countriesState by viewModel.countriesState.collectAsStateWithLifecycle()
     val countries by viewModel.countries.collectAsStateWithLifecycle(emptyMap())
     val searchState by viewModel.searchState.collectAsStateWithLifecycle()
 
@@ -77,7 +71,6 @@ fun CountriesBottomSheet(
             countriesState = countries,
             onSelectCountries = onSelectCountries,
             containerColor = containerColor,
-            cornerRadius = cornerRadius,
             searchState = searchState,
             onValueChange = viewModel::updateSearchQuery
         )
@@ -89,13 +82,11 @@ fun CountriesBottomSheet(
 @Composable
 fun SheetContent(
     modifier: Modifier = Modifier,
-    countries: List<Country> = countryList,
     countriesState: Map<Char, List<Country>> = countryList.sortedBy {
         it.name[0]
     }.groupBy { country -> country.name[0] },
     onSelectCountries: (Country) -> Unit = {},
     containerColor: Color = Color.White,
-    cornerRadius: Dp = 10.dp,
     headerColor: Color = Color.Black,
     headerStyle: TextStyle = MaterialTheme.typography.titleMedium,
     searchState: SearchState = SearchState(),
@@ -106,7 +97,6 @@ fun SheetContent(
     Surface(
         modifier = modifier,
         color = containerColor,
-//        shape = RoundedCornerShape(topEnd = cornerRadius, topStart = cornerRadius),
     ) {
 
 
@@ -122,25 +112,6 @@ fun SheetContent(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-
-//            Row(
-//                modifier = Modifier.fillMaxWidth()
-//                    .padding(horizontal = 16.dp),
-//                horizontalArrangement = Arrangement.End,
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                IconButton(onClick = {}) {
-//                    Icon(
-//                        imageVector = EzzyIcons.Search,
-//                        contentDescription = null,
-//                        tint = Color.Black,
-//                        modifier = Modifier.size(24.dp)
-//                    )
-//                }
-//                Spacer(modifier = Modifier.weight(1f))
-//
-//                SortComponent()
-//            }
 
             LazyColumn(
                 modifier = Modifier
