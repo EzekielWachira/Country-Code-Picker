@@ -25,14 +25,14 @@ Add the dependency in your `build.gradle` (Module-level):
 
 ```gradle
 dependencies {
-    implementation 'com.github.EzekielWachira:Country-Code-Picker:v0.0.1'
+    implementation 'com.github.EzekielWachira:Country-Code-Picker:v0.0.2'
 }
 ```
 
 ### Step 3: Usage
 
 ```kt
-PhoneFieldComponent(
+PhoneNumberInput(
     onPhoneValueChange = { formatedPhone, unFormatedPhone, valid ->
         //Use the above values
     }   
