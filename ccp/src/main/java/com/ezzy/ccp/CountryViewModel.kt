@@ -31,13 +31,9 @@ class CountryViewModel : ViewModel() {
             val query = searchState.query
             flowOf(
                 if (query.isEmpty()) {
-//                    _countriesState.value
                     countryList.sortedBy { it.name[0] }
                         .groupBy { country -> country.name[0] }
                 } else {
-//                    _countriesState.value.filter { (_, countries) ->
-//                        countries.any { it.name.contains(query, ignoreCase = true) }
-//                    }
                     countryList.filter {
                         it.name.contains(query, ignoreCase = true) ||
                                 it.dialCode.contains(query, ignoreCase = true) ||
@@ -48,18 +44,6 @@ class CountryViewModel : ViewModel() {
                 }
             )
         }
-
-
-    fun onSelectCountry(country: Country) {
-        // Example: Filter out the selected country and update the state
-        val updatedList = countryList.map {
-            if (it == country) it.copy(selected = true) else it.copy(selected = false)
-        }
-
-        // Sort and group by the first character of the name, similar to initial state
-        _countriesState.value = updatedList.sortedBy { it.name[0] }
-            .groupBy { it.name[0] }
-    }
 
     fun updateSearchQuery(query: String) {
         _searchState.update { it.copy(query = query) }

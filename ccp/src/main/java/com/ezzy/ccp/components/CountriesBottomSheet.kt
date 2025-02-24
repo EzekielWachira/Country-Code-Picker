@@ -55,6 +55,7 @@ fun CountriesBottomSheet(
     containerColor: Color = Color.White,
     cornerRadius: Dp = 10.dp,
     viewModel: CountryViewModel = viewModel(),
+    searchTextColor: Color = Color.Black
 ) {
 
     val countries by viewModel.countries.collectAsStateWithLifecycle(emptyMap())
@@ -72,7 +73,8 @@ fun CountriesBottomSheet(
             onSelectCountries = onSelectCountries,
             containerColor = containerColor,
             searchState = searchState,
-            onValueChange = viewModel::updateSearchQuery
+            onValueChange = viewModel::updateSearchQuery,
+            searchTextColor = searchTextColor
         )
     }
 
@@ -90,7 +92,8 @@ fun SheetContent(
     headerColor: Color = Color.Black,
     headerStyle: TextStyle = MaterialTheme.typography.titleMedium,
     searchState: SearchState = SearchState(),
-    onValueChange: (String) -> Unit = {}
+    onValueChange: (String) -> Unit = {},
+    searchTextColor: Color = Color.Black
 ) {
 
 
@@ -107,7 +110,8 @@ fun SheetContent(
                 SearchComponent(
                     searchState = searchState,
                     onValueChange = onValueChange,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    searchTextColor =  searchTextColor
                 )
             }
 

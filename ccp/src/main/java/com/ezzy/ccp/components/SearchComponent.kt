@@ -45,7 +45,8 @@ fun SearchComponent(
     searchHintColor: Color = Color.Black.copy(alpha = .3f),
     searchHintStyle: TextStyle = TextStyle.Default,
     searchIconTint: Color = Color.Black.copy(alpha = .5f),
-    searchBackgroundColor: Color = Color.White
+    searchBackgroundColor: Color = Color.White,
+    searchTextColor: Color = Color.Black
 ) {
 
     val closeEnabled by remember {
@@ -87,7 +88,8 @@ fun SearchComponent(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = Color.Transparent,
-                    cursorColor = MaterialTheme.colorScheme.inversePrimary
+                    cursorColor = MaterialTheme.colorScheme.inversePrimary,
+                    focusedTextColor = searchTextColor
                 ),
                 modifier = Modifier.weight(1f),
                 keyboardOptions = KeyboardOptions(

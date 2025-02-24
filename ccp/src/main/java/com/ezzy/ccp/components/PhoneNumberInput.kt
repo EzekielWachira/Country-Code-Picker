@@ -1,5 +1,6 @@
 package com.ezzy.ccp.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -48,7 +49,7 @@ import com.ezzy.ccp.model.Country
 import com.ezzy.ccp.utils.formatAndValidatePhone
 
 @Composable
-fun PhoneFieldComponent(
+fun PhoneNumberInput(
     modifier: Modifier = Modifier,
     onValueChange: (String) -> Unit = {},
     containerColor: Color = Color.White,
@@ -56,7 +57,11 @@ fun PhoneFieldComponent(
     phoneHint: String = "Enter phone",
     phoneHintColor: Color = Color.Black,
     phoneHintStyle: TextStyle = TextStyle.Default,
-    onPhoneValueChange: (formatedPhone: String, unFormatedPhone: String, valid: Boolean) -> Unit = { _, _, _ -> }
+    onPhoneValueChange: (formatedPhone: String, unFormatedPhone: String, valid: Boolean) -> Unit = { _, _, _ -> },
+    borderWidth: Dp = 0.dp,
+    borderColor: Color = Color.Transparent,
+    cursorColor: Color = Color.Black,
+    inputTextColor: Color = Color.Black
 ) {
 
     var selectedCountry by remember { mutableStateOf<Country?>(null) }
@@ -78,7 +83,11 @@ fun PhoneFieldComponent(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(cornerRadius),
-        color = containerColor
+        color = containerColor,
+        border = BorderStroke(
+            width = borderWidth,
+            color = borderColor
+        )
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -102,7 +111,8 @@ fun PhoneFieldComponent(
                 placeholder = {
                     Text(
                         text = phoneHint,
-                        style = phoneHintStyle.copy(color = phoneHintColor)
+                        style = phoneHintStyle,
+                        color = phoneHintColor
                     )
                 },
                 colors = TextFieldDefaults.colors(
@@ -112,7 +122,8 @@ fun PhoneFieldComponent(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = Color.Transparent,
-                    cursorColor = MaterialTheme.colorScheme.inversePrimary
+                    cursorColor = cursorColor,
+                    focusedTextColor = inputTextColor,
                 ),
                 modifier = Modifier
                     .weight(1f)
@@ -136,7 +147,8 @@ fun SelectedCountryComponent(
     modifier: Modifier = Modifier,
     selectedCountry: Country? = countryList.find { it.code == "US" },
     viewModel: PhoneViewModel = viewModel(),
-    onSelectCountry: (Country) -> Unit = {}
+    onSelectCountry: (Country) -> Unit = {},
+    searchTextColor: Color = Color.Black
 ) {
 
     var isCountryBottomSheetVisible by remember { mutableStateOf(false) }
@@ -186,7 +198,8 @@ fun SelectedCountryComponent(
         }, onSelectCountries = {
             isCountryBottomSheetVisible = false
             onSelectCountry(it)
-        }, cornerRadius = 0.dp
+        }, cornerRadius = 0.dp,
+            searchTextColor= searchTextColor
         )
     }
 }
@@ -194,7 +207,7 @@ fun SelectedCountryComponent(
 @Preview
 @Composable
 private fun PhoneFieldComponentPreview() {
-    PhoneFieldComponent()
+    PhoneNumberInput()
 }
 
 @Preview
