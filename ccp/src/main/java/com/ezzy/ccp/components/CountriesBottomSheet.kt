@@ -61,7 +61,6 @@ fun CountriesBottomSheet(
 
     val countries by viewModel.countries.collectAsStateWithLifecycle(emptyMap())
     val searchState by viewModel.searchState.collectAsStateWithLifecycle()
-//    val sheetState  = rememberModalBottomSheetState(true)
 
     ModalBottomSheet(
         sheetState = sheetState,
