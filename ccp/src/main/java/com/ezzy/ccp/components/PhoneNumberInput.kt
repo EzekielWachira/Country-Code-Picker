@@ -18,6 +18,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -152,6 +153,7 @@ fun SelectedCountryComponent(
 
     var isCountryBottomSheetVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val sheetState = rememberModalBottomSheetState(true)
 
     LaunchedEffect(true) {
         val countryCodeLocale = context.resources.configuration.locales[0].country
@@ -193,11 +195,15 @@ fun SelectedCountryComponent(
 
     if (isCountryBottomSheetVisible) {
         CountriesBottomSheet(
+            sheetState = sheetState,
             onSelectCountries = {
                 isCountryBottomSheetVisible = false
                 onSelectCountry(it)
             }, cornerRadius = 0.dp,
-            searchTextColor = searchTextColor
+            searchTextColor = searchTextColor,
+            onDismiss = {
+                isCountryBottomSheetVisible = false
+            }
         )
     }
 }

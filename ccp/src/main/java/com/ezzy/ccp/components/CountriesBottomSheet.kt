@@ -55,12 +55,13 @@ fun CountriesBottomSheet(
     containerColor: Color = Color.White,
     cornerRadius: Dp = 10.dp,
     viewModel: CountryViewModel = viewModel(),
-    searchTextColor: Color = Color.Black
+    searchTextColor: Color = Color.Black,
+    sheetState: SheetState,
 ) {
 
     val countries by viewModel.countries.collectAsStateWithLifecycle(emptyMap())
     val searchState by viewModel.searchState.collectAsStateWithLifecycle()
-    val sheetState  = rememberModalBottomSheetState(true)
+//    val sheetState  = rememberModalBottomSheetState(true)
 
     ModalBottomSheet(
         sheetState = sheetState,
@@ -68,6 +69,7 @@ fun CountriesBottomSheet(
         onDismissRequest = onDismiss,
         modifier = modifier,
         shape = RoundedCornerShape(topEnd = cornerRadius, topStart = cornerRadius),
+        dragHandle = {}
     ) {
         SheetContent(
             countriesState = countries,
@@ -105,7 +107,7 @@ fun SheetContent(
 
 
         Column {
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(60.dp))
 
             Box(modifier = Modifier.padding(horizontal = 16.dp)) {
                 SearchComponent(
