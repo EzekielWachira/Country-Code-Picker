@@ -17,9 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -95,7 +93,8 @@ fun PhoneNumberInput(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             SelectedCountryComponent(
-                selectedCountry = selectedCountry ?: countryList.find { it.code.lowercase() == "us" },
+                selectedCountry = selectedCountry
+                    ?: countryList.find { it.code.lowercase() == "us" },
                 onSelectCountry = { country -> selectedCountry = country },
             )
 
@@ -193,13 +192,12 @@ fun SelectedCountryComponent(
     }
 
     if (isCountryBottomSheetVisible) {
-        CountriesBottomSheet(sheetState = rememberModalBottomSheetState(true), onDismiss = {
-            isCountryBottomSheetVisible = false
-        }, onSelectCountries = {
-            isCountryBottomSheetVisible = false
-            onSelectCountry(it)
-        }, cornerRadius = 0.dp,
-            searchTextColor= searchTextColor
+        CountriesBottomSheet(
+            onSelectCountries = {
+                isCountryBottomSheetVisible = false
+                onSelectCountry(it)
+            }, cornerRadius = 0.dp,
+            searchTextColor = searchTextColor
         )
     }
 }

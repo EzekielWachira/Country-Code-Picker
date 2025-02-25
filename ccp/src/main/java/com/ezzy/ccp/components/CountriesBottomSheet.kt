@@ -26,6 +26,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -49,7 +50,6 @@ import com.ezzy.ccp.state.SearchState
 @Composable
 fun CountriesBottomSheet(
     modifier: Modifier = Modifier,
-    sheetState: SheetState,
     onDismiss: () -> Unit = {},
     onSelectCountries: (Country) -> Unit,
     containerColor: Color = Color.White,
@@ -60,6 +60,7 @@ fun CountriesBottomSheet(
 
     val countries by viewModel.countries.collectAsStateWithLifecycle(emptyMap())
     val searchState by viewModel.searchState.collectAsStateWithLifecycle()
+    val sheetState  = rememberModalBottomSheetState(true)
 
     ModalBottomSheet(
         sheetState = sheetState,
