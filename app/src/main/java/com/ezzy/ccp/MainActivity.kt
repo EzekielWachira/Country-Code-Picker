@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,6 +40,52 @@ class MainActivity : ComponentActivity() {
             var formatedPhone2 by remember { mutableStateOf("") }
             var unFormatedPhone2 by remember { mutableStateOf("") }
             var valid2 by remember { mutableStateOf(false) }
+            var setPhone by remember { mutableStateOf<String?>(null) }
+            val testSetPhones = listOf(
+                "+254712345678",  // Kenya
+                "+14155552671",   // USA
+                "+447911123456",  // UK
+                "+919876543210",  // India
+                "+819012345678",  // Japan
+                "+4915123456789", // Germany
+                "+33612345678",   // France
+                "+61412345678",   // Australia
+                "+5521987654321", // Brazil
+                "+27821234567",   // South Africa
+                "+34612345678",   // Spain
+                "+393471234567",  // Italy
+                "+79123456789",   // Russia
+                "+8613800138000", // China
+                "+971501234567",  // UAE
+                "+966551234567",  // Saudi Arabia
+                "+201001234567",  // Egypt
+                "+48600123456",   // Poland
+                "+46701234567",   // Sweden
+                "+639123456789"   // Philippines
+            )
+
+            val testPhones2 = listOf(
+                "254712345678",  // Kenya
+                "14155552671",   // USA
+                "447911123456",  // UK
+                "919876543210",  // India
+                "819012345678",  // Japan
+                "4915123456789", // Germany
+                "33612345678",   // France
+                "61412345678",   // Australia
+                "5521987654321", // Brazil
+                "27821234567",   // South Africa
+                "34612345678",   // Spain
+                "393471234567",  // Italy
+                "79123456789",   // Russia
+                "8613800138000", // China
+                "971501234567",  // UAE
+                "966551234567",  // Saudi Arabia
+                "201001234567",  // Egypt
+                "48600123456",   // Poland
+                "46701234567",   // Sweden
+                "639123456789"   // Philippines
+            )
 
             CCPTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -57,7 +104,8 @@ class MainActivity : ComponentActivity() {
                                     unFormatedPhone2 = unFormatedPhone
                                     valid2 = valid
                                 },
-                                phoneHintColor = Color.Black
+                                phoneHintColor = Color.Black,
+                                preSetPhoneNumber = setPhone
                             )
 
                             Spacer(modifier = Modifier.height(30.dp))
@@ -86,6 +134,12 @@ class MainActivity : ComponentActivity() {
                             Text(
                                 text = validText
                             )
+                            Spacer(modifier = Modifier.height(30.dp))
+                            Button(onClick = {
+                                setPhone = testSetPhones.random()
+                            }) {
+                                Text("Set Random Country Numbers")
+                            }
                         }
                     }
                 }

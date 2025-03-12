@@ -46,7 +46,28 @@ import com.ezzy.ccp.icons.EzzyIcons
 import com.ezzy.ccp.icons.UnitedStates
 import com.ezzy.ccp.model.Country
 import com.ezzy.ccp.utils.formatAndValidatePhone
+import com.ezzy.ccp.utils.parsePhoneNumber
 
+/**
+ * A customizable international phone number input component.
+ *
+ * This composable displays a phone input field with a country selector, automatically
+ * formatting the phone number based on the selected country's pattern.
+ *
+ * @param modifier Modifier to be applied to the component
+ * @param onValueChange Callback that reports text changes in the input field
+ * @param containerColor Background color of the input container
+ * @param cornerRadius Corner radius of the input container
+ * @param phoneHint Placeholder text shown when the input field is empty
+ * @param phoneHintColor Color of the placeholder text
+ * @param phoneHintStyle TextStyle for the placeholder text
+ * @param onPhoneValueChange Callback that provides formatted phone, unformatted phone, and validation status
+ * @param borderWidth Width of the border around the input container
+ * @param borderColor Color of the border around the input container
+ * @param cursorColor Color of the input cursor
+ * @param inputTextColor Color of the input text
+ * @param preSetPhoneNumber Optional pre-set phone number to initialize the field with (in E.164 format)
+ */
 @Composable
 fun PhoneNumberInput(
     modifier: Modifier = Modifier,
@@ -60,11 +81,22 @@ fun PhoneNumberInput(
     borderWidth: Dp = 0.dp,
     borderColor: Color = Color.Transparent,
     cursorColor: Color = Color.Black,
-    inputTextColor: Color = Color.Black
+    inputTextColor: Color = Color.Black,
+    preSetPhoneNumber: String? = null
 ) {
 
     var selectedCountry by remember { mutableStateOf<Country?>(null) }
     var phoneNumber by remember { mutableStateOf(TextFieldValue("")) }
+
+    // Extract country and local number when setValue changes
+    LaunchedEffect(preSetPhoneNumber) {
+        if (!preSetPhoneNumber.isNullOrEmpty()) {
+            val (country, localNumber) = parsePhoneNumber(preSetPhoneNumber)
+            selectedCountry = country
+            phoneNumber = TextFieldValue(localNumber, selection = TextRange(localNumber.length))
+        }
+    }
+
     val phoneState by remember {
         derivedStateOf {
             formatAndValidatePhone(phoneNumber.text, selectedCountry?.code ?: "US")
@@ -89,7 +121,8 @@ fun PhoneNumberInput(
         )
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
+                .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -141,6 +174,19 @@ fun PhoneNumberInput(
 }
 
 
+
+/**
+ * A composable that displays the selected country with its flag and dial code.
+ *
+ * This component shows the currently selected country and opens a bottom sheet for country
+ * selection when clicked. It automatically initializes with the device's current locale.
+ *
+ * @param modifier Modifier to be applied to the component
+ * @param selectedCountry The currently selected country; defaults to US if null
+ * @param viewModel ViewModel that manages country selection state
+ * @param onSelectCountry Callback that is triggered when a new country is selected
+ * @param searchTextColor Color of the search text in the country selection bottom sheet
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectedCountryComponent(
@@ -167,7 +213,7 @@ fun SelectedCountryComponent(
     ) {
         Row(
             modifier = Modifier.padding(
-                horizontal = 16.dp, vertical = 10.dp
+                horizontal = 8.dp, vertical = 10.dp
             ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
