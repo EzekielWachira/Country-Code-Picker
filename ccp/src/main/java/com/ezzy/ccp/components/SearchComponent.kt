@@ -46,7 +46,8 @@ fun SearchComponent(
     searchHintStyle: TextStyle = TextStyle.Default,
     searchIconTint: Color = Color.Black.copy(alpha = .5f),
     searchBackgroundColor: Color = Color.White,
-    searchTextColor: Color = Color.Black
+    searchTextColor: Color = Color.Black,
+    onClose: () -> Unit = {}
 ) {
 
     val closeEnabled by remember {
@@ -72,8 +73,8 @@ fun SearchComponent(
 
             TextField(
                 value = searchState.query,
-                onValueChange = { password ->
-                    onValueChange(password)
+                onValueChange = { query ->
+                    onValueChange(query)
                 },
                 placeholder = {
                     Text(
@@ -101,7 +102,12 @@ fun SearchComponent(
             )
 
             AnimatedVisibility(closeEnabled, modifier = Modifier.offset(x = 10.dp)) {
-                IconButton(onClick = { onValueChange("") }) {
+                IconButton(onClick = {
+                    if (searchState.query.isNotEmpty())
+                        onValueChange("")
+                    else
+                        onClose()
+                }) {
                     Icon(
                         imageVector = EzzyIcons.Close,
                         contentDescription = "close icon",

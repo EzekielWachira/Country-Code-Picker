@@ -105,7 +105,7 @@ class MainActivity : ComponentActivity() {
                                     valid2 = valid
                                 },
                                 phoneHintColor = Color.Black,
-                                preSetPhoneNumber = setPhone
+                                value = setPhone ?: ""
                             )
 
                             Spacer(modifier = Modifier.height(30.dp))

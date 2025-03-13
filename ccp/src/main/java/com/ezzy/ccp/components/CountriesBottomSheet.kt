@@ -26,7 +26,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -112,8 +111,9 @@ fun SheetContent(
                 SearchComponent(
                     searchState = searchState,
                     onValueChange = onValueChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    searchTextColor =  searchTextColor
+                    modifier = Modifier.fillMaxWidth()
+                        .height(50.dp),
+                    searchTextColor = searchTextColor
                 )
             }
 
@@ -124,7 +124,7 @@ fun SheetContent(
                     .weight(1f)
                     .fillMaxWidth(),
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 countriesState.forEach { (initial, countries) ->
                     stickyHeader {
@@ -140,7 +140,11 @@ fun SheetContent(
                         CountryItem(
                             country = it,
                             onClick = onSelectCountries,
-                            modifier = Modifier.animateItemPlacement(tween(durationMillis = 500)),
+                            modifier = Modifier.animateItem(
+                                fadeInSpec = null,
+                                fadeOutSpec = null,
+                                placementSpec = tween(durationMillis = 500)
+                            ),
                             borderColor = Color.White
                         )
                     }

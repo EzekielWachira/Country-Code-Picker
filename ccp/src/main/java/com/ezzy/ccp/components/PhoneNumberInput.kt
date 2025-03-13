@@ -55,7 +55,6 @@ import com.ezzy.ccp.utils.parsePhoneNumber
  * formatting the phone number based on the selected country's pattern.
  *
  * @param modifier Modifier to be applied to the component
- * @param onValueChange Callback that reports text changes in the input field
  * @param containerColor Background color of the input container
  * @param cornerRadius Corner radius of the input container
  * @param phoneHint Placeholder text shown when the input field is empty
@@ -66,12 +65,11 @@ import com.ezzy.ccp.utils.parsePhoneNumber
  * @param borderColor Color of the border around the input container
  * @param cursorColor Color of the input cursor
  * @param inputTextColor Color of the input text
- * @param preSetPhoneNumber Optional pre-set phone number to initialize the field with (in E.164 format)
+ * @param value Optional pre-set phone number to initialize the field with (in E.164 format)
  */
 @Composable
 fun PhoneNumberInput(
     modifier: Modifier = Modifier,
-    onValueChange: (String) -> Unit = {},
     containerColor: Color = Color.White,
     cornerRadius: Dp = 16.dp,
     phoneHint: String = "Enter phone",
@@ -82,16 +80,16 @@ fun PhoneNumberInput(
     borderColor: Color = Color.Transparent,
     cursorColor: Color = Color.Black,
     inputTextColor: Color = Color.Black,
-    preSetPhoneNumber: String? = null
+    value: String = "",
 ) {
 
     var selectedCountry by remember { mutableStateOf<Country?>(null) }
-    var phoneNumber by remember { mutableStateOf(TextFieldValue("")) }
+    var phoneNumber by remember { mutableStateOf(TextFieldValue(value)) }
 
     // Extract country and local number when setValue changes
-    LaunchedEffect(preSetPhoneNumber) {
-        if (!preSetPhoneNumber.isNullOrEmpty()) {
-            val (country, localNumber) = parsePhoneNumber(preSetPhoneNumber)
+    LaunchedEffect(value) {
+        if (value.isNotEmpty()) {
+            val (country, localNumber) = parsePhoneNumber(value)
             selectedCountry = country
             phoneNumber = TextFieldValue(localNumber, selection = TextRange(localNumber.length))
         }
@@ -139,7 +137,7 @@ fun PhoneNumberInput(
                         text = newValue.text,
                         selection = TextRange(newValue.text.length) // Ensure cursor is at end
                     )
-                    onValueChange(newValue.text)
+//                    onValueChange(newValue.text)
                 },
                 placeholder = {
                     Text(

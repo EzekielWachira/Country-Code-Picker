@@ -51,7 +51,7 @@ fun CountryItem(
                 Icon(
                     imageVector = country.flag,
                     contentDescription = country.name + " flag",
-                    modifier = Modifier.size(30.dp),
+                    modifier = Modifier.size(20.dp),
                     tint = Color.Unspecified
                 )
             }
@@ -65,14 +65,14 @@ fun CountryItem(
                 Text(
                     text = country.name,
                     color = countryTextColor,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyMedium
                 )
 
                 if (showDialCode) {
                     Text(
                         text = country.dialCode,
                         color = dialCodeTextColor,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleSmall,
                     )
                 }
             }
