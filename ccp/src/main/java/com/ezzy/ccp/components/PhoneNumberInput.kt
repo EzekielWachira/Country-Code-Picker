@@ -83,15 +83,33 @@ fun PhoneNumberInput(
     value: String = "",
 ) {
 
-    var selectedCountry by remember { mutableStateOf<Country?>(null) }
+    // Default to US if no country is selected
+    var selectedCountry by remember {
+        mutableStateOf<Country?>(countryList.find { it.code.lowercase() == "us" })
+    }
+    // Track if input is coming from user typing or from prop
+    var isUserTyping by remember { mutableStateOf(false) }
     var phoneNumber by remember { mutableStateOf(TextFieldValue(value)) }
+
+//    var userSelectedCountry by remember { mutableStateOf(false) }
 
     // Extract country and local number when setValue changes
     LaunchedEffect(value) {
-        if (value.isNotEmpty()) {
-            val (country, localNumber) = parsePhoneNumber(value)
-            selectedCountry = country
-            phoneNumber = TextFieldValue(localNumber, selection = TextRange(localNumber.length))
+        if (value.isNotEmpty() && !isUserTyping) {
+            // Only try to parse complete numbers (with country code)
+            if (value.startsWith("+") || value.length >= 8) {
+                val (country, localNumber) = parsePhoneNumber(value)
+                if (country != null) {
+                    selectedCountry = country
+                    phoneNumber = TextFieldValue(localNumber, selection = TextRange(localNumber.length))
+                } else {
+                    // If parsing fails, just use the raw value
+                    phoneNumber = TextFieldValue(value, selection = TextRange(value.length))
+                }
+            } else {
+                // For short inputs, don't try to parse country
+                phoneNumber = TextFieldValue(value, selection = TextRange(value.length))
+            }
         }
     }
 
@@ -102,12 +120,17 @@ fun PhoneNumberInput(
     }
     val (formattedPhone, unformattedPhone, formattedWithoutCountryCode, isValid) = phoneState
 
+    // Format the phone number as the user types
     LaunchedEffect(formattedWithoutCountryCode) {
-        phoneNumber = phoneNumber.copy(
-            text = formattedWithoutCountryCode,
-            selection = TextRange(formattedWithoutCountryCode.length)
-        )
-        onPhoneValueChange(formattedPhone, unformattedPhone, isValid)
+        if (isUserTyping) {
+            phoneNumber = phoneNumber.copy(
+                text = formattedWithoutCountryCode,
+                selection = TextRange(formattedWithoutCountryCode.length)
+            )
+            onPhoneValueChange(formattedPhone, unformattedPhone, isValid)
+            // Reset the flag after processing
+            isUserTyping = false
+        }
     }
     Surface(
         modifier = modifier,
@@ -119,25 +142,30 @@ fun PhoneNumberInput(
         )
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             SelectedCountryComponent(
-                selectedCountry = selectedCountry
-                    ?: countryList.find { it.code.lowercase() == "us" },
-                onSelectCountry = { country -> selectedCountry = country },
+                selectedCountry = selectedCountry,
+                onSelectCountry = { country ->
+                    selectedCountry = country
+                    // When country changes, reformat the existing number
+                    // This will trigger the LaunchedEffect for formattedWithoutCountryCode
+                    isUserTyping = true
+                },
             )
 
             TextField(
                 value = phoneNumber, // Use state variable
                 onValueChange = { newValue ->
+                    isUserTyping = true
                     phoneNumber = newValue.copy(
                         text = newValue.text,
-                        selection = TextRange(newValue.text.length) // Ensure cursor is at end
+                        selection = TextRange(newValue.text.length)
                     )
-//                    onValueChange(newValue.text)
                 },
                 placeholder = {
                     Text(
@@ -170,7 +198,6 @@ fun PhoneNumberInput(
         }
     }
 }
-
 
 
 /**
