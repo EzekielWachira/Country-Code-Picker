@@ -27,7 +27,7 @@ Add the dependency in your `build.gradle` (Module-level):
 
 ```gradle
 dependencies {
-    implementation 'com.github.EzekielWachira:Country-Code-Picker:v0.0.8'
+    implementation 'com.github.EzekielWachira:Country-Code-Picker:v0.0.9'
 }
 ```
 
@@ -36,8 +36,30 @@ dependencies {
 ```kt
 PhoneNumberInput(
     onPhoneValueChange = { formatedPhone, unFormatedPhone, valid ->
-        //Use the above values
-    }   
+        // formattedPhone: A string representing the phone number in a user-friendly format 
+        //                 (e.g., "+1 415-555-0132" for US numbers).
+
+        // unformattedPhone: A string containing the raw phone number without any formatting
+        //                   (e.g., "+14155550132" for the same US number).
+
+        // valid: A boolean indicating whether the phone number is valid based on 
+        //        the input field's validation rules (true if valid, false otherwise).
+
+        // Example usage:
+        if (valid) {
+            println("Formatted: $formattedPhone, Raw: $unformattedPhone")
+        } else {
+            println("Invalid phone number")
+        }
+    },
+    countriesToShow = listOf(
+        "US", "GB", "KE", "FR", "AU", "BR", "CA", "CN"
+    ), // List of country codes for selectable countries in the phone input UI.
+
+    autoDetectCountry = true, // Automatic country detection based on SIM/network.
+
+    setCountry = "KE" // Sets Kenya ("KE") as the default selected country.
+    
 )
 ```
  ### Demo
