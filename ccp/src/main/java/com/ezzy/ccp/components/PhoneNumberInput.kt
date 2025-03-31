@@ -95,8 +95,8 @@ fun PhoneNumberInput(
 ) {
 
     val context = LocalContext.current
-    val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-    val simCountry = telephonyManager.simCountryIso.lowercase().ifEmpty { "us" }
+    val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager?
+    val simCountry = telephonyManager?.simCountryIso?.lowercase()?.ifEmpty { "us" }
 
     /**
      * Initialize the selected country based on the following priorities:
@@ -112,7 +112,7 @@ fun PhoneNumberInput(
                             country.name.lowercase() == setCountry.lowercase()
                 } else {
                     if (autoDetectCountry) {
-                        country.code.lowercase() == simCountry
+                        country.code.lowercase() == (simCountry ?: "us")
                     } else
                         country.code.lowercase() == "us"
                 }
