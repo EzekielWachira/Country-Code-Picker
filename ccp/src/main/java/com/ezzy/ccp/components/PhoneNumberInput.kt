@@ -1,5 +1,7 @@
 package com.ezzy.ccp.components
 
+import android.content.Context
+import android.telephony.TelephonyManager
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -66,6 +68,9 @@ import com.ezzy.ccp.utils.parsePhoneNumber
  * @param cursorColor Color of the input cursor
  * @param inputTextColor Color of the input text
  * @param value Optional pre-set phone number to initialize the field with (in E.164 format)
+ * @param setCountry Optional country code or name to preselect (e.g. "US" or "United States")
+ * @param countriesToShow Optional list of country codes to filter the available countries
+ * @param autoDetectCountry Whether to automatically detect the country from the device's SIM
  */
 @Composable
 fun PhoneNumberInput(
@@ -81,12 +86,37 @@ fun PhoneNumberInput(
     cursorColor: Color = Color.Black,
     inputTextColor: Color = Color.Black,
     value: String = "",
+    setCountry: String? = null, // US/United States, KE/Kenya, FR/France...,
+    countriesToShow: List<String> = emptyList(), // listOf(US, UK, FR, KE ...etc)
+    autoDetectCountry: Boolean = false,
 ) {
 
-    // Default to US if no country is selected
+    val context = LocalContext.current
+    val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+    val simCountry = telephonyManager.simCountryIso.lowercase().ifEmpty { "us" }
+    
+    /**
+     * Initialize the selected country based on the following priorities:
+     * 1. If [setCountry] is provided, use it as country code or name
+     * 2. If [autoDetectCountry] is true, use the device's SIM country
+     * 3. Default to "us" (United States) otherwise
+     */
     var selectedCountry by remember {
-        mutableStateOf<Country?>(countryList.find { it.code.lowercase() == "us" })
+        mutableStateOf<Country?>(
+            countryList.find { country ->
+                if (!setCountry.isNullOrEmpty()) {
+                    country.code.lowercase() == setCountry.lowercase() ||
+                            country.name.lowercase() == setCountry.lowercase()
+                } else {
+                    if (autoDetectCountry) {
+                        country.code.lowercase() == simCountry
+                    } else
+                        country.code.lowercase() == "us"
+                }
+            }
+        )
     }
+    
     // Track if input is coming from user typing or from prop
     var isUserTyping by remember { mutableStateOf(false) }
     var phoneNumber by remember { mutableStateOf(TextFieldValue(value)) }
@@ -101,7 +131,8 @@ fun PhoneNumberInput(
                 val (country, localNumber) = parsePhoneNumber(value)
                 if (country != null) {
                     selectedCountry = country
-                    phoneNumber = TextFieldValue(localNumber, selection = TextRange(localNumber.length))
+                    phoneNumber =
+                        TextFieldValue(localNumber, selection = TextRange(localNumber.length))
                 } else {
                     // If parsing fails, just use the raw value
                     phoneNumber = TextFieldValue(value, selection = TextRange(value.length))
@@ -156,6 +187,7 @@ fun PhoneNumberInput(
                     // This will trigger the LaunchedEffect for formattedWithoutCountryCode
                     isUserTyping = true
                 },
+                countriesToShow = countriesToShow
             )
 
             TextField(
@@ -211,6 +243,7 @@ fun PhoneNumberInput(
  * @param viewModel ViewModel that manages country selection state
  * @param onSelectCountry Callback that is triggered when a new country is selected
  * @param searchTextColor Color of the search text in the country selection bottom sheet
+ * @param countriesToShow Optional list of country codes to filter the available countries in the bottom sheet
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -219,7 +252,8 @@ fun SelectedCountryComponent(
     selectedCountry: Country? = countryList.find { it.code == "US" },
     viewModel: PhoneViewModel = viewModel(),
     onSelectCountry: (Country) -> Unit = {},
-    searchTextColor: Color = Color.Black
+    searchTextColor: Color = Color.Black,
+    countriesToShow: List<String> = emptyList(), // listOf(US, UK, FR, KE ...etc)
 ) {
 
     var isCountryBottomSheetVisible by remember { mutableStateOf(false) }
@@ -274,7 +308,8 @@ fun SelectedCountryComponent(
             searchTextColor = searchTextColor,
             onDismiss = {
                 isCountryBottomSheetVisible = false
-            }
+            },
+            countriesToShow = countriesToShow
         )
     }
 }

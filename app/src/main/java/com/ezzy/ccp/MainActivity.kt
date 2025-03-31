@@ -105,7 +105,12 @@ class MainActivity : ComponentActivity() {
                                     valid2 = valid
                                 },
                                 phoneHintColor = Color.Black,
-                                value = setPhone ?: ""
+                                value = setPhone ?: "",
+                                countriesToShow = listOf(
+                                    "US", "GB", "KE", "FR", "AU", "BR", "CA", "CN"
+                                ),
+                                autoDetectCountry = false,
+                                setCountry = "KE"
                             )
 
                             Spacer(modifier = Modifier.height(30.dp))

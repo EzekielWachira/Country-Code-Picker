@@ -27,6 +27,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,10 +57,17 @@ fun CountriesBottomSheet(
     viewModel: CountryViewModel = viewModel(),
     searchTextColor: Color = Color.Black,
     sheetState: SheetState,
+    countriesToShow: List<String> = emptyList(), // listOf(US, UK, FR, KE ...etc)
 ) {
 
     val countries by viewModel.countries.collectAsStateWithLifecycle(emptyMap())
     val searchState by viewModel.searchState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(countriesToShow) {
+        if (countriesToShow.isNotEmpty()) {
+            viewModel.setCountriesToShow(countriesToShow)
+        }
+    }
 
     ModalBottomSheet(
         sheetState = sheetState,

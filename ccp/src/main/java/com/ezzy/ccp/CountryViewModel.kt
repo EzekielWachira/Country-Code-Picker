@@ -2,7 +2,6 @@ package com.ezzy.ccp
 
 import androidx.lifecycle.ViewModel
 import com.ezzy.ccp.data.countryList
-import com.ezzy.ccp.model.Country
 import com.ezzy.ccp.state.SearchState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,22 +30,42 @@ class CountryViewModel : ViewModel() {
             val query = searchState.query
             flowOf(
                 if (query.isEmpty()) {
-                    countryList.sortedBy { it.name[0] }
-                        .groupBy { country -> country.name[0] }
+                    if (searchState.countriesToShow.isNotEmpty()) {
+                        countryList.filter { it.code in searchState.countriesToShow }
+                            .sortedBy { it.name[0] }.groupBy { country -> country.name[0] }
+                    } else
+                        countryList.sortedBy { it.name[0] }
+                            .groupBy { country -> country.name[0] }
                 } else {
-                    countryList.filter {
-                        it.name.contains(query, ignoreCase = true) ||
-                                it.dialCode.contains(query, ignoreCase = true) ||
-                                it.code.contains(query, ignoreCase = true)
-                    }
-                        .sortedBy { it.name[0] }
-                        .groupBy { country -> country.name[0] }
+                    if (searchState.countriesToShow.isNotEmpty()) {
+                        countryList.filter { it.code in searchState.countriesToShow }
+                            .filter {
+                                it.name.contains(query, ignoreCase = true) ||
+                                        it.dialCode.contains(query, ignoreCase = true) ||
+                                        it.code.contains(query, ignoreCase = true)
+                            }
+                            .sortedBy { it.name[0] }
+                            .groupBy { country -> country.name[0] }
+                    } else
+                        countryList.filter {
+                            it.name.contains(query, ignoreCase = true) ||
+                                    it.dialCode.contains(query, ignoreCase = true) ||
+                                    it.code.contains(query, ignoreCase = true)
+                        }
+                            .sortedBy { it.name[0] }
+                            .groupBy { country -> country.name[0] }
                 }
             )
         }
 
     fun updateSearchQuery(query: String) {
         _searchState.update { it.copy(query = query) }
+    }
+
+    fun setCountriesToShow(countries: List<String>) {
+        _searchState.update {
+            it.copy(countriesToShow = countries)
+        }
     }
 
 }
