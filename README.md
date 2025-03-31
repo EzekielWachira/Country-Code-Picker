@@ -27,7 +27,7 @@ Add the dependency in your `build.gradle` (Module-level):
 
 ```gradle
 dependencies {
-    implementation 'com.github.EzekielWachira:Country-Code-Picker:v0.0.9'
+    implementation 'com.github.EzekielWachira:Country-Code-Picker:v0.1.1'
 }
 ```
 
@@ -58,8 +58,8 @@ PhoneNumberInput(
 
     autoDetectCountry = true, // Automatic country detection based on SIM/network.
 
-    setCountry = "KE" // Sets Kenya ("KE") as the default selected country.
-    
+    setCountry = "KE", // Sets Kenya ("KE") as the default selected country.
+    showHeader = true
 )
 ```
  ### Demo
