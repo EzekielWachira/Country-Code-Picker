@@ -40,6 +40,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ezzy.ccp.PhoneViewModel
 import com.ezzy.ccp.data.countryList
@@ -47,6 +48,7 @@ import com.ezzy.ccp.icons.ChevronDown
 import com.ezzy.ccp.icons.EzzyIcons
 import com.ezzy.ccp.icons.UnitedStates
 import com.ezzy.ccp.model.Country
+import com.ezzy.ccp.utils.countryToFlagEmoji
 import com.ezzy.ccp.utils.formatAndValidatePhone
 import com.ezzy.ccp.utils.parsePhoneNumber
 
@@ -89,12 +91,13 @@ fun PhoneNumberInput(
     setCountry: String? = null, // US/United States, KE/Kenya, FR/France...,
     countriesToShow: List<String> = emptyList(), // listOf(US, UK, FR, KE ...etc)
     autoDetectCountry: Boolean = false,
+    showHeader: Boolean = true
 ) {
 
     val context = LocalContext.current
     val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
     val simCountry = telephonyManager.simCountryIso.lowercase().ifEmpty { "us" }
-    
+
     /**
      * Initialize the selected country based on the following priorities:
      * 1. If [setCountry] is provided, use it as country code or name
@@ -116,7 +119,7 @@ fun PhoneNumberInput(
             }
         )
     }
-    
+
     // Track if input is coming from user typing or from prop
     var isUserTyping by remember { mutableStateOf(false) }
     var phoneNumber by remember { mutableStateOf(TextFieldValue(value)) }
@@ -187,7 +190,8 @@ fun PhoneNumberInput(
                     // This will trigger the LaunchedEffect for formattedWithoutCountryCode
                     isUserTyping = true
                 },
-                countriesToShow = countriesToShow
+                countriesToShow = countriesToShow,
+                showHeader = showHeader
             )
 
             TextField(
@@ -254,6 +258,7 @@ fun SelectedCountryComponent(
     onSelectCountry: (Country) -> Unit = {},
     searchTextColor: Color = Color.Black,
     countriesToShow: List<String> = emptyList(), // listOf(US, UK, FR, KE ...etc)
+    showHeader: Boolean = true,
 ) {
 
     var isCountryBottomSheetVisible by remember { mutableStateOf(false) }
@@ -276,12 +281,18 @@ fun SelectedCountryComponent(
             ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
-                imageVector = selectedCountry?.flag ?: EzzyIcons.UnitedStates,
-                contentDescription = selectedCountry?.name + " flag",
-                tint = Color.Unspecified,
-                modifier = Modifier.size(20.dp)
+//            Icon(
+//                imageVector = selectedCountry?.flag ?: EzzyIcons.UnitedStates,
+//                contentDescription = selectedCountry?.name + " flag",
+//                tint = Color.Unspecified,
+//                modifier = Modifier.size(20.dp)
+//            )
+
+            Text(
+                text = (selectedCountry?.code ?: "US").countryToFlagEmoji() ?: "",
+                fontSize = 18.sp
             )
+
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = selectedCountry?.dialCode ?: "00",
@@ -309,7 +320,8 @@ fun SelectedCountryComponent(
             onDismiss = {
                 isCountryBottomSheetVisible = false
             },
-            countriesToShow = countriesToShow
+            countriesToShow = countriesToShow,
+            showHeader = showHeader
         )
     }
 }

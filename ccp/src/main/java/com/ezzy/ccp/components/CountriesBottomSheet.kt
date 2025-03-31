@@ -57,7 +57,8 @@ fun CountriesBottomSheet(
     viewModel: CountryViewModel = viewModel(),
     searchTextColor: Color = Color.Black,
     sheetState: SheetState,
-    countriesToShow: List<String> = emptyList(), // listOf(US, UK, FR, KE ...etc)
+    countriesToShow: List<String> = emptyList(), // listOf(US, UK, FR, KE ...etc)'
+    showHeader: Boolean = true,
 ) {
 
     val countries by viewModel.countries.collectAsStateWithLifecycle(emptyMap())
@@ -83,7 +84,8 @@ fun CountriesBottomSheet(
             containerColor = containerColor,
             searchState = searchState,
             onValueChange = viewModel::updateSearchQuery,
-            searchTextColor = searchTextColor
+            searchTextColor = searchTextColor,
+            showHeader = showHeader
         )
     }
 
@@ -102,7 +104,8 @@ fun SheetContent(
     headerStyle: TextStyle = MaterialTheme.typography.titleMedium,
     searchState: SearchState = SearchState(),
     onValueChange: (String) -> Unit = {},
-    searchTextColor: Color = Color.Black
+    searchTextColor: Color = Color.Black,
+    showHeader: Boolean = true,
 ) {
 
 
@@ -119,7 +122,8 @@ fun SheetContent(
                 SearchComponent(
                     searchState = searchState,
                     onValueChange = onValueChange,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .height(50.dp),
                     searchTextColor = searchTextColor
                 )
@@ -135,13 +139,15 @@ fun SheetContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 countriesState.forEach { (initial, countries) ->
-                    stickyHeader {
-                        CountryHeader(
-                            header = initial.toString(),
-                            headerColor = headerColor,
-                            headerStyle = headerStyle,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
+                    if (showHeader) {
+                        stickyHeader {
+                            CountryHeader(
+                                header = initial.toString(),
+                                headerColor = headerColor,
+                                headerStyle = headerStyle,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                        }
                     }
 
                     items(countries) {

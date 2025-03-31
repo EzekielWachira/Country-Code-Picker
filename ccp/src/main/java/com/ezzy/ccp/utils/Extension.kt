@@ -81,3 +81,12 @@ fun parsePhoneNumber(phone: String): Pair<Country?, String> {
         Pair(null, phone) // Return input as-is if parsing fails
     }
 }
+
+
+fun String?.countryToFlagEmoji(): String? {
+    return this?.uppercase()
+        ?.map { char ->
+            Character.toChars(0x1F1E6 + (char.code - 'A'.code)).concatToString()
+        }
+        ?.joinToString("")
+}

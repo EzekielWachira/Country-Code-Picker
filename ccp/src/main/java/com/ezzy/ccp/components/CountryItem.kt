@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -17,8 +15,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.ezzy.ccp.data.countryList
 import com.ezzy.ccp.model.Country
+import com.ezzy.ccp.utils.countryToFlagEmoji
 
 @Composable
 fun CountryItem(
@@ -48,11 +48,16 @@ fun CountryItem(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             if (showFlag) {
-                Icon(
-                    imageVector = country.flag,
-                    contentDescription = country.name + " flag",
-                    modifier = Modifier.size(20.dp),
-                    tint = Color.Unspecified
+//                Icon(
+//                    imageVector = country.flag,
+//                    contentDescription = country.name + " flag",
+//                    modifier = Modifier.size(20.dp),
+//                    tint = Color.Unspecified
+//                )
+
+                Text(
+                    text = country.code.countryToFlagEmoji() ?: "",
+                    fontSize = 18.sp
                 )
             }
 
