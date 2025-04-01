@@ -68,7 +68,6 @@ import com.ezzy.ccp.PhoneViewModel
 import com.ezzy.ccp.data.countryList
 import com.ezzy.ccp.icons.ChevronDown
 import com.ezzy.ccp.icons.EzzyIcons
-import com.ezzy.ccp.icons.UnitedStates
 import com.ezzy.ccp.model.Country
 import com.ezzy.ccp.utils.countryToFlagEmoji
 import com.ezzy.ccp.utils.formatAndValidatePhone
@@ -147,25 +146,68 @@ fun PhoneNumberInput(
     var isUserTyping by remember { mutableStateOf(false) }
     var phoneNumber by remember { mutableStateOf(TextFieldValue(value)) }
 
+    // Keep track of the last value received from props to avoid loops
+    var lastPropValue by remember { mutableStateOf(value) }
+    val unitedStates by remember { mutableStateOf(countryList.find { it.code.lowercase() == "us" }) }
+
 //    var userSelectedCountry by remember { mutableStateOf(false) }
 
-    // Extract country and local number when setValue changes
-    LaunchedEffect(value) {
-        if (value.isNotEmpty() && !isUserTyping) {
+
+    // Remove the separate LaunchedEffect blocks and use one combined block
+    LaunchedEffect(value, Unit) {
+        if (value.isNotEmpty() && (!isUserTyping || phoneNumber.text.isEmpty())) {
+            // Only update lastPropValue if this isn't the initial formatting
+            if (phoneNumber.text.isNotEmpty()) {
+                lastPropValue = value
+            }
+
             // Only try to parse complete numbers (with country code)
             if (value.startsWith("+") || value.length >= 8) {
                 val (country, localNumber) = parsePhoneNumber(value)
                 if (country != null) {
                     selectedCountry = country
+
+                    // Immediately notify parent with the formatted value
+                    val (formattedPhone, unformattedPhone, formattedWithoutCountryCode, isValid) =
+                        formatAndValidatePhone(
+                            localNumber,
+                            country.code
+                        )
                     phoneNumber =
-                        TextFieldValue(localNumber, selection = TextRange(localNumber.length))
+                        TextFieldValue(
+                            formattedWithoutCountryCode,
+                            selection = TextRange(formattedWithoutCountryCode.length)
+                        )
+                    onPhoneValueChange(formattedPhone, unformattedPhone, isValid)
                 } else {
-                    // If parsing fails, just use the raw value
-                    phoneNumber = TextFieldValue(value, selection = TextRange(value.length))
+                    val dialCode = selectedCountry?.dialCode ?: unitedStates?.dialCode
+                    val formattedNumber =
+                        if (value.startsWith(dialCode.toString())) value else "$dialCode$value"
+                    val (formattedPhone, unformattedPhone, formattedWithoutCountryCode, isValid) =
+                        formatAndValidatePhone(
+                            formattedNumber,
+                            selectedCountry?.code ?: "US"
+                        )
+
+                    phoneNumber = TextFieldValue(
+                        formattedWithoutCountryCode,
+                        selection = TextRange(formattedWithoutCountryCode.length)
+                    )
+                    // Immediately notify parent with the formatted value
+                    onPhoneValueChange(formattedPhone, unformattedPhone, isValid)
                 }
             } else {
-                // For short inputs, don't try to parse country
+                // For short inputs, format with selected country
+                val countryCode = selectedCountry?.code ?: "US"
+                val dialCode = selectedCountry?.dialCode ?: unitedStates?.dialCode
+                val formattedNumber = "$dialCode$value"
+
+                val (formattedPhone, unformattedPhone, _, isValid) =
+                    formatAndValidatePhone(formattedNumber, countryCode)
+
+                // Use the formatted version for display
                 phoneNumber = TextFieldValue(value, selection = TextRange(value.length))
+                onPhoneValueChange(formattedPhone, unformattedPhone, isValid)
             }
         }
     }
@@ -180,11 +222,39 @@ fun PhoneNumberInput(
     // Format the phone number as the user types
     LaunchedEffect(formattedWithoutCountryCode) {
         if (isUserTyping) {
-            phoneNumber = phoneNumber.copy(
-                text = formattedWithoutCountryCode,
-                selection = TextRange(formattedWithoutCountryCode.length)
-            )
-            onPhoneValueChange(formattedPhone, unformattedPhone, isValid)
+            // Get current cursor position relative to the formatted text
+            val cursorPosition = phoneNumber.selection.start.coerceIn(0, phoneNumber.text.length)
+            val oldText = phoneNumber.text
+
+            // Only update if the formatted text is different
+            if (formattedWithoutCountryCode != oldText) {
+                // Calculate new cursor position
+                val newCursorPos = when {
+                    // Handle backspace case (keep cursor at same position)
+                    oldText.length > formattedWithoutCountryCode.length -> {
+                        cursorPosition.coerceAtMost(formattedWithoutCountryCode.length)
+                    }
+                    // Handle adding characters (move cursor to end of the added/modified section)
+                    cursorPosition == oldText.length -> formattedWithoutCountryCode.length
+                    // Handle cursor in middle of text
+                    else -> {
+                        val diff = formattedWithoutCountryCode.length - oldText.length
+                        (cursorPosition + diff).coerceIn(0, formattedWithoutCountryCode.length)
+                    }
+                }
+
+                phoneNumber = phoneNumber.copy(
+                    text = formattedWithoutCountryCode,
+                    selection = TextRange(newCursorPos)
+                )
+            }
+
+            // Only update if the number has actually changed to avoid loops
+            if (lastPropValue != formattedPhone) {
+                onPhoneValueChange(formattedPhone, unformattedPhone, isValid)
+                lastPropValue = formattedPhone
+            }
+
             // Reset the flag after processing
             isUserTyping = false
         }
@@ -221,10 +291,8 @@ fun PhoneNumberInput(
                 value = phoneNumber, // Use state variable
                 onValueChange = { newValue ->
                     isUserTyping = true
-                    phoneNumber = newValue.copy(
-                        text = newValue.text,
-                        selection = TextRange(newValue.text.length)
-                    )
+                    // Use the new value directly to respect cursor positioning
+                    phoneNumber = newValue
                 },
                 placeholder = {
                     Text(

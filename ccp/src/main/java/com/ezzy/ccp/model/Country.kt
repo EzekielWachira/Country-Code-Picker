@@ -38,6 +38,6 @@ data class Country(
     val name: String,
     val code: String,
     val dialCode: String,
-    val flag: ImageVector,
+    val flag: ImageVector? = null,
     val selected: Boolean = false
 )

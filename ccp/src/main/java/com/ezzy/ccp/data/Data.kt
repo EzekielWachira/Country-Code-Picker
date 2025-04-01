@@ -123,6 +123,7 @@ import com.ezzy.ccp.icons.PapuaNewGuinea
 import com.ezzy.ccp.icons.Poland
 import com.ezzy.ccp.icons.Portugal
 import com.ezzy.ccp.icons.Qatar
+import com.ezzy.ccp.icons.Russia
 import com.ezzy.ccp.icons.Rwanda
 import com.ezzy.ccp.icons.Samoa
 import com.ezzy.ccp.icons.SanMarino
@@ -300,5 +301,15 @@ val countryList = listOf(
     Country(name = "Spain", code = "ES", dialCode = "+34", flag = EzzyIcons.Spain),
     Country(name = "Latvia", code = "LV", dialCode = "+371", flag = EzzyIcons.Latvia),
     Country(name = "Poland", code = "PL", dialCode = "+48", flag = EzzyIcons.Poland),
-
-    )
+    Country("Russia", "RU", "+7", EzzyIcons.Russia),
+    Country("Philippines", "PH", "+63"),
+    Country(name = "Taiwan", code = "TW", dialCode = "+886"),
+    Country(name = "Singapore", code = "SG", dialCode = "+65"),
+    Country(name = "Thailand", code = "TH", dialCode = "+66"),
+    Country(name = "Malaysia", code = "MY", dialCode = "+60"),
+    Country(name = "Nepal", code = "NP", dialCode = "+977"),
+    Country(name = "Pakistan", code = "PK", dialCode = "+92"),
+    Country(name = "Sri Lanka", code = "LK", dialCode = "+94"),
+    Country(name = "Uzbekistan", code = "UZ", dialCode = "+998"),
+    Country(name = "Romania", code = "RO", dialCode = "+40"),
+)
