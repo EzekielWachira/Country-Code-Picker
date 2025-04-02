@@ -200,14 +200,25 @@ fun PhoneNumberInput(
                 // For short inputs, format with selected country
                 val countryCode = selectedCountry?.code ?: "US"
                 val dialCode = selectedCountry?.dialCode ?: unitedStates?.dialCode
-                val formattedNumber = "$dialCode$value"
 
+                val formattedNumber = if (value.length >= 5) {
+                    "$dialCode$value"
+                } else {
+                    value
+                }
                 val (formattedPhone, unformattedPhone, _, isValid) =
                     formatAndValidatePhone(formattedNumber, countryCode)
 
                 // Use the formatted version for display
                 phoneNumber = TextFieldValue(value, selection = TextRange(value.length))
-                onPhoneValueChange(formattedPhone, unformattedPhone, isValid)
+
+                // Only call callback with formatted number if length >= 5
+                if (value.length >= 5) {
+                    onPhoneValueChange(formattedPhone, unformattedPhone, isValid)
+                } else {
+                    // For very short inputs, pass the raw value
+                    onPhoneValueChange(value, value, false)
+                }
             }
         }
     }

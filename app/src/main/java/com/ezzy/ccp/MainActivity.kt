@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
             var formatedPhone2 by remember { mutableStateOf("") }
             var unFormatedPhone2 by remember { mutableStateOf("") }
             var valid2 by remember { mutableStateOf(false) }
-            var setPhone by remember { mutableStateOf<String?>("0724154958") }
+            var setPhone by remember { mutableStateOf<String?>("+254724154958") }
             val testSetPhones = listOf(
                 "+254712345678",  // Kenya
                 "+14155552671",   // USA
@@ -127,9 +127,9 @@ class MainActivity : ComponentActivity() {
                                     valid2 = valid
                                 },
                                 phoneHintColor = Color.Black,
-                                value = "+40 721 234 567",
+                                value = setPhone.toString(),
                                 autoDetectCountry = true,
-//                                setCountry = "RU",
+                                setCountry = "KE",
                                 showHeader = true,
                             )
 
