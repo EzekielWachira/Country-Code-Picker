@@ -23,6 +23,7 @@
 package com.ezzy.ccp
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -131,6 +132,9 @@ class MainActivity : ComponentActivity() {
                                 autoDetectCountry = true,
                                 setCountry = "KE",
                                 showHeader = true,
+                                onDone = {
+                                    Toast.makeText(this@MainActivity, "On Done", Toast.LENGTH_SHORT).show()
+                                }
                             )
 
                             Spacer(modifier = Modifier.height(30.dp))

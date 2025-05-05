@@ -24,24 +24,25 @@ package com.ezzy.ccp.components
 
 import android.content.Context
 import android.telephony.TelephonyManager
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,7 +54,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -77,24 +80,39 @@ import com.ezzy.ccp.utils.parsePhoneNumber
  * A customizable international phone number input component.
  *
  * This composable displays a phone input field with a country selector, automatically
- * formatting the phone number based on the selected country's pattern.
+ * formatting the phone number based on the selected country's pattern and validating it.
  *
- * @param modifier Modifier to be applied to the component
- * @param containerColor Background color of the input container
- * @param cornerRadius Corner radius of the input container
- * @param phoneHint Placeholder text shown when the input field is empty
- * @param phoneHintColor Color of the placeholder text
- * @param phoneHintStyle TextStyle for the placeholder text
- * @param onPhoneValueChange Callback that provides formatted phone, unformatted phone, and validation status
- * @param borderWidth Width of the border around the input container
- * @param borderColor Color of the border around the input container
- * @param cursorColor Color of the input cursor
- * @param inputTextColor Color of the input text
- * @param value Optional pre-set phone number to initialize the field with (in E.164 format)
- * @param setCountry Optional country code or name to preselect (e.g. "US" or "United States")
- * @param countriesToShow Optional list of country codes to filter the available countries
- * @param autoDetectCountry Whether to automatically detect the country from the device's SIM
- * @param showHeader Whether to show the header in the country selection bottom sheet
+ * @param modifier Modifier to be applied to the component.
+ * @param containerColor Background color of the input container.
+ * @param cornerRadius Corner radius of the input container.
+ * @param phoneHint Placeholder text shown when the input field is empty.
+ * @param phoneHintColor Color of the placeholder text.
+ * @param phoneHintStyle TextStyle for the placeholder text.
+ * @param onPhoneValueChange Callback invoked when the phone number value changes. It provides
+ * the formatted phone number (e.g., "+1 415-555-2671"), the unformatted phone number
+ * (e.g., "4155552671"), and a boolean indicating if the number is valid according to the
+ * selected country's rules.
+ * @param borderWidth Width of the border around the input container.
+ * @param borderColor Color of the border around the input container.
+ * @param cursorColor Color of the input cursor.
+ * @param inputTextColor Color of the input text.
+ * @param value Optional pre-set phone number to initialize the field with. Should ideally be in
+ * E.164 format (e.g., "+14155552671") but can also accept local numbers which will be
+ * formatted based on the `setCountry` or detected country.
+ * @param setCountry Optional country code (e.g., "US") or name (e.g., "United States") to
+ * preselect. Overrides `autoDetectCountry`.
+ * @param countriesToShow Optional list of country codes (e.g., listOf("US", "GB", "KE")) to
+ * filter the countries available in the country selector bottom sheet. If empty, all
+ * countries are shown.
+ * @param autoDetectCountry If true and `setCountry` is not provided, attempts to automatically
+ * detect the country from the device's SIM card. Defaults to "US" if detection fails.
+ * @param showHeader Whether to show the header (title and search bar) in the country selection
+ * bottom sheet.
+ * @param showCountryFlag Whether to show the country flag emoji in the country selector
+ * component next to the dial code.
+ * @param onDone Callback invoked when the "Done" action is triggered on the keyboard (e.g., user
+ * presses the checkmark). Typically used to submit the form or navigate away. Only called
+ * if the phone number is valid.
  */
 @Composable
 fun PhoneNumberInput(
@@ -114,12 +132,14 @@ fun PhoneNumberInput(
     countriesToShow: List<String> = emptyList(), // listOf(US, UK, FR, KE ...etc)
     autoDetectCountry: Boolean = false,
     showHeader: Boolean = true,
-    showCountryFlag: Boolean = true
+    showCountryFlag: Boolean = true,
+    onDone: () -> Unit = {}
 ) {
 
     val context = LocalContext.current
     val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager?
     val simCountry = telephonyManager?.simCountryIso?.lowercase()?.ifEmpty { "us" }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     /**
      * Initialize the selected country based on the following priorities:
@@ -285,7 +305,7 @@ fun PhoneNumberInput(
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             SelectedCountryComponent(
                 selectedCountry = selectedCountry,
@@ -300,41 +320,82 @@ fun PhoneNumberInput(
                 showCountryFlag = showCountryFlag
             )
 
-            TextField(
-                value = phoneNumber, // Use state variable
+            BasicTextField(
+                value = phoneNumber,
                 onValueChange = { newValue ->
                     isUserTyping = true
-                    // Use the new value directly to respect cursor positioning
                     phoneNumber = newValue
                 },
-                placeholder = {
-                    Text(
-                        text = phoneHint,
-                        style = phoneHintStyle,
-                        color = phoneHintColor
-                    )
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    disabledContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    cursorColor = cursorColor,
-                    focusedTextColor = inputTextColor,
-                ),
-                modifier = Modifier
-                    .weight(1f)
-                    .offset(x = (-25).dp),
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = inputTextColor),
+                cursorBrush = SolidColor(cursorColor),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone,
-                    imeAction = ImeAction.Go
+                    imeAction = ImeAction.Done
                 ),
                 singleLine = true,
-                textStyle = MaterialTheme.typography.bodyLarge,
-                readOnly = false
+                modifier = Modifier.fillMaxWidth(1f),
+                decorationBox = { innerTextField ->
+                    Box(
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        if (phoneNumber.text.isEmpty()) {
+                            Text(
+                                text = phoneHint,
+                                style = phoneHintStyle,
+                                color = phoneHintColor
+                            )
+                        }
+                        innerTextField()
+                    }
+                },
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        if (!isValid) {
+                            context.showToast("Invalid phone number")
+                            return@KeyboardActions
+                        }
+
+                        keyboardController?.hide() // Hide keyboard
+                        onDone() // Call your success logic
+                    }
+                )
             )
+
+//            TextField(
+//                value = phoneNumber, // Use state variable
+//                onValueChange = { newValue ->
+//                    isUserTyping = true
+//                    // Use the new value directly to respect cursor positioning
+//                    phoneNumber = newValue
+//                },
+//                placeholder = {
+//                    Text(
+//                        text = phoneHint,
+//                        style = phoneHintStyle,
+//                        color = phoneHintColor
+//                    )
+//                },
+//                colors = TextFieldDefaults.colors(
+//                    focusedContainerColor = Color.Transparent,
+//                    unfocusedContainerColor = Color.Transparent,
+//                    disabledContainerColor = Color.Transparent,
+//                    focusedIndicatorColor = Color.Transparent,
+//                    unfocusedIndicatorColor = Color.Transparent,
+//                    disabledIndicatorColor = Color.Transparent,
+//                    cursorColor = cursorColor,
+//                    focusedTextColor = inputTextColor,
+//                ),
+//                modifier = Modifier
+//                    .weight(1f)
+//                    ,
+//                keyboardOptions = KeyboardOptions(
+//                    keyboardType = KeyboardType.Phone,
+//                    imeAction = ImeAction.Go
+//                ),
+//                singleLine = true,
+//                textStyle = MaterialTheme.typography.bodyLarge,
+//                readOnly = false
+//            )
         }
     }
 }
@@ -430,6 +491,10 @@ fun SelectedCountryComponent(
             showHeader = showHeader
         )
     }
+}
+
+fun Context.showToast(message: String) {
+    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 }
 
 @Preview
