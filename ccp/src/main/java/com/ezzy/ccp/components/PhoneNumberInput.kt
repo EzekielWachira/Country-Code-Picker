@@ -113,7 +113,8 @@ fun PhoneNumberInput(
     setCountry: String? = null, // US/United States, KE/Kenya, FR/France...,
     countriesToShow: List<String> = emptyList(), // listOf(US, UK, FR, KE ...etc)
     autoDetectCountry: Boolean = false,
-    showHeader: Boolean = true
+    showHeader: Boolean = true,
+    showCountryFlag: Boolean = true
 ) {
 
     val context = LocalContext.current
@@ -295,7 +296,8 @@ fun PhoneNumberInput(
                     isUserTyping = true
                 },
                 countriesToShow = countriesToShow,
-                showHeader = showHeader
+                showHeader = showHeader,
+                showCountryFlag = showCountryFlag
             )
 
             TextField(
@@ -361,6 +363,7 @@ fun SelectedCountryComponent(
     searchTextColor: Color = Color.Black,
     countriesToShow: List<String> = emptyList(), // listOf(US, UK, FR, KE ...etc)
     showHeader: Boolean = true,
+    showCountryFlag: Boolean = true
 ) {
 
     var isCountryBottomSheetVisible by remember { mutableStateOf(false) }
@@ -390,10 +393,11 @@ fun SelectedCountryComponent(
 //                modifier = Modifier.size(20.dp)
 //            )
 
-            Text(
-                text = (selectedCountry?.code ?: "US").countryToFlagEmoji() ?: "",
-                fontSize = 18.sp
-            )
+            if (showCountryFlag)
+                Text(
+                    text = (selectedCountry?.code ?: "US").countryToFlagEmoji() ?: "",
+                    fontSize = 18.sp
+                )
 
             Spacer(modifier = Modifier.width(10.dp))
             Text(
