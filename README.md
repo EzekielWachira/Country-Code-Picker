@@ -27,7 +27,7 @@ Add the dependency in your `build.gradle` (Module-level):
 
 ```gradle
 dependencies {
-    implementation 'com.github.EzekielWachira:Country-Code-Picker:v0.1.2'
+    implementation 'com.github.EzekielWachira:Country-Code-Picker:v0.1.4'
 }
 ```
 
