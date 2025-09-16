@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -125,11 +126,6 @@ class MainActivity : ComponentActivity() {
                     ) {
                         Column {
                             PhoneNumberInput(
-//                                onPhoneValueChange = { formatedPhone, unFormatedPhone, valid ->
-//                                    formatedPhone2 = formatedPhone
-//                                    unFormatedPhone2 = unFormatedPhone
-//                                    valid2 = valid
-//                                },
                                 value = setPhone.toString(),
                                 setCountry = "KE",
                                 onDone = {
@@ -144,7 +140,8 @@ class MainActivity : ComponentActivity() {
                                 },
                                 ccpConfig = CCPDefaults.defaultConfig(
                                     showCountriesHeaderDivider = true,
-                                    autoDetectCountry = true
+                                    autoDetectCountry = true,
+                                    phoneInputShape = RoundedCornerShape(8.dp)
                                 )
                             )
 
