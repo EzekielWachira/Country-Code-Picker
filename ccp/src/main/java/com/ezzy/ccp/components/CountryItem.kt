@@ -22,24 +22,23 @@
 
 package com.ezzy.ccp.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ezzy.ccp.data.countryList
+import com.ezzy.ccp.model.CCPColors
+import com.ezzy.ccp.model.CCPConfig
 import com.ezzy.ccp.model.Country
+import com.ezzy.ccp.utils.CCPDefaults
 import com.ezzy.ccp.utils.countryToFlagEmoji
 
 @Composable
@@ -47,19 +46,13 @@ fun CountryItem(
     modifier: Modifier = Modifier,
     onClick: (Country) -> Unit = {},
     country: Country,
-    showDialCode: Boolean = true,
-    showFlag: Boolean = true,
-    countryContainerColor: Color = Color.White,
-    borderColor: Color = Color.Black,
-    borderWidth: Dp = 1.dp,
-    countryTextColor: Color = Color.Black,
-    dialCodeTextColor: Color = Color.Black
+    ccpColors: CCPColors = CCPDefaults.colors(),
+    ccpConfig: CCPConfig = CCPDefaults.defaultConfig()
 ) {
     Surface(
-        color = countryContainerColor,
+        color = ccpColors.ccpSheetColor.countryItemContainerColor,
         modifier = modifier,
-        shape = MaterialTheme.shapes.medium,
-        border = BorderStroke(borderWidth, borderColor),
+        shape = ccpConfig.countryItemShape,
         onClick = { onClick(country) }
     ) {
         Row(
@@ -69,14 +62,7 @@ fun CountryItem(
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            if (showFlag) {
-//                Icon(
-//                    imageVector = country.flag,
-//                    contentDescription = country.name + " flag",
-//                    modifier = Modifier.size(20.dp),
-//                    tint = Color.Unspecified
-//                )
-
+            if (ccpConfig.showFlagCountryItem) {
                 Text(
                     text = country.code.countryToFlagEmoji() ?: "",
                     fontSize = 18.sp
@@ -91,15 +77,15 @@ fun CountryItem(
 
                 Text(
                     text = country.name,
-                    color = countryTextColor,
-                    style = MaterialTheme.typography.bodyMedium
+                    color = ccpColors.ccpSheetColor.countryItemTextColor,
+                    style = ccpConfig.countryItemNameTextStyle
                 )
 
-                if (showDialCode) {
+                if (ccpConfig.showDialCodeCountryItem) {
                     Text(
                         text = country.dialCode,
-                        color = dialCodeTextColor,
-                        style = MaterialTheme.typography.titleSmall,
+                        color = ccpColors.ccpSheetColor.countryItemDialCodeTextColor,
+                        style = ccpConfig.countryItemDialCodeTextStyle,
                     )
                 }
             }

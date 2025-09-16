@@ -23,23 +23,41 @@
 package com.ezzy.ccp
 
 import android.util.Log
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.ezzy.ccp.data.countryList
 import com.ezzy.ccp.model.Country
+import com.ezzy.ccp.utils.formatAndValidatePhone
+import com.ezzy.ccp.utils.parsePhoneNumber
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 private const val TAG = "PhoneViewModel"
+
 class PhoneViewModel : ViewModel() {
 
     private val _activeCountry = MutableStateFlow(countryList.find { it.code == "US" })
-    val activeCountry = _activeCountry
+    val activeCountry: StateFlow<Country?> = _activeCountry.asStateFlow()
 
-    init {
+    private val _phoneNumber = MutableStateFlow("")
+    val phoneNumber: StateFlow<String> = _phoneNumber.asStateFlow()
 
-    }
+    private val _phoneField = MutableStateFlow(TextFieldValue(""))
+    val phoneField: StateFlow<TextFieldValue> = _phoneField
+
+    private val _formattedPhone = MutableStateFlow("")
+    val formattedPhone: StateFlow<String> = _formattedPhone.asStateFlow()
+
+    private val _unformattedPhone = MutableStateFlow("")
+    val unformattedPhone: StateFlow<String> = _unformattedPhone.asStateFlow()
+
+    private val _isValid = MutableStateFlow(false)
+    val isValid: StateFlow<Boolean> = _isValid.asStateFlow()
 
     fun setCountryForLocale(code: String) {
-        Log.e(TAG, "setCountryForLocale: $code", )
+        Log.e(TAG, "setCountryForLocale: $code")
         if (code.isEmpty()) {
             _activeCountry.value = countryList.find { it.code == "US" }
             return
@@ -49,6 +67,48 @@ class PhoneViewModel : ViewModel() {
 
     fun setActiveCountry(country: Country) {
         _activeCountry.value = country
+        updatePhoneNumber(TextFieldValue(_phoneNumber.value))
     }
 
+    fun updatePhoneField(newValue: TextFieldValue) {
+        _phoneField.value = newValue
+        updatePhoneNumber(TextFieldValue(newValue.text))
+    }
+
+    private fun updatePhoneNumber(newValue: TextFieldValue) {
+        val country = _activeCountry.value ?: countryList.find { it.code == "US" }
+
+        // Take only digits to avoid double-formatting
+        val digitsOnly = newValue.text.filter { it.isDigit() }
+
+        // Format & validate
+        val (formatted, unformatted, national, valid) =
+            formatAndValidatePhone(digitsOnly, country?.code ?: "US")
+
+        // Update main state
+        _phoneNumber.value = digitsOnly
+        _formattedPhone.value = formatted
+        _unformattedPhone.value = unformatted
+        _isValid.value = valid
+
+        // Always store formatted in phoneField
+        _phoneField.value = newValue.copy(
+            text = national,
+            selection = TextRange(national.length) // keep cursor at end
+        )
+    }
+
+    fun parseAndSetPhoneNumber(value: String) {
+        if (value.startsWith("+") || value.length >= 8) {
+            val (country, localNumber) = parsePhoneNumber(value)
+            if (country != null) {
+                _activeCountry.value = country
+                updatePhoneNumber(TextFieldValue(localNumber))
+            } else {
+                updatePhoneNumber(TextFieldValue(value))
+            }
+        } else {
+            updatePhoneNumber(TextFieldValue(value))
+        }
+    }
 }

@@ -50,8 +50,10 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.ezzy.ccp.components.PhoneNumberInput
+import com.ezzy.ccp.model.SelectedCountry
 import com.ezzy.ccp.ui.theme.CCPTheme
 import com.ezzy.ccp.ui.theme.Wheat
+import com.ezzy.ccp.utils.CCPDefaults
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -62,8 +64,9 @@ class MainActivity : ComponentActivity() {
 
             var formatedPhone2 by remember { mutableStateOf("") }
             var unFormatedPhone2 by remember { mutableStateOf("") }
+            var selectedCountry by remember { mutableStateOf<SelectedCountry?>(null) }
             var valid2 by remember { mutableStateOf(false) }
-            var setPhone by remember { mutableStateOf<String?>("+254724154958") }
+            var setPhone by remember { mutableStateOf<String?>("") }
             val testSetPhones = listOf(
                 "+254712345678",  // Kenya
                 "+14155552671",   // USA
@@ -122,19 +125,27 @@ class MainActivity : ComponentActivity() {
                     ) {
                         Column {
                             PhoneNumberInput(
-                                onPhoneValueChange = { formatedPhone, unFormatedPhone, valid ->
-                                    formatedPhone2 = formatedPhone
-                                    unFormatedPhone2 = unFormatedPhone
-                                    valid2 = valid
-                                },
-                                phoneHintColor = Color.Black,
+//                                onPhoneValueChange = { formatedPhone, unFormatedPhone, valid ->
+//                                    formatedPhone2 = formatedPhone
+//                                    unFormatedPhone2 = unFormatedPhone
+//                                    valid2 = valid
+//                                },
                                 value = setPhone.toString(),
-                                autoDetectCountry = true,
                                 setCountry = "KE",
-                                showHeader = true,
                                 onDone = {
-                                    Toast.makeText(this@MainActivity, "On Done", Toast.LENGTH_SHORT).show()
-                                }
+                                    Toast.makeText(this@MainActivity, "On Done", Toast.LENGTH_SHORT)
+                                        .show()
+                                },
+                                onValueChange = { (formattedPhone, phoneNumber, country, isValid) ->
+                                    formatedPhone2 = formattedPhone
+                                    unFormatedPhone2 = phoneNumber
+                                    valid2 = isValid
+                                    selectedCountry = country
+                                },
+                                ccpConfig = CCPDefaults.defaultConfig(
+                                    showCountriesHeaderDivider = true,
+                                    autoDetectCountry = true
+                                )
                             )
 
                             Spacer(modifier = Modifier.height(30.dp))
@@ -148,15 +159,39 @@ class MainActivity : ComponentActivity() {
                                 color = Color.Black
                             )
                             Spacer(modifier = Modifier.height(30.dp))
+                            Text(
+                                text = "Country: ${selectedCountry?.name}",
+                                color = Color.Black
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Country Code: ${selectedCountry?.code}",
+                                color = Color.Black
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Country Dial Code: ${selectedCountry?.dialCode}",
+                                color = Color.Black
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Country Flag: ${selectedCountry?.flag}",
+                                color = Color.Black
+                            )
+                            Spacer(modifier = Modifier.height(30.dp))
                             val validText = buildAnnotatedString {
-                                withStyle(style = SpanStyle(
-                                    color = Color.Black
-                                )) {
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = Color.Black
+                                    )
+                                ) {
                                     append("Valid: ")
                                 }
-                                withStyle(style = SpanStyle(
-                                    color = if (valid2) Color.Green else Color.Red
-                                )) {
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = if (valid2) Color.Green else Color.Red
+                                    )
+                                ) {
                                     append(valid2.toString())
                                 }
                             }

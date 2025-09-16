@@ -23,7 +23,7 @@
 package com.ezzy.ccp.model
 
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.ezzy.ccp.utils.countryToFlagEmoji
+import com.ezzy.ccp.utils.isPhoneNumberValid
 
 /**
  * Data class representing a country.
@@ -34,20 +34,9 @@ import com.ezzy.ccp.utils.countryToFlagEmoji
  * @property flag The vector image representing the country's flag.
  * @property selected Whether the country is currently selected in the UI, defaults to false.
  */
-data class Country(
+data class SelectedCountry(
     val name: String,
     val code: String,
     val dialCode: String,
-    val flag: ImageVector? = null,
-    val selected: Boolean = false
-) {
-    companion object {
-        internal fun Country.toSelectedCountry(): SelectedCountry =
-            SelectedCountry(
-                name = name,
-                code = code,
-                dialCode = dialCode,
-                flag = code.countryToFlagEmoji() ?: ""
-            )
-    }
-}
+    val flag: String,
+)

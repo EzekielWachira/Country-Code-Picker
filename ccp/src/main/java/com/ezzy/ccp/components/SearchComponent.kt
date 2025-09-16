@@ -38,49 +38,46 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ezzy.ccp.icons.Close
 import com.ezzy.ccp.icons.EzzyIcons
 import com.ezzy.ccp.icons.Search
+import com.ezzy.ccp.model.CCPColors
+import com.ezzy.ccp.model.CCPConfig
 import com.ezzy.ccp.state.SearchState
+import com.ezzy.ccp.utils.CCPDefaults
 
 @Composable
 fun SearchComponent(
     modifier: Modifier = Modifier,
     searchState: SearchState = SearchState(),
     onValueChange: (String) -> Unit = {},
-    searchBorderWidth: Dp = 1.dp,
-    searchBorderColor: Color = Color.Black.copy(alpha = .1f),
-    searchCornerRadius: Dp = 16.dp,
     searchHint: String = "Search Countries",
-    searchHintColor: Color = Color.Black.copy(alpha = .3f),
-    searchHintStyle: TextStyle = TextStyle.Default,
-    searchIconTint: Color = Color.Black.copy(alpha = .5f),
-    searchBackgroundColor: Color = Color.White,
-    searchTextColor: Color = Color.Black,
-    onClose: () -> Unit = {}
+    onClose: () -> Unit = {},
+    ccpColors: CCPColors = CCPDefaults.colors(),
+    ccpConfig: CCPConfig = CCPDefaults.defaultConfig()
 ) {
 
-    val closeEnabled by remember {
-        mutableStateOf(searchState.query.isNotBlank())
-    }
+    val closeEnabled = searchState.query.isNotBlank()
 
     Surface(
-        border = BorderStroke(searchBorderWidth, searchBorderColor),
+        border = BorderStroke(
+            ccpConfig.searchBorderWidth,
+            ccpColors.ccpSheetColor.searchBorderColor
+        ),
         modifier = modifier,
-        shape = RoundedCornerShape(searchCornerRadius),
-        color = searchBackgroundColor
+        shape = RoundedCornerShape(ccpConfig.searchCornerRadius),
+        color = ccpColors.ccpSheetColor.containerColor
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -89,7 +86,7 @@ fun SearchComponent(
             Icon(
                 imageVector = EzzyIcons.Search,
                 contentDescription = "Search icon",
-                tint = searchIconTint,
+                tint = ccpColors.ccpSheetColor.searchIconTint,
                 modifier = Modifier.size(20.dp)
             )
 
@@ -101,7 +98,9 @@ fun SearchComponent(
                 placeholder = {
                     Text(
                         text = searchHint,
-                        style = searchHintStyle.copy(color = searchHintColor)
+                        style = ccpConfig.searchHintStyle.copy(
+                            color = ccpColors.ccpSheetColor.searchHintColor
+                        )
                     )
                 },
                 colors = TextFieldDefaults.colors(
@@ -112,7 +111,7 @@ fun SearchComponent(
                     unfocusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = Color.Transparent,
                     cursorColor = MaterialTheme.colorScheme.inversePrimary,
-                    focusedTextColor = searchTextColor
+                    focusedTextColor = ccpColors.ccpSheetColor.searchTextColor
                 ),
                 modifier = Modifier.weight(1f),
                 keyboardOptions = KeyboardOptions(
@@ -133,7 +132,7 @@ fun SearchComponent(
                     Icon(
                         imageVector = EzzyIcons.Close,
                         contentDescription = "close icon",
-                        tint = Color.Black,
+                        tint = ccpColors.ccpSheetColor.searchIconTint,
                         modifier = Modifier.size(16.dp)
                     )
                 }

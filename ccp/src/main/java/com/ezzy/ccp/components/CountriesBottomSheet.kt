@@ -56,7 +56,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -65,8 +64,11 @@ import com.ezzy.ccp.data.countryList
 import com.ezzy.ccp.icons.EzzyIcons
 import com.ezzy.ccp.icons.Grid
 import com.ezzy.ccp.icons.List
+import com.ezzy.ccp.model.CCPColors
+import com.ezzy.ccp.model.CCPConfig
 import com.ezzy.ccp.model.Country
 import com.ezzy.ccp.state.SearchState
+import com.ezzy.ccp.utils.CCPDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,13 +76,11 @@ fun CountriesBottomSheet(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit = {},
     onSelectCountries: (Country) -> Unit,
-    containerColor: Color = Color.White,
-    cornerRadius: Dp = 10.dp,
     viewModel: CountryViewModel = viewModel(),
-    searchTextColor: Color = Color.Black,
     sheetState: SheetState,
     countriesToShow: List<String> = emptyList(), // listOf(US, UK, FR, KE ...etc)'
-    showHeader: Boolean = true,
+    ccpColors: CCPColors = CCPDefaults.colors(),
+    ccpConfig: CCPConfig = CCPDefaults.defaultConfig()
 ) {
 
     val countries by viewModel.countries.collectAsStateWithLifecycle(emptyMap())
@@ -94,20 +94,19 @@ fun CountriesBottomSheet(
 
     ModalBottomSheet(
         sheetState = sheetState,
-        containerColor = containerColor,
+        containerColor = ccpColors.ccpSheetColor.containerColor,
         onDismissRequest = onDismiss,
         modifier = modifier,
-        shape = RoundedCornerShape(topEnd = cornerRadius, topStart = cornerRadius),
+        shape = ccpConfig.countriesSheetShape,
         dragHandle = {}
     ) {
         SheetContent(
             countriesState = countries,
             onSelectCountries = onSelectCountries,
-            containerColor = containerColor,
             searchState = searchState,
             onValueChange = viewModel::updateSearchQuery,
-            searchTextColor = searchTextColor,
-            showHeader = showHeader
+            ccpColors = ccpColors,
+            ccpConfig = ccpConfig
         )
     }
 
@@ -121,22 +120,17 @@ fun SheetContent(
         it.name[0]
     }.groupBy { country -> country.name[0] },
     onSelectCountries: (Country) -> Unit = {},
-    containerColor: Color = Color.White,
-    headerColor: Color = Color.Black,
-    headerStyle: TextStyle = MaterialTheme.typography.titleMedium,
     searchState: SearchState = SearchState(),
     onValueChange: (String) -> Unit = {},
-    searchTextColor: Color = Color.Black,
-    showHeader: Boolean = true,
+    ccpColors: CCPColors = CCPDefaults.colors(),
+    ccpConfig: CCPConfig = CCPDefaults.defaultConfig()
 ) {
 
 
     Surface(
         modifier = modifier,
-        color = containerColor,
+        color = ccpColors.ccpSheetColor.containerColor,
     ) {
-
-
         Column {
             Spacer(modifier = Modifier.height(60.dp))
 
@@ -147,7 +141,8 @@ fun SheetContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
-                    searchTextColor = searchTextColor
+                    ccpColors = ccpColors,
+                    ccpConfig = ccpConfig
                 )
             }
 
@@ -161,13 +156,15 @@ fun SheetContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 countriesState.forEach { (initial, countries) ->
-                    if (showHeader) {
+                    if (ccpConfig.showHeader) {
                         stickyHeader {
                             CountryHeader(
                                 header = initial.toString(),
-                                headerColor = headerColor,
-                                headerStyle = headerStyle,
-                                modifier = Modifier.padding(horizontal = 16.dp)
+                                headerColor = ccpColors.ccpSheetColor.countryHeaderColor,
+                                headerStyle = ccpConfig.headerStyle,
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                headerDividerColor = ccpColors.ccpSheetColor.headerDividerColor,
+                                showDivider = ccpConfig.showCountriesHeaderDivider
                             )
                         }
                     }
@@ -181,7 +178,8 @@ fun SheetContent(
                                 fadeOutSpec = null,
                                 placementSpec = tween(durationMillis = 500)
                             ),
-                            borderColor = Color.White
+                            ccpColors = ccpColors,
+                            ccpConfig = ccpConfig
                         )
                     }
                 }
@@ -246,7 +244,8 @@ fun CountryHeader(
     header: String,
     headerColor: Color = Color.Black,
     headerStyle: TextStyle = MaterialTheme.typography.titleMedium,
-    headerDividerColor: Color = Color.Black.copy(alpha = .1f)
+    headerDividerColor: Color = Color.Black.copy(alpha = .1f),
+    showDivider: Boolean = true
 ) {
 
     Row(
@@ -260,7 +259,9 @@ fun CountryHeader(
             style = headerStyle,
         )
 
-        HorizontalDivider(color = headerDividerColor)
+        if (showDivider) {
+            HorizontalDivider(color = headerDividerColor)
+        }
     }
 }
 
