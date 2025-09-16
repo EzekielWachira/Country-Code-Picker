@@ -38,7 +38,7 @@ dependencyResolutionManagement {
 
 ```gradle
 dependencies {
-    implementation 'com.github.EzekielWachira:Country-Code-Picker:v0.1.6'
+    implementation 'com.github.EzekielWachira:Country-Code-Picker:<LATEST VERSION>'
 }
 ```
 
