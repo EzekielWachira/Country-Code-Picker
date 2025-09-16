@@ -1,5 +1,7 @@
 # 📱 Country Code Picker
 
+[![](https://jitpack.io/v/EzekielWachira/Country-Code-Picker.svg)](https://jitpack.io/#EzekielWachira/Country-Code-Picker)
+
 A lightweight and customizable Jetpack Compose library for country code selection, phone number validation, and automatic formatting based on country-specific rules.
 
 ## ✨ Features
