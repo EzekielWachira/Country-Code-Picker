@@ -75,43 +75,68 @@ import com.ezzy.ccp.utils.countryToFlagEmoji
 import java.util.Locale
 
 /**
- * A customizable international phone number input component.
+ * A highly customizable international phone number input component with country selection.
  *
- * This composable displays a phone input field with a country selector, automatically
- * formatting the phone number based on the selected country's pattern and validating it.
+ * This composable provides:
+ * - A country selector (with flag and dial code)
+ * - A phone number input field that formats the number in real time
+ * - Automatic validation based on the selected country
+ * - Automatic country detection (via SIM, network, or locale) if enabled
  *
- * @param modifier Modifier to be applied to the component.
- * @param containerColor Background color of the input container.
- * @param cornerRadius Corner radius of the input container.
+ * Features:
+ * - Formats phone numbers as the user types according to the selected country
+ * - Provides both formatted and unformatted values to the parent
+ * - Allows restricting the list of selectable countries
+ * - Supports overriding the detected country with a preselected value
+ * - Handles "Done" keyboard action for submission
+ *
+ * @param modifier Modifier to be applied to the input container.
  * @param phoneHint Placeholder text shown when the input field is empty.
- * @param phoneHintColor Color of the placeholder text.
- * @param phoneHintStyle TextStyle for the placeholder text.
- * @param onPhoneValueChange Callback invoked when the phone number value changes. It provides
- * the formatted phone number (e.g., "+1 415-555-2671"), the unformatted phone number
- * (e.g., "4155552671"), and a boolean indicating if the number is valid according to the
- * selected country's rules.
- * @param borderWidth Width of the border around the input container.
- * @param borderColor Color of the border around the input container.
- * @param cursorColor Color of the input cursor.
- * @param inputTextColor Color of the input text.
- * @param value Optional pre-set phone number to initialize the field with. Should ideally be in
- * E.164 format (e.g., "+14155552671") but can also accept local numbers which will be
- * formatted based on the `setCountry` or detected country.
- * @param setCountry Optional country code (e.g., "US") or name (e.g., "United States") to
- * preselect. Overrides `autoDetectCountry`.
- * @param countriesToShow Optional list of country codes (e.g., listOf("US", "GB", "KE")) to
- * filter the countries available in the country selector bottom sheet. If empty, all
- * countries are shown.
- * @param autoDetectCountry If true and `setCountry` is not provided, attempts to automatically
- * detect the country from the device's SIM card. Defaults to "US" if detection fails.
- * @param showHeader Whether to show the header (title and search bar) in the country selection
- * bottom sheet.
- * @param showCountryFlag Whether to show the country flag emoji in the country selector
- * component next to the dial code.
- * @param onDone Callback invoked when the "Done" action is triggered on the keyboard (e.g., user
- * presses the checkmark). Typically used to submit the form or navigate away. Only called
- * if the phone number is valid.
+ * @param onPhoneValueChange (Deprecated – use [onValueChange]) Callback invoked whenever the
+ * phone number changes. Provides:
+ *  - [formatedPhone]: The number in international format (e.g., "+1 415-555-2671")
+ *  - [unFormatedPhone]: The number in E.164 format (e.g., "+14155552671")
+ *  - [valid]: Whether the number is valid for the selected country
+ * @param onValueChange Callback invoked whenever the phone number changes. Provides a [Phone]
+ * object containing:
+ *  - [formattedPhone]: Internationally formatted phone number
+ *  - [phoneNumber]: E.164 number
+ *  - [isValid]: Validation result
+ *  - [country]: Selected country info
+ * @param value Optional initial phone number to prefill the field.
+ * Can be in E.164 format (e.g., "+14155552671") or local format (will be parsed).
+ * @param setCountry Optional country code (e.g., "US") or country name (e.g., "United States")
+ * to preselect. If provided, overrides auto detection.
+ * @param countriesToShow Optional whitelist of country codes (e.g., listOf("US", "GB", "KE"))
+ * to restrict the countries shown in the selector. Empty = all countries.
+ * @param colors Styling configuration for container, border, text, cursor, and hint colors.
+ * @param ccpConfig Configuration for behavior and UI of the country code picker (e.g.,
+ * corner radius, borders, shapes, autoDetectCountry, etc.).
+ * @param onDone Callback invoked when the keyboard "Done" action is pressed. Called only if the
+ * current phone number is valid.
+ *
+ * ### Country auto-detection:
+ * If [ccpConfig.autoDetectCountry] is true and [setCountry] is not provided, the country is
+ * determined in this priority:
+ * 1. SIM country (from TelephonyManager.simCountryIso)
+ * 2. Network country (from TelephonyManager.networkCountryIso)
+ * 3. Device locale (Locale.getDefault().country)
+ * 4. Fallback to "US"
+ *
+ * ### Example:
+ * ```
+ * PhoneNumberInput(
+ *   value = "+254712345678",
+ *   setCountry = "KE",
+ *   onValueChange = { phone ->
+ *       if (phone.isValid) {
+ *           submitPhone(phone.phoneNumber) // E.164 number
+ *       }
+ *   }
+ * )
+ * ```
  */
+
 @Composable
 fun PhoneNumberInput(
     modifier: Modifier = Modifier,

@@ -22,6 +22,24 @@
 
 package com.ezzy.ccp.model
 
+/**
+ * Represents the result of parsing, formatting, and validating a phone number.
+ *
+ * This model provides different standardized representations of the phone number
+ * (international, E.164, and national formats) along with its validation state.
+ *
+ * @property formattedNumber The phone number in international human-readable format
+ * (e.g., "+254 712 345 678").
+ *
+ * @property unformattedNumber The phone number in E.164 format, suitable for
+ * storage or API communication (e.g., "+254712345678").
+ *
+ * @property formattedWithoutCountryCode The phone number in national format,
+ * excluding the country code (e.g., "0712 345 678").
+ *
+ * @property isValid Whether the phone number is valid for the given country
+ * according to libphonenumber rules.
+ */
 data class PhoneValidationResult(
     val formattedNumber: String,  // Pretty format: +254 712 345 678
     val unformattedNumber: String, // E164 format: +254712345678
