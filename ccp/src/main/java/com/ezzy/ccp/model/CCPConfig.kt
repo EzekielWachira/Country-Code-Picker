@@ -71,4 +71,5 @@ data class CCPConfig(
     val countryItemShape: Shape,
     val phoneInputShape: Shape,
     val showCountriesHeaderDivider: Boolean,
+    val readOnly: Boolean
 )

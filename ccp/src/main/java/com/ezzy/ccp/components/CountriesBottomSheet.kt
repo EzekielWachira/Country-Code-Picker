@@ -32,10 +32,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -85,6 +88,8 @@ fun CountriesBottomSheet(
 
     val countries by viewModel.countries.collectAsStateWithLifecycle(emptyMap())
     val searchState by viewModel.searchState.collectAsStateWithLifecycle()
+    val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+
 
     LaunchedEffect(countriesToShow) {
         if (countriesToShow.isNotEmpty()) {
@@ -96,9 +101,10 @@ fun CountriesBottomSheet(
         sheetState = sheetState,
         containerColor = ccpColors.ccpSheetColor.containerColor,
         onDismissRequest = onDismiss,
-        modifier = modifier,
+        modifier = modifier
+            .padding(top = statusBarHeight),
         shape = ccpConfig.countriesSheetShape,
-        dragHandle = {}
+//        dragHandle = {}
     ) {
         SheetContent(
             countriesState = countries,
@@ -132,8 +138,6 @@ fun SheetContent(
         color = ccpColors.ccpSheetColor.containerColor,
     ) {
         Column {
-            Spacer(modifier = Modifier.height(60.dp))
-
             Box(modifier = Modifier.padding(horizontal = 16.dp)) {
                 SearchComponent(
                     searchState = searchState,
@@ -142,7 +146,8 @@ fun SheetContent(
                         .fillMaxWidth()
                         .height(50.dp),
                     ccpColors = ccpColors,
-                    ccpConfig = ccpConfig
+                    ccpConfig = ccpConfig,
+                    searchHint = "Search country by name, code or dial code"
                 )
             }
 
@@ -153,7 +158,7 @@ fun SheetContent(
                     .weight(1f)
                     .fillMaxWidth(),
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+//                verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 countriesState.forEach { (initial, countries) ->
                     if (ccpConfig.showHeader) {

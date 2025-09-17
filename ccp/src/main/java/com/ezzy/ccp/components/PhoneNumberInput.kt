@@ -22,8 +22,10 @@
 
 package com.ezzy.ccp.components
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.telephony.TelephonyManager
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -273,7 +275,8 @@ fun PhoneNumberInput(
                         keyboardController?.hide()
                         onDone()
                     }
-                )
+                ),
+                readOnly = ccpConfig.readOnly
             )
         }
     }
@@ -289,9 +292,9 @@ fun PhoneNumberInput(
  * @param selectedCountry The currently selected country; defaults to US if null
  * @param viewModel ViewModel that manages country selection state
  * @param onSelectCountry Callback that is triggered when a new country is selected
- * @param searchTextColor Color of the search text in the country selection bottom sheet
  * @param countriesToShow Optional list of country codes to filter the available countries in the bottom sheet
  */
+@SuppressLint("LocalContextConfigurationRead")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectedCountryComponent(
@@ -307,9 +310,50 @@ fun SelectedCountryComponent(
     var isCountryBottomSheetVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(true)
-    LaunchedEffect(true) {
-        val countryCodeLocale = context.resources.configuration.locales[0].country
-        viewModel.setCountryForLocale(countryCodeLocale)
+
+    LaunchedEffect(ccpConfig.autoDetectCountry) {
+        if (ccpConfig.autoDetectCountry) {
+
+            val telephonyManager =
+                context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager?
+
+            // Try SIM country first (home country), then network, then locale
+            val simCountry =
+                telephonyManager?.simCountryIso?.takeIf { it.isNotBlank() }?.uppercase(Locale.ROOT)
+            val networkCountry = telephonyManager?.networkCountryIso?.takeIf { it.isNotBlank() }
+                ?.uppercase(Locale.ROOT)
+
+            // locale from resources (may be empty) then Locale.getDefault
+            val configLocaleCountry = try {
+                context.resources.configuration.locales[0].country.takeIf { it.isNotBlank() }
+                    ?.uppercase(Locale.ROOT)
+            } catch (e: Exception) {
+                null
+            }
+            val defaultLocaleCountry =
+                Locale.getDefault().country.takeIf { it.isNotBlank() }?.uppercase(Locale.ROOT)
+
+            // pick the best available
+            val rawDetected =
+                simCountry ?: networkCountry ?: configLocaleCountry ?: defaultLocaleCountry ?: "US"
+
+            // Normalize known oddities (UK -> GB), add more mappings if you need
+            val normalizedDetected = when (rawDetected) {
+                "UK" -> "GB"
+                else -> rawDetected
+            }
+
+            // Optional: log values while testing
+            Log.d(
+                "SelectedCountryComponent",
+                "sim=$simCountry network=$networkCountry locale=$configLocaleCountry defaultLocale=$defaultLocaleCountry -> detected=$normalizedDetected"
+            )
+
+            // set it on the viewModel (viewModel now handles case-insensitive match)
+            viewModel.setCountryForLocale(normalizedDetected)
+        } else {
+            viewModel.setCountryForLocale("US")
+        }
     }
 
     Surface(
@@ -317,7 +361,8 @@ fun SelectedCountryComponent(
             isCountryBottomSheetVisible = true
         },
         shape = ccpConfig.phoneInputShape,
-        color = ccpColors.containerColor
+        color = ccpColors.containerColor,
+        enabled = ccpConfig.readOnly.not()
     ) {
         Row(
             modifier = Modifier.padding(

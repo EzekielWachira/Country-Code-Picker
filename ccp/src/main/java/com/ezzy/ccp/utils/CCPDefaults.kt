@@ -62,7 +62,7 @@ object CCPDefaults {
         borderColor: Color = MaterialTheme.colorScheme.outline,
         inputTextColor: Color = MaterialTheme.colorScheme.onSurface,
         phoneHintColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-        ccpSheetColor: CCPSheetColor = CCPSheetColor(
+        ccpSheetColor: CCPSheetColor = ccpSheetColor(
             sheetContainerColor = MaterialTheme.colorScheme.background,
             searchTextColor = MaterialTheme.colorScheme.onSurface,
             hintTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -76,7 +76,7 @@ object CCPDefaults {
             countryItemDialCodeTextColor = MaterialTheme.colorScheme.onSurface,
             countryItemTextColor = MaterialTheme.colorScheme.onSurface,
             headerDividerColor = MaterialTheme.colorScheme.outline
-        ),
+        )
     ): CCPColors {
         return CCPColors(
             containerColor = containerColor,
@@ -87,6 +87,39 @@ object CCPDefaults {
             ccpSheetColor = ccpSheetColor,
             countryCodeTextColor = MaterialTheme.colorScheme.onSurface,
             countryChevronColor = MaterialTheme.colorScheme.onSurface
+        )
+    }
+
+    @Composable
+    fun ccpSheetColor(
+        sheetContainerColor: Color = MaterialTheme.colorScheme.background,
+        searchTextColor: Color = MaterialTheme.colorScheme.onSurface,
+        hintTextColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+        countryHeaderColor: Color = MaterialTheme.colorScheme.onSurface,
+        containerColor: Color = MaterialTheme.colorScheme.background,
+        searchContainerColor: Color = MaterialTheme.colorScheme.background,
+        searchIconTint: Color = MaterialTheme.colorScheme.onSurface,
+        searchBorderColor: Color = MaterialTheme.colorScheme.outline,
+        searchHintColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+        countryItemContainerColor: Color = MaterialTheme.colorScheme.background,
+        countryItemDialCodeTextColor: Color = MaterialTheme.colorScheme.onSurface,
+        countryItemTextColor: Color = MaterialTheme.colorScheme.onSurface,
+        headerDividerColor: Color = MaterialTheme.colorScheme.outline
+    ): CCPSheetColor {
+        return CCPSheetColor(
+            sheetContainerColor = sheetContainerColor,
+            searchTextColor = searchTextColor,
+            hintTextColor = hintTextColor,
+            countryHeaderColor = countryHeaderColor,
+            containerColor = containerColor,
+            searchContainerColor = searchContainerColor,
+            searchIconTint = searchIconTint,
+            searchBorderColor = searchBorderColor,
+            searchHintColor = searchHintColor,
+            countryItemContainerColor = countryItemContainerColor,
+            countryItemDialCodeTextColor = countryItemDialCodeTextColor,
+            countryItemTextColor = countryItemTextColor,
+            headerDividerColor = headerDividerColor,
         )
     }
 
@@ -126,7 +159,8 @@ object CCPDefaults {
         showDialCodeCountryItem: Boolean = true,
         showFlagCountryItem: Boolean = true,
         phoneInputShape: Shape = RoundedCornerShape(phoneInputCornerRadius),
-        showCountriesHeaderDivider: Boolean = true
+        showCountriesHeaderDivider: Boolean = true,
+        readOnly: Boolean = false
     ): CCPConfig {
         return CCPConfig(
             phoneInputCornerRadius = phoneInputCornerRadius,
@@ -146,7 +180,8 @@ object CCPDefaults {
             countryItemNameTextStyle = MaterialTheme.typography.bodyMedium,
             countryItemShape = RoundedCornerShape(16.dp),
             phoneInputShape = phoneInputShape,
-            showCountriesHeaderDivider = showCountriesHeaderDivider
+            showCountriesHeaderDivider = showCountriesHeaderDivider,
+            readOnly = readOnly
         )
     }
 }

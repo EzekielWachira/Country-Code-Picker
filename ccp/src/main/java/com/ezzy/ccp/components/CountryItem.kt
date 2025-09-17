@@ -65,7 +65,7 @@ fun CountryItem(
             if (ccpConfig.showFlagCountryItem) {
                 Text(
                     text = country.code.countryToFlagEmoji() ?: "",
-                    fontSize = 18.sp
+                    fontSize = 22.sp
                 )
             }
 

@@ -46,11 +46,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.ezzy.ccp.components.PhoneNumberInput
+import com.ezzy.ccp.model.CCPColors
 import com.ezzy.ccp.model.SelectedCountry
 import com.ezzy.ccp.ui.theme.CCPTheme
 import com.ezzy.ccp.ui.theme.Wheat
@@ -127,7 +129,6 @@ class MainActivity : ComponentActivity() {
                         Column {
                             PhoneNumberInput(
                                 value = setPhone.toString(),
-                                setCountry = "KE",
                                 onDone = {
                                     Toast.makeText(this@MainActivity, "On Done", Toast.LENGTH_SHORT)
                                         .show()
@@ -141,7 +142,16 @@ class MainActivity : ComponentActivity() {
                                 ccpConfig = CCPDefaults.defaultConfig(
                                     showCountriesHeaderDivider = true,
                                     autoDetectCountry = true,
-                                    phoneInputShape = RoundedCornerShape(8.dp)
+                                    phoneInputShape = RoundedCornerShape(8.dp),
+                                    searchCornerRadius = 10.dp,
+                                    searchBorderWidth = 1.dp,
+                                    readOnly = false,
+                                    countriesSheetShape = RectangleShape
+                                ),
+                                colors = CCPDefaults.colors(
+                                    ccpSheetColor = CCPDefaults.ccpSheetColor(
+                                        searchBorderColor = Color.Black.copy(alpha = .2f)
+                                    )
                                 )
                             )
 
