@@ -52,6 +52,8 @@ import androidx.compose.ui.unit.Dp
  * @property enforceMaxLength Cap input at the maximum digit count for the selected country.
  * @property defaultCountryListStyle Initial layout of the country list — [CountryListStyle.List]
  * or [CountryListStyle.Grid]. The user can toggle this at runtime via the sort button.
+ * @property countryPickerStyle How to present the country picker — [CountryPickerStyle.BottomSheet]
+ * (default, full-screen modal) or [CountryPickerStyle.Dropdown] (compact inline dropdown).
  */
 data class CCPConfig(
     val phoneInputCornerRadius: Dp,
@@ -76,4 +78,5 @@ data class CCPConfig(
     val showClearButton: Boolean,
     val enforceMaxLength: Boolean,
     val defaultCountryListStyle: CountryListStyle,
+    val countryPickerStyle: CountryPickerStyle,
 )

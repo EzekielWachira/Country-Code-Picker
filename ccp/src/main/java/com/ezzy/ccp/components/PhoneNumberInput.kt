@@ -33,8 +33,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -73,6 +78,7 @@ import com.ezzy.ccp.icons.EzzyIcons
 import com.ezzy.ccp.model.CCPColors
 import com.ezzy.ccp.model.CCPConfig
 import com.ezzy.ccp.model.Country
+import com.ezzy.ccp.model.CountryPickerStyle
 import com.ezzy.ccp.model.Phone
 import com.ezzy.ccp.state.PhoneState
 import com.ezzy.ccp.state.rememberPhoneState
@@ -156,95 +162,124 @@ fun PhoneNumberInput(
     // Always show at least a 1dp border in error state so it's visible even when borderWidth = 0
     val effectiveBorderWidth = if (isError && ccpConfig.borderWidth == 0.dp) 1.dp else ccpConfig.borderWidth
 
+    var dropdownExpanded by remember { mutableStateOf(false) }
+    var boxWidthPx by remember { mutableStateOf(0) }
+    val density = LocalDensity.current
+
     Column(modifier = modifier) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = ccpConfig.phoneInputShape,
-            color = colors.containerColor,
-            border = BorderStroke(width = effectiveBorderWidth, color = effectiveBorderColor)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
+        Box(modifier = Modifier.fillMaxWidth().onSizeChanged { boxWidthPx = it.width }) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = ccpConfig.phoneInputShape,
+                color = colors.containerColor,
+                border = BorderStroke(width = effectiveBorderWidth, color = effectiveBorderColor)
             ) {
-                SelectedCountryComponent(
-                    selectedCountry = state.activeCountry,
-                    onSelectCountry = state::selectCountry,
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                ) {
+                    SelectedCountryComponent(
+                        selectedCountry = state.activeCountry,
+                        onSelectCountry = state::selectCountry,
+                        countriesToShow = countriesToShow,
+                        countriesExclude = countriesExclude,
+                        pinnedCountries = pinnedCountries,
+                        ccpColors = colors,
+                        ccpConfig = ccpConfig,
+                        onDropdownExpand = if (ccpConfig.countryPickerStyle == CountryPickerStyle.Dropdown) {
+                            { dropdownExpanded = true }
+                        } else null
+                    )
+                    BasicTextField(
+                        value = state.phoneField,
+                        onValueChange = { newValue ->
+                            if (ccpConfig.enforceMaxLength) {
+                                val maxLen = getMaxPhoneLength(state.activeCountry?.code ?: "US")
+                                if (newValue.text.filter { it.isDigit() }.length <= maxLen) {
+                                    state.updatePhoneNumber(newValue)
+                                }
+                            } else {
+                                state.updatePhoneNumber(newValue)
+                            }
+                        },
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(color = colors.inputTextColor),
+                        cursorBrush = SolidColor(colors.cursorColor),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Phone,
+                            imeAction = ImeAction.Done
+                        ),
+                        singleLine = true,
+                        modifier = Modifier
+                            .weight(1f)
+                            .semantics { contentDescription = "Phone number input" },
+                        decorationBox = { innerTextField ->
+                            Box(contentAlignment = Alignment.CenterStart) {
+                                if (state.phoneNumber.isEmpty()) {
+                                    Text(
+                                        text = phoneHint,
+                                        style = ccpConfig.phoneHintStyle,
+                                        color = colors.phoneHintColor
+                                    )
+                                }
+                                innerTextField()
+                            }
+                        },
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                if (!state.isValid) {
+                                    context.showToast("Invalid phone number")
+                                    return@KeyboardActions
+                                }
+                                keyboardController?.hide()
+                                onDone()
+                            }
+                        ),
+                        readOnly = ccpConfig.readOnly
+                    )
+                    // Clear button — hidden when there is no text or the field is read-only
+                    AnimatedVisibility(
+                        visible = ccpConfig.showClearButton &&
+                            !ccpConfig.readOnly &&
+                            state.phoneNumber.isNotEmpty()
+                    ) {
+                        IconButton(
+                            onClick = state::clearPhone,
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = EzzyIcons.Close,
+                                contentDescription = "Clear phone number",
+                                tint = colors.countryChevronColor,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Full-width dropdown anchored to the phone input Box, with 16dp start/end margin
+            if (ccpConfig.countryPickerStyle == CountryPickerStyle.Dropdown) {
+                val dropdownWidth = with(density) { boxWidthPx.toDp() - 32.dp }.coerceAtLeast(0.dp)
+                CountriesDropdown(
+                    expanded = dropdownExpanded,
+                    onDismiss = { dropdownExpanded = false },
+                    onSelectCountry = { country ->
+                        state.selectCountry(country)
+                        dropdownExpanded = false
+                    },
                     countriesToShow = countriesToShow,
                     countriesExclude = countriesExclude,
                     pinnedCountries = pinnedCountries,
                     ccpColors = colors,
-                    ccpConfig = ccpConfig
+                    ccpConfig = ccpConfig,
+                    modifier = Modifier.requiredWidth(dropdownWidth),
+                    dropdownOffset = DpOffset(x = 16.dp, y = 8.dp)
                 )
-                BasicTextField(
-                    value = state.phoneField,
-                    onValueChange = { newValue ->
-                        if (ccpConfig.enforceMaxLength) {
-                            val maxLen = getMaxPhoneLength(state.activeCountry?.code ?: "US")
-                            if (newValue.text.filter { it.isDigit() }.length <= maxLen) {
-                                state.updatePhoneNumber(newValue)
-                            }
-                        } else {
-                            state.updatePhoneNumber(newValue)
-                        }
-                    },
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = colors.inputTextColor),
-                    cursorBrush = SolidColor(colors.cursorColor),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Phone,
-                        imeAction = ImeAction.Done
-                    ),
-                    singleLine = true,
-                    modifier = Modifier
-                        .weight(1f)
-                        .semantics { contentDescription = "Phone number input" },
-                    decorationBox = { innerTextField ->
-                        Box(contentAlignment = Alignment.CenterStart) {
-                            if (state.phoneNumber.isEmpty()) {
-                                Text(
-                                    text = phoneHint,
-                                    style = ccpConfig.phoneHintStyle,
-                                    color = colors.phoneHintColor
-                                )
-                            }
-                            innerTextField()
-                        }
-                    },
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            if (!state.isValid) {
-                                context.showToast("Invalid phone number")
-                                return@KeyboardActions
-                            }
-                            keyboardController?.hide()
-                            onDone()
-                        }
-                    ),
-                    readOnly = ccpConfig.readOnly
-                )
-                // Clear button — hidden when there is no text or the field is read-only
-                AnimatedVisibility(
-                    visible = ccpConfig.showClearButton &&
-                        !ccpConfig.readOnly &&
-                        state.phoneNumber.isNotEmpty()
-                ) {
-                    IconButton(
-                        onClick = state::clearPhone,
-                        modifier = Modifier.size(36.dp)
-                    ) {
-                        Icon(
-                            imageVector = EzzyIcons.Close,
-                            contentDescription = "Clear phone number",
-                            tint = colors.countryChevronColor,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                }
             }
-        }
+        } // end Box
 
         // Error message
         AnimatedVisibility(visible = isError && errorMessage != null) {
@@ -281,58 +316,85 @@ fun SelectedCountryComponent(
     countriesExclude: List<String> = emptyList(),
     pinnedCountries: List<String> = emptyList(),
     ccpColors: CCPColors = CCPDefaults.colors(),
-    ccpConfig: CCPConfig = CCPDefaults.defaultConfig()
+    ccpConfig: CCPConfig = CCPDefaults.defaultConfig(),
+    /** When non-null and style is Dropdown, expansion is managed externally — called on button tap. */
+    onDropdownExpand: (() -> Unit)? = null,
 ) {
-    var isSheetVisible by remember { mutableStateOf(false) }
+    var isExpanded by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val countryName = selectedCountry?.name ?: "United States"
     val dialCode = selectedCountry?.dialCode ?: "+1"
 
-    Surface(
-        modifier = modifier.semantics {
-            contentDescription = "$countryName $dialCode, tap to change country"
-            role = Role.Button
-        },
-        onClick = { isSheetVisible = true },
-        shape = ccpConfig.phoneInputShape,
-        color = ccpColors.containerColor,
-        enabled = !ccpConfig.readOnly
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
+    // Box anchors the dropdown to the selector button
+    Box(modifier = modifier) {
+        Surface(
+            modifier = Modifier.semantics {
+                contentDescription = "$countryName $dialCode, tap to change country"
+                role = Role.Button
+            },
+            onClick = {
+                val isExternalDropdown = ccpConfig.countryPickerStyle == CountryPickerStyle.Dropdown &&
+                    onDropdownExpand != null
+                if (isExternalDropdown) onDropdownExpand!!() else isExpanded = true
+            },
+            shape = ccpConfig.phoneInputShape,
+            color = ccpColors.containerColor,
+            enabled = !ccpConfig.readOnly
         ) {
-            if (ccpConfig.showCountryFlag) {
+            Row(
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (ccpConfig.showCountryFlag) {
+                    Text(
+                        text = (selectedCountry?.code ?: "US").countryToFlagEmoji() ?: "",
+                        fontSize = 18.sp,
+                    )
+                }
+                Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = (selectedCountry?.code ?: "US").countryToFlagEmoji() ?: "",
-                    fontSize = 18.sp,
+                    text = "${selectedCountry?.code ?: "US"} $dialCode",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ccpColors.countryCodeTextColor
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                Icon(
+                    imageVector = EzzyIcons.ChevronDown,
+                    contentDescription = null,
+                    tint = ccpColors.countryChevronColor,
+                    modifier = Modifier.size(20.dp)
                 )
             }
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = dialCode,
-                style = MaterialTheme.typography.bodyMedium,
-                color = ccpColors.countryCodeTextColor
-            )
-            Spacer(modifier = Modifier.width(5.dp))
-            Icon(
-                imageVector = EzzyIcons.ChevronDown,
-                contentDescription = null,
-                tint = ccpColors.countryChevronColor,
-                modifier = Modifier.size(20.dp)
+        }
+
+        // Dropdown — only rendered here when not externally controlled by a parent
+        if (ccpConfig.countryPickerStyle == CountryPickerStyle.Dropdown && onDropdownExpand == null) {
+            CountriesDropdown(
+                expanded = isExpanded,
+                onDismiss = { isExpanded = false },
+                onSelectCountry = { country ->
+                    isExpanded = false
+                    onSelectCountry(country)
+                },
+                countriesToShow = countriesToShow,
+                countriesExclude = countriesExclude,
+                pinnedCountries = pinnedCountries,
+                ccpColors = ccpColors,
+                ccpConfig = ccpConfig
             )
         }
     }
 
-    if (isSheetVisible) {
+    // Bottom sheet — rendered outside the Box so it covers the full screen
+    if (ccpConfig.countryPickerStyle == CountryPickerStyle.BottomSheet && isExpanded) {
         CountriesBottomSheet(
             sheetState = sheetState,
-            onSelectCountries = {
-                isSheetVisible = false
-                onSelectCountry(it)
+            onSelectCountries = { country ->
+                isExpanded = false
+                onSelectCountry(country)
             },
-            onDismiss = { isSheetVisible = false },
+            onDismiss = { isExpanded = false },
             countriesToShow = countriesToShow,
             countriesExclude = countriesExclude,
             pinnedCountries = pinnedCountries,

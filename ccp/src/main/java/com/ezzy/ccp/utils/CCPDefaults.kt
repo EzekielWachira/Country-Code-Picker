@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.ezzy.ccp.model.CCPColors
 import com.ezzy.ccp.model.CCPConfig
 import com.ezzy.ccp.model.CountryListStyle
+import com.ezzy.ccp.model.CountryPickerStyle
 
 object CCPDefaults {
 
@@ -125,6 +126,7 @@ object CCPDefaults {
         showClearButton: Boolean = false,
         enforceMaxLength: Boolean = true,
         defaultCountryListStyle: CountryListStyle = CountryListStyle.List,
+        countryPickerStyle: CountryPickerStyle = CountryPickerStyle.BottomSheet,
     ): CCPConfig = CCPConfig(
         phoneInputCornerRadius = phoneInputCornerRadius,
         phoneHintStyle = phoneHintStyle,
@@ -148,5 +150,6 @@ object CCPDefaults {
         showClearButton = showClearButton,
         enforceMaxLength = enforceMaxLength,
         defaultCountryListStyle = defaultCountryListStyle,
+        countryPickerStyle = countryPickerStyle,
     )
 }

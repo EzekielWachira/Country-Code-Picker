@@ -53,6 +53,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.ezzy.ccp.components.PhoneNumberInput
 import com.ezzy.ccp.model.CCPColors
+import com.ezzy.ccp.model.CountryPickerStyle
 import com.ezzy.ccp.model.SelectedCountry
 import com.ezzy.ccp.ui.theme.CCPTheme
 import com.ezzy.ccp.ui.theme.Wheat
@@ -146,7 +147,8 @@ class MainActivity : ComponentActivity() {
                                     searchCornerRadius = 10.dp,
                                     searchBorderWidth = 1.dp,
                                     readOnly = false,
-                                    countriesSheetShape = RectangleShape
+                                    countriesSheetShape = RectangleShape,
+                                    countryPickerStyle = CountryPickerStyle.BottomSheet
                                 ),
                                 colors = CCPDefaults.colors(
                                     ccpSheetColor = CCPDefaults.ccpSheetColor(
