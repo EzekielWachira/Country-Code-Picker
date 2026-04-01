@@ -1,26 +1,30 @@
-# 📱 Country Code Picker
+# Country Code Picker
 
 [![](https://jitpack.io/v/EzekielWachira/Country-Code-Picker.svg)](https://jitpack.io/#EzekielWachira/Country-Code-Picker)
 
-A lightweight and customizable Jetpack Compose library for country code selection, phone number validation, and automatic formatting based on country-specific rules.
+A lightweight, fully customizable Jetpack Compose library for country code selection, phone number validation, and real-time formatting based on country-specific rules.
 
-## ✨ Features
+## Features
 
-✅ **Country Picker** – Choose from a searchable list of countries with flags and dial codes.
+- **Country Picker** – Searchable list of 200+ countries with flags and dial codes
+- **Two picker styles** – Full-screen bottom sheet or compact inline dropdown
+- **Phone Number Validation** – Country-aware validation powered by Google libphonenumber
+- **Real-time Formatting** – Formats to E.164, international, and national formats as the user types
+- **Max Length Enforcement** – Caps input at the correct digit count for the selected country
+- **Auto Country Detection** – Detects from SIM → network → locale, with fallback to US
+- **State Hoisting** – Expose `PhoneState` to the caller for external control
+- **Error State** – Built-in error border + message display
+- **Clear Button** – Optional × button to reset the field
+- **Pinned Countries** – Configurable "Suggested" section at the top of the picker
+- **Country Whitelist / Blacklist** – Show or hide specific countries
+- **Grid / List toggle** – Users can switch the country list between list and grid layout
+- **Haptic Feedback** – Tactile response on country selection
+- **Accessibility** – Full TalkBack / content description support
+- **Compose-First API** – No ViewModels, no coroutines, pure Compose state
 
-✅ **Phone Number Validation** – Ensures phone numbers are valid per country rules (powered by Google libphonenumber).
+## Installation
 
-✅ **Phone Number Formatting** – Automatically formats numbers into E.164, international, and national formats.
-
-✅ **Auto Country Detection** – Detects country from SIM, network, or device locale.
-
-✅ **Highly Customizable** – Colors, shapes, styles, and visibility options are fully configurable.
-
-✅ **Compose-First API** – Built natively for Jetpack Compose.
-
-## 📦 Installation
-
-### Step 1: Add JitPack Repository
+### Step 1 — Add JitPack
 
 In your root `settings.gradle`:
 
@@ -34,165 +38,271 @@ dependencyResolutionManagement {
 }
 ```
 
-### Step 2: Add the Dependency
+### Step 2 — Add the dependency
 
 ```gradle
 dependencies {
-    implementation 'com.github.EzekielWachira:Country-Code-Picker:<LATEST VERSION>'
+    implementation 'com.github.EzekielWachira:Country-Code-Picker:<LATEST_VERSION>'
 }
 ```
 
-## 🚀 Usage
+## Basic usage
 
 ```kotlin
 PhoneNumberInput(
-    value = setPhone.toString(),
-    setCountry = "KE",
-    onDone = {
-        Toast.makeText(this@MainActivity, "On Done", Toast.LENGTH_SHORT)
-            .show()
-    },
-    onValueChange = { (formattedPhone, phoneNumber, country, isValid) ->
-        // formattedPhone -> formatted phone number
-        // phoneNumber -> unformatted phone number
-        // country -> selected country
-        // isValid -> true if valid, false otherwise
-    },
-    ccpConfig = CCPDefaults.defaultConfig(
-        showCountriesHeaderDivider = true,
-        autoDetectCountry = true,
-        phoneInputShape = RoundedCornerShape(8.dp)
-    ),
-    countriesToShow = listOf("US", "GB", "KE", "FR", "AU", "BR", "CA", "CN"),
-    // Limits the selectable countries in the bottom sheet.
-
-    setCountry = "KE",
-    // Preselects Kenya ("KE") as default. Overrides auto-detection if provided.
-
-    autoDetectCountry = true,
-    // Automatically detects country from SIM → network → locale (fallback: "US").
-
-    showHeader = true
-    // Displays header & search bar in country selection sheet.
+    onValueChange = { phone ->
+        // phone.formattedPhone  → "+254 724 154 958"
+        // phone.phoneNumber     → "+254724154958" (E.164)
+        // phone.country         → SelectedCountry(name, code, dialCode, flag)
+        // phone.isValid         → true / false
+    }
 )
 ```
 
-### Example Callback Data
+## State hoisting
 
-If the user inputs `0724154958` with Kenya selected:
-
-- **Formatted**: +254 724 154 958
-- **Raw (E.164)**: +254724154958
-- **Valid**: true
-
-## 🎨 Customization
-
-You can fully customize colors, shapes, and styles using:
-
-- **CCPColors** → controls input, border, cursor, and sheet colors.
-- **CCPConfig** → controls shapes, typography, visibility of flags/dial codes, etc.
-
-### Example:
+Hoist `PhoneState` when you need to read state or drive the field from outside the composable — for example to clear it after form submission, or to validate on button tap.
 
 ```kotlin
+val phoneState = rememberPhoneState()
+
 PhoneNumberInput(
-    colors = CCPColors(
-        containerColor = Color.White,
-        borderColor = Color.Gray,
-        cursorColor = Color.Black,
-        inputTextColor = Color.DarkGray,
-        phoneHintColor = Color.LightGray,
-        countryCodeTextColor = Color.Black,
-        countryChevronColor = Color.Gray,
-        ccpSheetColor = CCPSheetColor.Default
-    ),
-    ccpConfig = CCPConfig(
-        autoDetectCountry = true,
-        showHeader = true,
-        showCountryFlag = true,
-        showDialCodeCountryItem = true,
-        showFlagCountryItem = true
+    state = phoneState,
+    onValueChange = { phone -> ... }
+)
+
+Button(onClick = {
+    if (phoneState.isValid) submit(phoneState.toPhone())
+    else phoneState.clearPhone()
+}) {
+    Text("Submit")
+}
+```
+
+## Picker style — bottom sheet vs dropdown
+
+```kotlin
+// Default: full-screen bottom sheet
+PhoneNumberInput(
+    ccpConfig = CCPDefaults.defaultConfig(
+        countryPickerStyle = CountryPickerStyle.BottomSheet
+    )
+)
+
+// Compact inline dropdown (better for tablets / landscape)
+PhoneNumberInput(
+    ccpConfig = CCPDefaults.defaultConfig(
+        countryPickerStyle = CountryPickerStyle.Dropdown
     )
 )
 ```
 
-## 📖 API Reference
+## Error state
 
-### Phone
+```kotlin
+var isError by remember { mutableStateOf(false) }
 
-Represents a parsed phone number with validation info.
+PhoneNumberInput(
+    isError = isError,
+    errorMessage = "Please enter a valid phone number",
+    onValueChange = { phone ->
+        isError = !phone.isValid && phone.phoneNumber.isNotEmpty()
+    }
+)
+```
+
+## Pre-fill and country override
+
+```kotlin
+PhoneNumberInput(
+    value = "+254724154958",   // pre-fill in E.164 format; country is auto-detected
+    setCountry = "KE",        // or force a specific country (overrides auto-detection)
+)
+```
+
+## Country filtering
+
+```kotlin
+PhoneNumberInput(
+    // Show only these countries
+    countriesToShow = listOf("US", "GB", "KE", "FR", "AU"),
+
+    // Or hide specific ones
+    countriesExclude = listOf("KP", "IR"),
+
+    // Pin frequently-used countries to the top of the picker
+    pinnedCountries = listOf("US", "GB", "KE"),
+)
+```
+
+## Clear button
+
+```kotlin
+PhoneNumberInput(
+    ccpConfig = CCPDefaults.defaultConfig(showClearButton = true)
+)
+```
+
+## Auto country detection
+
+```kotlin
+PhoneNumberInput(
+    ccpConfig = CCPDefaults.defaultConfig(autoDetectCountry = true)
+    // Priority: SIM → network → configuration locale → default locale → US
+)
+```
+
+## Max length enforcement
+
+Input is capped at the correct digit count for the selected country by default. Disable it if needed:
+
+```kotlin
+PhoneNumberInput(
+    ccpConfig = CCPDefaults.defaultConfig(enforceMaxLength = false)
+)
+```
+
+## Default country list layout
+
+```kotlin
+PhoneNumberInput(
+    ccpConfig = CCPDefaults.defaultConfig(
+        defaultCountryListStyle = CountryListStyle.Grid // or CountryListStyle.List
+    )
+)
+```
+
+## Keyboard Done action
+
+```kotlin
+PhoneNumberInput(
+    onDone = {
+        // Called only when isValid == true and the user taps Done
+        submitForm()
+    }
+)
+```
+
+## Customizing colors
+
+```kotlin
+PhoneNumberInput(
+    colors = CCPDefaults.colors(
+        containerColor = Color.White,
+        borderColor = Color.Gray,
+        errorBorderColor = Color.Red,
+        errorColor = Color.Red,
+        cursorColor = Color.Black,
+        inputTextColor = Color.DarkGray,
+        phoneHintColor = Color.LightGray,
+    )
+)
+```
+
+## Customizing shapes and typography
+
+```kotlin
+PhoneNumberInput(
+    ccpConfig = CCPDefaults.defaultConfig(
+        phoneInputShape = RoundedCornerShape(8.dp),
+        borderWidth = 1.dp,
+        showCountryFlag = true,
+        showHeader = true,
+        showCountriesHeaderDivider = true,
+        readOnly = false,
+    )
+)
+```
+
+## API Reference
+
+### `PhoneNumberInput` parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `modifier` | `Modifier` | `Modifier` | Applied to the outer Column |
+| `state` | `PhoneState` | `rememberPhoneState()` | Hoistable state holder |
+| `phoneHint` | `String` | `"Enter phone"` | Placeholder text |
+| `onValueChange` | `(Phone) -> Unit` | `{}` | Called on every change |
+| `onDone` | `() -> Unit` | `{}` | Called on IME Done (only when valid) |
+| `value` | `String` | `""` | Initial phone number (E.164 or local) |
+| `setCountry` | `String?` | `null` | ISO code or name to preselect |
+| `countriesToShow` | `List<String>` | `emptyList()` | Whitelist of ISO codes |
+| `countriesExclude` | `List<String>` | `emptyList()` | Blacklist of ISO codes |
+| `pinnedCountries` | `List<String>` | `emptyList()` | ISO codes pinned to top of picker |
+| `isError` | `Boolean` | `false` | Show error border and message |
+| `errorMessage` | `String?` | `null` | Text shown below field when `isError` |
+| `colors` | `CCPColors` | `CCPDefaults.colors()` | Color configuration |
+| `ccpConfig` | `CCPConfig` | `CCPDefaults.defaultConfig()` | Behavior and UI configuration |
+
+### `PhoneState`
+
+| Member | Type | Description |
+|---|---|---|
+| `activeCountry` | `Country?` | Currently selected country |
+| `phoneNumber` | `String` | Raw digit string |
+| `formattedPhone` | `String` | International format e.g. `+254 724 154 958` |
+| `unformattedPhone` | `String` | E.164 format e.g. `+254724154958` |
+| `isValid` | `Boolean` | Whether the number is valid for the country |
+| `selectCountry(Country)` | `fun` | Set active country and reformat |
+| `setCountryByCode(String)` | `fun` | Set country by ISO code |
+| `updatePhoneNumber(TextFieldValue)` | `fun` | Update field and reformat |
+| `parseAndSet(String)` | `fun` | Parse E.164 string, auto-detect country |
+| `clearPhone()` | `fun` | Reset field and all derived state |
+| `toPhone()` | `fun` | Snapshot current state as `Phone` |
+
+### `Phone`
 
 ```kotlin
 data class Phone(
-    val formattedPhone: String,  // International format (e.g., +1 415-555-0132)
-    val phoneNumber: String,     // Raw E.164 format (e.g., +14155550132)
-    val country: SelectedCountry?, // Country info (dial code, ISO, flag, etc.)
-    val isValid: Boolean          // Whether the number is valid
+    val formattedPhone: String,       // e.g. "+254 724 154 958"
+    val phoneNumber: String,          // E.164 e.g. "+254724154958"
+    val country: SelectedCountry?,    // name, code, dialCode, flag
+    val isValid: Boolean
 )
 ```
 
-### PhoneValidationResult
+### `CCPConfig` options
 
-Returned after validating or parsing a phone number.
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `autoDetectCountry` | `Boolean` | `false` | Detect country from SIM / locale |
+| `countryPickerStyle` | `CountryPickerStyle` | `BottomSheet` | `BottomSheet` or `Dropdown` |
+| `defaultCountryListStyle` | `CountryListStyle` | `List` | `List` or `Grid` |
+| `showClearButton` | `Boolean` | `false` | Show × button inside input |
+| `enforceMaxLength` | `Boolean` | `true` | Cap digits at country's max |
+| `readOnly` | `Boolean` | `false` | Disable input and country selector |
+| `showCountryFlag` | `Boolean` | `true` | Flag emoji in the selector button |
+| `showHeader` | `Boolean` | `true` | Letter headers in country list |
+| `showCountriesHeaderDivider` | `Boolean` | `true` | Divider next to letter headers |
+| `showFlagCountryItem` | `Boolean` | `true` | Flag in each country row |
+| `showDialCodeCountryItem` | `Boolean` | `true` | Dial code in each country row |
+| `borderWidth` | `Dp` | `0.dp` | Input field border thickness |
+| `phoneInputShape` | `Shape` | `RoundedCornerShape(16.dp)` | Input container shape |
+| `countriesSheetShape` | `Shape` | `RoundedCornerShape(top=16.dp)` | Bottom sheet shape |
+| `searchCornerRadius` | `Dp` | `16.dp` | Search field corner radius |
+| `searchBorderWidth` | `Dp` | `1.dp` | Search field border thickness |
 
-```kotlin
-data class PhoneValidationResult(
-    val formattedNumber: String,              // Pretty format (e.g., +254 712 345 678)
-    val unformattedNumber: String,            // E.164 format (e.g., +254712345678)
-    val formattedWithoutCountryCode: String,  // National format (e.g., 0712 345 678)
-    val isValid: Boolean                      // True if valid, false otherwise
-)
-```
+### `CCPColors` options
 
-### CCPColors
+| Property | Default | Description |
+|---|---|---|
+| `containerColor` | `colorScheme.background` | Input background |
+| `borderColor` | `colorScheme.outline` | Normal border |
+| `errorBorderColor` | `colorScheme.error` | Error state border |
+| `errorColor` | `colorScheme.error` | Error message text |
+| `cursorColor` | `colorScheme.primary` | Text cursor |
+| `inputTextColor` | `colorScheme.onSurface` | Entered number text |
+| `phoneHintColor` | `colorScheme.onSurfaceVariant` | Placeholder text |
+| `countryCodeTextColor` | `colorScheme.onSurface` | Dial code in selector |
+| `countryChevronColor` | `colorScheme.onSurface` | Chevron icon |
+| `ccpSheetColor` | — | All bottom sheet / dropdown colors (see `CCPSheetColor`) |
 
-Defines all colors used in the phone input and country picker UI.
-
-```kotlin
-data class CCPColors(
-    val containerColor: Color,         // Background color of the input field
-    val cursorColor: Color,            // Cursor color inside the text field
-    val borderColor: Color,            // Border color of the input container
-    val inputTextColor: Color,         // Phone number text color
-    val phoneHintColor: Color,         // Hint/placeholder text color
-    val countryCodeTextColor: Color,   // Country dial code text color
-    val countryChevronColor: Color,    // Chevron (dropdown arrow) color
-    val ccpSheetColor: CCPSheetColor   // Bottom sheet background + accents
-)
-```
-
-### CCPConfig
-
-Defines styles, shapes, and behavior of the component.
-
-```kotlin
-data class CCPConfig(
-    val phoneInputCornerRadius: Dp,  
-    val phoneHintStyle: TextStyle,  
-    val borderWidth: Dp,  
-    val autoDetectCountry: Boolean,  // Detect SIM/network/locale
-    val showHeader: Boolean,         // Show header in country picker sheet
-    val showCountryFlag: Boolean,    // Show flag in input field
-    val countriesSheetShape: Shape,  
-    val searchBorderWidth: Dp,  
-    val searchCornerRadius: Dp,  
-    val searchHintStyle: TextStyle,  
-    val headerStyle: TextStyle,  
-    val showDialCodeCountryItem: Boolean,  
-    val showFlagCountryItem: Boolean,  
-    val countryItemDialCodeTextStyle: TextStyle,  
-    val countryItemNameTextStyle: TextStyle,  
-    val countryItemShape: Shape,  
-    val phoneInputShape: Shape,  
-    val showCountriesHeaderDivider: Boolean  
-)
-```
-
-## 📸 Demo
+## Demo
 
 https://github.com/user-attachments/assets/f2c7c5b9-85dc-4e4a-9909-4ae57490d561
 
-## 📜 License
+## License
 
 ```
 Copyright (c) 2025 Ezekiel Wachira
