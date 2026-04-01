@@ -52,17 +52,12 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ezzy.ccp.CountryViewModel
 import com.ezzy.ccp.data.countryList
 import com.ezzy.ccp.icons.EzzyIcons
 import com.ezzy.ccp.icons.Grid
@@ -70,7 +65,9 @@ import com.ezzy.ccp.icons.List
 import com.ezzy.ccp.model.CCPColors
 import com.ezzy.ccp.model.CCPConfig
 import com.ezzy.ccp.model.Country
+import com.ezzy.ccp.state.CountrySearchState
 import com.ezzy.ccp.state.SearchState
+import com.ezzy.ccp.state.rememberCountrySearchState
 import com.ezzy.ccp.utils.CCPDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,60 +76,39 @@ fun CountriesBottomSheet(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit = {},
     onSelectCountries: (Country) -> Unit,
-    viewModel: CountryViewModel = viewModel(),
     sheetState: SheetState,
-    countriesToShow: List<String> = emptyList(), // listOf(US, UK, FR, KE ...etc)'
+    countriesToShow: List<String> = emptyList(),
     ccpColors: CCPColors = CCPDefaults.colors(),
     ccpConfig: CCPConfig = CCPDefaults.defaultConfig()
 ) {
-
-    val countries by viewModel.countries.collectAsStateWithLifecycle(emptyMap())
-    val searchState by viewModel.searchState.collectAsStateWithLifecycle()
+    val searchState = rememberCountrySearchState(countriesToShow)
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-
-
-    LaunchedEffect(countriesToShow) {
-        if (countriesToShow.isNotEmpty()) {
-            viewModel.setCountriesToShow(countriesToShow)
-        }
-    }
 
     ModalBottomSheet(
         sheetState = sheetState,
         containerColor = ccpColors.ccpSheetColor.containerColor,
         onDismissRequest = onDismiss,
-        modifier = modifier
-            .padding(top = statusBarHeight),
+        modifier = modifier.padding(top = statusBarHeight),
         shape = ccpConfig.countriesSheetShape,
-//        dragHandle = {}
     ) {
         SheetContent(
-            countriesState = countries,
-            onSelectCountries = onSelectCountries,
             searchState = searchState,
-            onValueChange = viewModel::updateSearchQuery,
+            onSelectCountries = onSelectCountries,
             ccpColors = ccpColors,
             ccpConfig = ccpConfig
         )
     }
-
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SheetContent(
     modifier: Modifier = Modifier,
-    countriesState: Map<Char, List<Country>> = countryList.sortedBy {
-        it.name[0]
-    }.groupBy { country -> country.name[0] },
+    searchState: CountrySearchState = rememberCountrySearchState(),
     onSelectCountries: (Country) -> Unit = {},
-    searchState: SearchState = SearchState(),
-    onValueChange: (String) -> Unit = {},
     ccpColors: CCPColors = CCPDefaults.colors(),
     ccpConfig: CCPConfig = CCPDefaults.defaultConfig()
 ) {
-
-
     Surface(
         modifier = modifier,
         color = ccpColors.ccpSheetColor.containerColor,
@@ -140,8 +116,8 @@ fun SheetContent(
         Column {
             Box(modifier = Modifier.padding(horizontal = 16.dp)) {
                 SearchComponent(
-                    searchState = searchState,
-                    onValueChange = onValueChange,
+                    searchState = SearchState(query = searchState.query),
+                    onValueChange = searchState::updateQuery,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
@@ -158,9 +134,8 @@ fun SheetContent(
                     .weight(1f)
                     .fillMaxWidth(),
                 contentPadding = PaddingValues(16.dp),
-//                verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                countriesState.forEach { (initial, countries) ->
+                searchState.filteredCountries.forEach { (initial, countries) ->
                     if (ccpConfig.showHeader) {
                         stickyHeader {
                             CountryHeader(
@@ -174,9 +149,9 @@ fun SheetContent(
                         }
                     }
 
-                    items(countries) {
+                    items(countries) { country ->
                         CountryItem(
-                            country = it,
+                            country = country,
                             onClick = onSelectCountries,
                             modifier = Modifier.animateItem(
                                 fadeInSpec = null,
@@ -252,7 +227,6 @@ fun CountryHeader(
     headerDividerColor: Color = Color.Black.copy(alpha = .1f),
     showDivider: Boolean = true
 ) {
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -263,7 +237,6 @@ fun CountryHeader(
             color = headerColor,
             style = headerStyle,
         )
-
         if (showDivider) {
             HorizontalDivider(color = headerDividerColor)
         }

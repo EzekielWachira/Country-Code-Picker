@@ -22,10 +22,7 @@
 
 package com.ezzy.ccp.components
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.telephony.TelephonyManager
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -61,84 +58,37 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ezzy.ccp.PhoneViewModel
 import com.ezzy.ccp.data.countryList
 import com.ezzy.ccp.icons.ChevronDown
 import com.ezzy.ccp.icons.EzzyIcons
 import com.ezzy.ccp.model.CCPColors
 import com.ezzy.ccp.model.CCPConfig
 import com.ezzy.ccp.model.Country
-import com.ezzy.ccp.model.Country.Companion.toSelectedCountry
 import com.ezzy.ccp.model.Phone
+import com.ezzy.ccp.state.PhoneState
+import com.ezzy.ccp.state.rememberPhoneState
 import com.ezzy.ccp.utils.CCPDefaults
+import com.ezzy.ccp.utils.CountryDetector
 import com.ezzy.ccp.utils.countryToFlagEmoji
-import java.util.Locale
 
 /**
  * A highly customizable international phone number input component with country selection.
  *
- * This composable provides:
- * - A country selector (with flag and dial code)
- * - A phone number input field that formats the number in real time
- * - Automatic validation based on the selected country
- * - Automatic country detection (via SIM, network, or locale) if enabled
+ * Delegates all state management to [PhoneState] and country detection to [CountryDetector],
+ * keeping this composable focused purely on layout and user interaction.
  *
- * Features:
- * - Formats phone numbers as the user types according to the selected country
- * - Provides both formatted and unformatted values to the parent
- * - Allows restricting the list of selectable countries
- * - Supports overriding the detected country with a preselected value
- * - Handles "Done" keyboard action for submission
- *
- * @param modifier Modifier to be applied to the input container.
+ * @param modifier Modifier applied to the input container.
  * @param phoneHint Placeholder text shown when the input field is empty.
- * @param onPhoneValueChange (Deprecated – use [onValueChange]) Callback invoked whenever the
- * phone number changes. Provides:
- *  - [formatedPhone]: The number in international format (e.g., "+1 415-555-2671")
- *  - [unFormatedPhone]: The number in E.164 format (e.g., "+14155552671")
- *  - [valid]: Whether the number is valid for the selected country
- * @param onValueChange Callback invoked whenever the phone number changes. Provides a [Phone]
- * object containing:
- *  - [formattedPhone]: Internationally formatted phone number
- *  - [phoneNumber]: E.164 number
- *  - [isValid]: Validation result
- *  - [country]: Selected country info
- * @param value Optional initial phone number to prefill the field.
- * Can be in E.164 format (e.g., "+14155552671") or local format (will be parsed).
- * @param setCountry Optional country code (e.g., "US") or country name (e.g., "United States")
- * to preselect. If provided, overrides auto detection.
- * @param countriesToShow Optional whitelist of country codes (e.g., listOf("US", "GB", "KE"))
- * to restrict the countries shown in the selector. Empty = all countries.
- * @param colors Styling configuration for container, border, text, cursor, and hint colors.
- * @param ccpConfig Configuration for behavior and UI of the country code picker (e.g.,
- * corner radius, borders, shapes, autoDetectCountry, etc.).
- * @param onDone Callback invoked when the keyboard "Done" action is pressed. Called only if the
- * current phone number is valid.
- *
- * ### Country auto-detection:
- * If [ccpConfig.autoDetectCountry] is true and [setCountry] is not provided, the country is
- * determined in this priority:
- * 1. SIM country (from TelephonyManager.simCountryIso)
- * 2. Network country (from TelephonyManager.networkCountryIso)
- * 3. Device locale (Locale.getDefault().country)
- * 4. Fallback to "US"
- *
- * ### Example:
- * ```
- * PhoneNumberInput(
- *   value = "+254712345678",
- *   setCountry = "KE",
- *   onValueChange = { phone ->
- *       if (phone.isValid) {
- *           submitPhone(phone.phoneNumber) // E.164 number
- *       }
- *   }
- * )
- * ```
+ * @param onPhoneValueChange Deprecated – use [onValueChange].
+ * @param onValueChange Callback invoked on every change, providing a [Phone] with
+ * formattedPhone, phoneNumber (E.164), isValid, and country.
+ * @param value Optional initial phone number (E.164 or local format).
+ * @param setCountry Optional country code (e.g. "US") or name to preselect.
+ * @param countriesToShow Whitelist of country codes shown in the selector. Empty = all.
+ * @param colors Color configuration.
+ * @param ccpConfig Behavior and UI configuration.
+ * @param onDone Called when the keyboard "Done" action is pressed and the number is valid.
  */
-
 @Composable
 fun PhoneNumberInput(
     modifier: Modifier = Modifier,
@@ -152,76 +102,39 @@ fun PhoneNumberInput(
     ccpConfig: CCPConfig = CCPDefaults.defaultConfig(),
     onDone: () -> Unit = {}
 ) {
-    val viewModel: PhoneViewModel = viewModel()
     val context = LocalContext.current
-    val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager?
-    val simCountry = telephonyManager?.simCountryIso?.lowercase()?.ifEmpty { "us" }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val phoneField by viewModel.phoneField.collectAsStateWithLifecycle()
+    val state = rememberPhoneState()
 
-    // Observe state from ViewModel
-    val selectedCountry by viewModel.activeCountry.collectAsStateWithLifecycle()
-    val phoneNumber by viewModel.phoneNumber.collectAsStateWithLifecycle()
-    val formattedPhone by viewModel.formattedPhone.collectAsStateWithLifecycle()
-    val unformattedPhone by viewModel.unformattedPhone.collectAsStateWithLifecycle()
-    val isValid by viewModel.isValid.collectAsStateWithLifecycle()
-
-    // Initialize country based on props
-    LaunchedEffect(setCountry, ccpConfig.autoDetectCountry, simCountry) {
-        if (!setCountry.isNullOrEmpty()) {
-            viewModel.setActiveCountry(
-                countryList.find {
-                    it.code.lowercase() == setCountry.lowercase() ||
-                            it.name.lowercase() == setCountry.lowercase()
+    LaunchedEffect(setCountry, ccpConfig.autoDetectCountry) {
+        when {
+            !setCountry.isNullOrEmpty() -> {
+                val found = countryList.find {
+                    it.code.equals(setCountry, ignoreCase = true) ||
+                        it.name.equals(setCountry, ignoreCase = true)
                 } ?: countryList.find { it.code == "US" }!!
-            )
-        } else if (ccpConfig.autoDetectCountry) {
-            val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager?
-            val simCountry = telephonyManager?.simCountryIso?.lowercase()
-            val networkCountry = telephonyManager?.networkCountryIso?.lowercase()
-            val localeCountry = Locale.getDefault().country.lowercase()
-
-            // Prefer SIM country → fallback to network → fallback to locale → fallback to US
-            val detectedCountry = when {
-                !simCountry.isNullOrEmpty() -> simCountry
-                !networkCountry.isNullOrEmpty() -> networkCountry
-                else -> localeCountry.ifEmpty { "us" }
+                state.selectCountry(found)
             }
-
-            viewModel.setCountryForLocale(detectedCountry)
-        } else {
-            viewModel.setCountryForLocale("us")
+            ccpConfig.autoDetectCountry -> state.setCountryByCode(CountryDetector.detect(context))
+            else -> state.setCountryByCode("US")
         }
     }
 
-    // Initialize phone number if provided
     LaunchedEffect(value) {
-        if (value.isNotEmpty()) {
-            viewModel.parseAndSetPhoneNumber(value)
-        }
+        if (value.isNotEmpty()) state.parseAndSet(value)
     }
 
-    // Notify parent of changes
-    LaunchedEffect(formattedPhone, unformattedPhone, isValid) {
-        onValueChange(
-            Phone(
-                formattedPhone = formattedPhone,
-                phoneNumber = unformattedPhone,
-                isValid = isValid,
-                country = selectedCountry?.toSelectedCountry(),
-            )
-        )
-        onPhoneValueChange(formattedPhone, unformattedPhone, isValid)
+    LaunchedEffect(state.formattedPhone, state.unformattedPhone, state.isValid) {
+        val phone = state.toPhone()
+        onValueChange(phone)
+        onPhoneValueChange(phone.formattedPhone, phone.phoneNumber, phone.isValid)
     }
 
     Surface(
         modifier = modifier,
         shape = ccpConfig.phoneInputShape,
         color = colors.containerColor,
-        border = BorderStroke(
-            width = ccpConfig.borderWidth,
-            color = colors.borderColor
-        )
+        border = BorderStroke(width = ccpConfig.borderWidth, color = colors.borderColor)
     ) {
         Row(
             modifier = Modifier
@@ -231,19 +144,15 @@ fun PhoneNumberInput(
             horizontalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             SelectedCountryComponent(
-                selectedCountry = selectedCountry,
-                onSelectCountry = { country ->
-                    viewModel.setActiveCountry(country)
-                },
+                selectedCountry = state.activeCountry,
+                onSelectCountry = state::selectCountry,
                 countriesToShow = countriesToShow,
                 ccpColors = colors,
                 ccpConfig = ccpConfig
             )
             BasicTextField(
-                value = phoneField,
-                onValueChange = { newValue ->
-                    viewModel.updatePhoneField(newValue)
-                },
+                value = state.phoneField,
+                onValueChange = state::updatePhoneNumber,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(color = colors.inputTextColor),
                 cursorBrush = SolidColor(colors.cursorColor),
                 keyboardOptions = KeyboardOptions(
@@ -253,10 +162,8 @@ fun PhoneNumberInput(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(1f),
                 decorationBox = { innerTextField ->
-                    Box(
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        if (phoneNumber.isEmpty()) {
+                    Box(contentAlignment = Alignment.CenterStart) {
+                        if (state.phoneNumber.isEmpty()) {
                             Text(
                                 text = phoneHint,
                                 style = ccpConfig.phoneHintStyle,
@@ -268,7 +175,7 @@ fun PhoneNumberInput(
                 },
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        if (!isValid) {
+                        if (!state.isValid) {
                             context.showToast("Invalid phone number")
                             return@KeyboardActions
                         }
@@ -283,99 +190,46 @@ fun PhoneNumberInput(
 }
 
 /**
- * A composable that displays the selected country with its flag and dial code.
+ * Displays the currently selected country (flag + dial code) and opens a [CountriesBottomSheet]
+ * when tapped.
  *
- * This component shows the currently selected country and opens a bottom sheet for country
- * selection when clicked. It automatically initializes with the device's current locale.
- *
- * @param modifier Modifier to be applied to the component
- * @param selectedCountry The currently selected country; defaults to US if null
- * @param viewModel ViewModel that manages country selection state
- * @param onSelectCountry Callback that is triggered when a new country is selected
- * @param countriesToShow Optional list of country codes to filter the available countries in the bottom sheet
+ * @param modifier Modifier applied to the surface.
+ * @param selectedCountry Country to display; falls back to US if null.
+ * @param onSelectCountry Triggered when the user picks a country.
+ * @param countriesToShow Whitelist of country codes shown in the sheet.
+ * @param ccpColors Color configuration.
+ * @param ccpConfig Behavior and UI configuration.
  */
-@SuppressLint("LocalContextConfigurationRead")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectedCountryComponent(
     modifier: Modifier = Modifier,
     selectedCountry: Country? = countryList.find { it.code == "US" },
-    viewModel: PhoneViewModel = viewModel(),
     onSelectCountry: (Country) -> Unit = {},
-    countriesToShow: List<String> = emptyList(), // listOf(US, UK, FR, KE ...etc)
+    countriesToShow: List<String> = emptyList(),
     ccpColors: CCPColors = CCPDefaults.colors(),
     ccpConfig: CCPConfig = CCPDefaults.defaultConfig()
 ) {
-
-    var isCountryBottomSheetVisible by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-    val sheetState = rememberModalBottomSheetState(true)
-
-    LaunchedEffect(ccpConfig.autoDetectCountry) {
-        if (ccpConfig.autoDetectCountry) {
-
-            val telephonyManager =
-                context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager?
-
-            // Try SIM country first (home country), then network, then locale
-            val simCountry =
-                telephonyManager?.simCountryIso?.takeIf { it.isNotBlank() }?.uppercase(Locale.ROOT)
-            val networkCountry = telephonyManager?.networkCountryIso?.takeIf { it.isNotBlank() }
-                ?.uppercase(Locale.ROOT)
-
-            // locale from resources (may be empty) then Locale.getDefault
-            val configLocaleCountry = try {
-                context.resources.configuration.locales[0].country.takeIf { it.isNotBlank() }
-                    ?.uppercase(Locale.ROOT)
-            } catch (e: Exception) {
-                null
-            }
-            val defaultLocaleCountry =
-                Locale.getDefault().country.takeIf { it.isNotBlank() }?.uppercase(Locale.ROOT)
-
-            // pick the best available
-            val rawDetected =
-                simCountry ?: networkCountry ?: configLocaleCountry ?: defaultLocaleCountry ?: "US"
-
-            // Normalize known oddities (UK -> GB), add more mappings if you need
-            val normalizedDetected = when (rawDetected) {
-                "UK" -> "GB"
-                else -> rawDetected
-            }
-
-            // Optional: log values while testing
-            Log.d(
-                "SelectedCountryComponent",
-                "sim=$simCountry network=$networkCountry locale=$configLocaleCountry defaultLocale=$defaultLocaleCountry -> detected=$normalizedDetected"
-            )
-
-            // set it on the viewModel (viewModel now handles case-insensitive match)
-            viewModel.setCountryForLocale(normalizedDetected)
-        } else {
-            viewModel.setCountryForLocale("US")
-        }
-    }
+    var isSheetVisible by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Surface(
-        modifier = modifier, onClick = {
-            isCountryBottomSheetVisible = true
-        },
+        modifier = modifier,
+        onClick = { isSheetVisible = true },
         shape = ccpConfig.phoneInputShape,
         color = ccpColors.containerColor,
-        enabled = ccpConfig.readOnly.not()
+        enabled = !ccpConfig.readOnly
     ) {
         Row(
-            modifier = Modifier.padding(
-                horizontal = 8.dp, vertical = 10.dp
-            ),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (ccpConfig.showCountryFlag)
+            if (ccpConfig.showCountryFlag) {
                 Text(
                     text = (selectedCountry?.code ?: "US").countryToFlagEmoji() ?: "",
                     fontSize = 18.sp,
                 )
-
+            }
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = selectedCountry?.dialCode ?: "00",
@@ -392,16 +246,14 @@ fun SelectedCountryComponent(
         }
     }
 
-    if (isCountryBottomSheetVisible) {
+    if (isSheetVisible) {
         CountriesBottomSheet(
             sheetState = sheetState,
             onSelectCountries = {
-                isCountryBottomSheetVisible = false
+                isSheetVisible = false
                 onSelectCountry(it)
             },
-            onDismiss = {
-                isCountryBottomSheetVisible = false
-            },
+            onDismiss = { isSheetVisible = false },
             countriesToShow = countriesToShow,
             ccpColors = ccpColors,
             ccpConfig = ccpConfig
