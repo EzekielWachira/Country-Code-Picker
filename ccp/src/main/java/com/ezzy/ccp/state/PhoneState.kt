@@ -40,7 +40,12 @@ import com.ezzy.ccp.utils.parsePhoneNumber
  * State holder for the phone number input. Owns all mutable state related to country
  * selection and phone formatting, and exposes methods to drive state transitions.
  *
- * Intended to be created via [rememberPhoneState] so Compose tracks it across recompositions.
+ * Expose this to the host composable for state hoisting:
+ * ```
+ * val phoneState = rememberPhoneState()
+ * PhoneNumberInput(state = phoneState, ...)
+ * // Later: phoneState.clearPhone(), phoneState.isValid, etc.
+ * ```
  */
 class PhoneState {
 
@@ -106,6 +111,15 @@ class PhoneState {
         } else {
             updatePhoneNumber(TextFieldValue(value))
         }
+    }
+
+    /** Clears the entered phone number, resetting all derived state. */
+    fun clearPhone() {
+        phoneNumber = ""
+        phoneField = TextFieldValue("")
+        formattedPhone = ""
+        unformattedPhone = ""
+        isValid = false
     }
 
     /** Builds a [Phone] snapshot from the current state. */

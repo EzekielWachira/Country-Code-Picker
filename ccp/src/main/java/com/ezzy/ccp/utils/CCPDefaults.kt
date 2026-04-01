@@ -32,36 +32,19 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ezzy.ccp.model.CCPColors
 import com.ezzy.ccp.model.CCPConfig
+import com.ezzy.ccp.model.CountryListStyle
 
-/**
- * Provides default configurations and color schemes for the Country Code Picker (CCP).
- */
 object CCPDefaults {
-    /**
-     * Creates a [CCPColors] instance with customizable colors used across the Country Code Picker.
-     *
-     * @param containerColor The background color for the phone input container.
-     * Defaults to [MaterialTheme.colorScheme.background].
-     * @param cursorColor The color of the input cursor.
-     * Defaults to [MaterialTheme.colorScheme.primary].
-     * @param borderColor The border color of the phone input field.
-     * Defaults to [MaterialTheme.colorScheme.outline].
-     * @param inputTextColor The text color for the entered phone number.
-     * Defaults to [MaterialTheme.colorScheme.onSurface].
-     * @param phoneHintColor The color for the phone input hint text.
-     * Defaults to [MaterialTheme.colorScheme.onSurfaceVariant].
-     * @param ccpSheetColor Defines the color scheme for the country selection sheet.
-     * Defaults to a [CCPSheetColor] object derived from [MaterialTheme.colorScheme].
-     *
-     * @return A [CCPColors] instance containing the provided or default colors.
-     */
+
     @Composable
     fun colors(
         containerColor: Color = MaterialTheme.colorScheme.background,
         cursorColor: Color = MaterialTheme.colorScheme.primary,
         borderColor: Color = MaterialTheme.colorScheme.outline,
+        errorBorderColor: Color = MaterialTheme.colorScheme.error,
         inputTextColor: Color = MaterialTheme.colorScheme.onSurface,
         phoneHintColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+        errorColor: Color = MaterialTheme.colorScheme.error,
         ccpSheetColor: CCPSheetColor = ccpSheetColor(
             sheetContainerColor = MaterialTheme.colorScheme.background,
             searchTextColor = MaterialTheme.colorScheme.onSurface,
@@ -77,18 +60,18 @@ object CCPDefaults {
             countryItemTextColor = MaterialTheme.colorScheme.onSurface,
             headerDividerColor = MaterialTheme.colorScheme.outline
         )
-    ): CCPColors {
-        return CCPColors(
-            containerColor = containerColor,
-            cursorColor = cursorColor,
-            borderColor = borderColor,
-            inputTextColor = inputTextColor,
-            phoneHintColor = phoneHintColor,
-            ccpSheetColor = ccpSheetColor,
-            countryCodeTextColor = MaterialTheme.colorScheme.onSurface,
-            countryChevronColor = MaterialTheme.colorScheme.onSurface
-        )
-    }
+    ): CCPColors = CCPColors(
+        containerColor = containerColor,
+        cursorColor = cursorColor,
+        borderColor = borderColor,
+        errorBorderColor = errorBorderColor,
+        inputTextColor = inputTextColor,
+        phoneHintColor = phoneHintColor,
+        errorColor = errorColor,
+        ccpSheetColor = ccpSheetColor,
+        countryCodeTextColor = MaterialTheme.colorScheme.onSurface,
+        countryChevronColor = MaterialTheme.colorScheme.onSurface
+    )
 
     @Composable
     fun ccpSheetColor(
@@ -105,44 +88,22 @@ object CCPDefaults {
         countryItemDialCodeTextColor: Color = MaterialTheme.colorScheme.onSurface,
         countryItemTextColor: Color = MaterialTheme.colorScheme.onSurface,
         headerDividerColor: Color = MaterialTheme.colorScheme.outline
-    ): CCPSheetColor {
-        return CCPSheetColor(
-            sheetContainerColor = sheetContainerColor,
-            searchTextColor = searchTextColor,
-            hintTextColor = hintTextColor,
-            countryHeaderColor = countryHeaderColor,
-            containerColor = containerColor,
-            searchContainerColor = searchContainerColor,
-            searchIconTint = searchIconTint,
-            searchBorderColor = searchBorderColor,
-            searchHintColor = searchHintColor,
-            countryItemContainerColor = countryItemContainerColor,
-            countryItemDialCodeTextColor = countryItemDialCodeTextColor,
-            countryItemTextColor = countryItemTextColor,
-            headerDividerColor = headerDividerColor,
-        )
-    }
+    ): CCPSheetColor = CCPSheetColor(
+        sheetContainerColor = sheetContainerColor,
+        searchTextColor = searchTextColor,
+        hintTextColor = hintTextColor,
+        countryHeaderColor = countryHeaderColor,
+        containerColor = containerColor,
+        searchContainerColor = searchContainerColor,
+        searchIconTint = searchIconTint,
+        searchBorderColor = searchBorderColor,
+        searchHintColor = searchHintColor,
+        countryItemContainerColor = countryItemContainerColor,
+        countryItemDialCodeTextColor = countryItemDialCodeTextColor,
+        countryItemTextColor = countryItemTextColor,
+        headerDividerColor = headerDividerColor,
+    )
 
-    /**
-     * Creates a [CCPConfig] instance with customizable UI and behavioral options
-     * for the Country Code Picker.
-     *
-     * @param phoneInputCornerRadius The corner radius for the phone input field. Defaults to `16.dp`.
-     * @param phoneHintStyle The text style for the phone input hint. Defaults to [TextStyle.Default].
-     * @param borderWidth The width of the border around the phone input field. Defaults to `0.dp`.
-     * @param autoDetectCountry Whether to automatically detect the user's country. Defaults to `false`.
-     * @param showHeader Whether to display the sheet header in the country picker. Defaults to `true`.
-     * @param showCountryFlag Whether to display the country flag in the input and sheet. Defaults to `true`.
-     * @param searchBorderWidth The border width for the search field in the sheet. Defaults to `1.dp`.
-     * @param searchCornerRadius The corner radius for the search field. Defaults to `16.dp`.
-     * @param searchHintStyle The text style for the search hint. Defaults to [TextStyle.Default].
-     * @param headerStyle The text style for the sheet header.
-     * Defaults to [MaterialTheme.typography.titleMedium].
-     * @param countriesSheetShape The shape of the country picker sheet.
-     * Defaults to a [RoundedCornerShape] with 16.dp top corners.
-     *
-     * @return A [CCPConfig] instance containing the provided or default configuration.
-     */
     @Composable
     fun defaultConfig(
         phoneInputCornerRadius: Dp = 16.dp,
@@ -160,28 +121,32 @@ object CCPDefaults {
         showFlagCountryItem: Boolean = true,
         phoneInputShape: Shape = RoundedCornerShape(phoneInputCornerRadius),
         showCountriesHeaderDivider: Boolean = true,
-        readOnly: Boolean = false
-    ): CCPConfig {
-        return CCPConfig(
-            phoneInputCornerRadius = phoneInputCornerRadius,
-            phoneHintStyle = phoneHintStyle,
-            borderWidth = borderWidth,
-            autoDetectCountry = autoDetectCountry,
-            showHeader = showHeader,
-            showCountryFlag = showCountryFlag,
-            countriesSheetShape = countriesSheetShape,
-            searchBorderWidth = searchBorderWidth,
-            searchCornerRadius = searchCornerRadius,
-            searchHintStyle = searchHintStyle,
-            headerStyle = headerStyle,
-            showDialCodeCountryItem = showDialCodeCountryItem,
-            showFlagCountryItem = showFlagCountryItem,
-            countryItemDialCodeTextStyle = MaterialTheme.typography.titleSmall,
-            countryItemNameTextStyle = MaterialTheme.typography.bodyMedium,
-            countryItemShape = RoundedCornerShape(16.dp),
-            phoneInputShape = phoneInputShape,
-            showCountriesHeaderDivider = showCountriesHeaderDivider,
-            readOnly = readOnly
-        )
-    }
+        readOnly: Boolean = false,
+        showClearButton: Boolean = false,
+        enforceMaxLength: Boolean = true,
+        defaultCountryListStyle: CountryListStyle = CountryListStyle.List,
+    ): CCPConfig = CCPConfig(
+        phoneInputCornerRadius = phoneInputCornerRadius,
+        phoneHintStyle = phoneHintStyle,
+        borderWidth = borderWidth,
+        autoDetectCountry = autoDetectCountry,
+        showHeader = showHeader,
+        showCountryFlag = showCountryFlag,
+        countriesSheetShape = countriesSheetShape,
+        searchBorderWidth = searchBorderWidth,
+        searchCornerRadius = searchCornerRadius,
+        searchHintStyle = searchHintStyle,
+        headerStyle = headerStyle,
+        showDialCodeCountryItem = showDialCodeCountryItem,
+        showFlagCountryItem = showFlagCountryItem,
+        countryItemDialCodeTextStyle = MaterialTheme.typography.titleSmall,
+        countryItemNameTextStyle = MaterialTheme.typography.bodyMedium,
+        countryItemShape = RoundedCornerShape(16.dp),
+        phoneInputShape = phoneInputShape,
+        showCountriesHeaderDivider = showCountriesHeaderDivider,
+        readOnly = readOnly,
+        showClearButton = showClearButton,
+        enforceMaxLength = enforceMaxLength,
+        defaultCountryListStyle = defaultCountryListStyle,
+    )
 }

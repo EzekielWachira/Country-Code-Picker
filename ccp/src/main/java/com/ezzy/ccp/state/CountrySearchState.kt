@@ -34,29 +34,58 @@ import com.ezzy.ccp.model.Country
 /**
  * State holder for country search and filtering inside the countries bottom sheet.
  *
- * [filteredCountries] is a derived value — it recomputes automatically whenever [query]
- * changes. [countriesToShow] is fixed at construction time; pass a new instance via
- * [rememberCountrySearchState] when it needs to change.
+ * All derived lists ([pinnedList], [filteredCountries]) recompute automatically via
+ * [derivedStateOf] — no coroutines or manual invalidation needed.
+ *
+ * @param countriesToShow Whitelist of ISO codes to show. Empty = all countries.
+ * @param countriesToExclude Blacklist of ISO codes to hide regardless of [countriesToShow].
+ * @param pinnedCountries ISO codes of countries pinned to a "Suggested" section at the top
+ * of the list. Only visible when [query] is blank.
  *
  * Create via [rememberCountrySearchState].
  */
-class CountrySearchState(val countriesToShow: List<String> = emptyList()) {
-
+class CountrySearchState(
+    val countriesToShow: List<String> = emptyList(),
+    val countriesToExclude: List<String> = emptyList(),
+    val pinnedCountries: List<String> = emptyList(),
+) {
     var query by mutableStateOf("")
         private set
 
-    /** Grouped and filtered country list, recomputed reactively when [query] changes. */
+    /**
+     * Countries pinned to the top "Suggested" section. Empty while the user is searching,
+     * so the pinned header disappears and the results are consolidated.
+     */
+    val pinnedList: List<Country> by derivedStateOf {
+        if (query.isBlank() && pinnedCountries.isNotEmpty()) {
+            countryList.filter { it.code in pinnedCountries && it.code !in countriesToExclude }
+        } else {
+            emptyList()
+        }
+    }
+
+    /**
+     * Grouped and filtered country list. When [query] is blank and [pinnedCountries] is set,
+     * pinned countries are excluded from this map to avoid duplication with [pinnedList].
+     */
     val filteredCountries: Map<Char, List<Country>> by derivedStateOf {
         val base = if (countriesToShow.isNotEmpty()) {
             countryList.filter { it.code in countriesToShow }
         } else {
             countryList
-        }
-        val filtered = if (query.isBlank()) base
-        else base.filter {
-            it.name.contains(query, ignoreCase = true) ||
-                it.dialCode.contains(query, ignoreCase = true) ||
-                it.code.contains(query, ignoreCase = true)
+        }.filter { it.code !in countriesToExclude }
+
+        // Hide pinned from the main list only when not searching (they appear in the pinned section)
+        val hiddenFromMain = if (query.isBlank()) pinnedCountries.toSet() else emptySet()
+
+        val filtered = if (query.isBlank()) {
+            base.filter { it.code !in hiddenFromMain }
+        } else {
+            base.filter {
+                it.name.contains(query, ignoreCase = true) ||
+                    it.dialCode.contains(query, ignoreCase = true) ||
+                    it.code.contains(query, ignoreCase = true)
+            }
         }
         filtered.sortedBy { it.name[0] }.groupBy { it.name[0] }
     }
@@ -67,5 +96,10 @@ class CountrySearchState(val countriesToShow: List<String> = emptyList()) {
 }
 
 @Composable
-fun rememberCountrySearchState(countriesToShow: List<String> = emptyList()): CountrySearchState =
-    remember(countriesToShow) { CountrySearchState(countriesToShow) }
+fun rememberCountrySearchState(
+    countriesToShow: List<String> = emptyList(),
+    countriesToExclude: List<String> = emptyList(),
+    pinnedCountries: List<String> = emptyList(),
+): CountrySearchState = remember(countriesToShow, countriesToExclude, pinnedCountries) {
+    CountrySearchState(countriesToShow, countriesToExclude, pinnedCountries)
+}

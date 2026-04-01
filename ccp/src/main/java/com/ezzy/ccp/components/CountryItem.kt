@@ -23,14 +23,24 @@
 package com.ezzy.ccp.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,6 +51,7 @@ import com.ezzy.ccp.model.Country
 import com.ezzy.ccp.utils.CCPDefaults
 import com.ezzy.ccp.utils.countryToFlagEmoji
 
+/** Full-width list item showing flag, name, and dial code. Used in list layout mode. */
 @Composable
 fun CountryItem(
     modifier: Modifier = Modifier,
@@ -49,11 +60,18 @@ fun CountryItem(
     ccpColors: CCPColors = CCPDefaults.colors(),
     ccpConfig: CCPConfig = CCPDefaults.defaultConfig()
 ) {
+    val haptic = LocalHapticFeedback.current
     Surface(
         color = ccpColors.ccpSheetColor.countryItemContainerColor,
-        modifier = modifier,
+        modifier = modifier.semantics {
+            contentDescription = "${country.name}, ${country.dialCode}"
+            role = Role.Button
+        },
         shape = ccpConfig.countryItemShape,
-        onClick = { onClick(country) }
+        onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            onClick(country)
+        }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -68,19 +86,16 @@ fun CountryItem(
                     fontSize = 22.sp
                 )
             }
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-
                 Text(
                     text = country.name,
                     color = ccpColors.ccpSheetColor.countryItemTextColor,
                     style = ccpConfig.countryItemNameTextStyle
                 )
-
                 if (ccpConfig.showDialCodeCountryItem) {
                     Text(
                         text = country.dialCode,
@@ -93,8 +108,64 @@ fun CountryItem(
     }
 }
 
+/** Compact grid cell showing flag, ISO code, and dial code. Used in grid layout mode. */
+@Composable
+fun CountryGridItem(
+    modifier: Modifier = Modifier,
+    onClick: (Country) -> Unit = {},
+    country: Country,
+    ccpColors: CCPColors = CCPDefaults.colors(),
+    ccpConfig: CCPConfig = CCPDefaults.defaultConfig()
+) {
+    val haptic = LocalHapticFeedback.current
+    Surface(
+        color = ccpColors.ccpSheetColor.countryItemContainerColor,
+        modifier = modifier.semantics {
+            contentDescription = "${country.name}, ${country.dialCode}"
+            role = Role.Button
+        },
+        shape = ccpConfig.countryItemShape,
+        onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            onClick(country)
+        }
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .padding(vertical = 12.dp, horizontal = 8.dp)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = country.code.countryToFlagEmoji() ?: "",
+                fontSize = 28.sp
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = country.code,
+                color = ccpColors.ccpSheetColor.countryItemTextColor,
+                style = ccpConfig.countryItemNameTextStyle,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = country.dialCode,
+                color = ccpColors.ccpSheetColor.countryItemDialCodeTextColor,
+                style = ccpConfig.countryItemDialCodeTextStyle,
+                maxLines = 1
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun CountryItemPreview() {
     CountryItem(country = countryList[0])
+}
+
+@Preview
+@Composable
+private fun CountryGridItemPreview() {
+    CountryGridItem(country = countryList[0])
 }

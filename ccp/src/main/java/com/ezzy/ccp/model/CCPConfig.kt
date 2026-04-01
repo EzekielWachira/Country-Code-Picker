@@ -27,30 +27,31 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 
 /**
- * Configuration options for customizing the appearance and behavior of the
- * Country Code Picker (CCP) component.
+ * Configuration options for customizing the appearance and behavior of the CCP component.
  *
- * This class allows fine-grained control over the UI elements, shapes, and
- * behavior of the phone number input and country selection sheet.
- *
- * @property phoneInputCornerRadius The corner radius applied to the phone input field container.
- * @property phoneHintStyle The [TextStyle] applied to the hint/placeholder text inside the phone input.
- * @property borderWidth The thickness of the border around the phone number input field.
- * @property autoDetectCountry Whether the component should automatically detect and set the user's country (using SIM, network, or locale).
- * @property showHeader Whether to display a header section inside the country selection sheet.
- * @property showCountryFlag Whether to display the country flag inside the phone input field.
- * @property countriesSheetShape The shape of the country selection sheet (e.g., rounded corners, rectangle).
- * @property searchBorderWidth The thickness of the border around the search input field inside the country selection sheet.
- * @property searchCornerRadius The corner radius applied to the search input field inside the country selection sheet.
- * @property searchHintStyle The [TextStyle] applied to the hint/placeholder text inside the search field.
- * @property headerStyle The [TextStyle] applied to the header text in the country selection sheet.
- * @property showDialCodeCountryItem Whether to display the country dial code (e.g., +1, +254) in the country list items.
- * @property showFlagCountryItem Whether to display the country flag in the country list items.
- * @property countryItemDialCodeTextStyle The [TextStyle] applied to the dial code text in each country list item.
- * @property countryItemNameTextStyle The [TextStyle] applied to the country name text in each country list item.
- * @property countryItemShape The shape applied to individual country list items (e.g., rounded rectangle).
- * @property phoneInputShape The shape of the phone input field container.
- * @property showCountriesHeaderDivider Whether to display a divider line below the header in the country selection sheet.
+ * @property phoneInputCornerRadius Corner radius of the phone input field container.
+ * @property phoneHintStyle [TextStyle] for the placeholder text inside the phone input.
+ * @property borderWidth Thickness of the border around the phone number input field.
+ * @property autoDetectCountry Automatically detect the user's country via SIM, network, or locale.
+ * @property showHeader Display a letter header inside the country selection sheet.
+ * @property showCountryFlag Display the country flag inside the phone input field.
+ * @property countriesSheetShape Shape of the country selection bottom sheet.
+ * @property searchBorderWidth Border thickness of the search field inside the sheet.
+ * @property searchCornerRadius Corner radius of the search field.
+ * @property searchHintStyle [TextStyle] for the search field placeholder.
+ * @property headerStyle [TextStyle] for the letter headers in the country list.
+ * @property showDialCodeCountryItem Show the dial code (e.g. +1) inside each country list item.
+ * @property showFlagCountryItem Show the flag emoji inside each country list item.
+ * @property countryItemDialCodeTextStyle [TextStyle] for the dial code in each country item.
+ * @property countryItemNameTextStyle [TextStyle] for the country name in each country item.
+ * @property countryItemShape Shape of individual country list items.
+ * @property phoneInputShape Shape of the phone input field container.
+ * @property showCountriesHeaderDivider Show a divider line next to the letter header.
+ * @property readOnly Make the phone input non-editable and the country selector non-tappable.
+ * @property showClearButton Show an × button inside the field to clear the entered number.
+ * @property enforceMaxLength Cap input at the maximum digit count for the selected country.
+ * @property defaultCountryListStyle Initial layout of the country list — [CountryListStyle.List]
+ * or [CountryListStyle.Grid]. The user can toggle this at runtime via the sort button.
  */
 data class CCPConfig(
     val phoneInputCornerRadius: Dp,
@@ -71,5 +72,8 @@ data class CCPConfig(
     val countryItemShape: Shape,
     val phoneInputShape: Shape,
     val showCountriesHeaderDivider: Boolean,
-    val readOnly: Boolean
+    val readOnly: Boolean,
+    val showClearButton: Boolean,
+    val enforceMaxLength: Boolean,
+    val defaultCountryListStyle: CountryListStyle,
 )

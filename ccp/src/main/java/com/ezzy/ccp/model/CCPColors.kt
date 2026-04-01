@@ -28,25 +28,26 @@ import com.ezzy.ccp.utils.CCPSheetColor
 /**
  * Defines the color scheme for the Country Code Picker (CCP) component.
  *
- * This class provides customization options for all major UI elements
- * within the CCP, ensuring consistency with the app's overall theme.
- *
- * @property containerColor The background color of the phone number input container.
- * @property cursorColor The color of the text cursor inside the phone number field.
- * @property borderColor The color of the border around the phone number input field.
- * @property inputTextColor The color of the text entered into the phone number field.
- * @property phoneHintColor The color of the hint/placeholder text inside the phone number input.
- * @property countryCodeTextColor The color of the country code displayed in the picker.
- * @property countryChevronColor The color of the dropdown chevron icon for selecting a country.
- * @property ccpSheetColor A set of colors applied to the country selection bottom sheet (see [CCPSheetColor]).
+ * @property containerColor Background color of the phone number input container.
+ * @property cursorColor Color of the text cursor inside the phone number field.
+ * @property borderColor Border color of the phone number input field (normal state).
+ * @property errorBorderColor Border color shown when [PhoneNumberInput] is in error state.
+ * @property inputTextColor Color of the text entered into the phone number field.
+ * @property phoneHintColor Color of the hint/placeholder text.
+ * @property countryCodeTextColor Color of the country dial code displayed in the picker.
+ * @property countryChevronColor Color of the dropdown chevron icon.
+ * @property errorColor Color of the error message text shown below the field.
+ * @property ccpSheetColor Colors applied to the country selection bottom sheet.
  */
 data class CCPColors(
     val containerColor: Color,
     val cursorColor: Color,
     val borderColor: Color,
+    val errorBorderColor: Color,
     val inputTextColor: Color,
     val phoneHintColor: Color,
     val countryCodeTextColor: Color,
     val countryChevronColor: Color,
+    val errorColor: Color,
     val ccpSheetColor: CCPSheetColor
 )
