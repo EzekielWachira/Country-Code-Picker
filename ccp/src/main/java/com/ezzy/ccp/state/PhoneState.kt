@@ -23,112 +23,191 @@
 package com.ezzy.ccp.state
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import com.ezzy.ccp.data.countryList
+import com.ezzy.ccp.countrypicker.data.DefaultCountryDataSource
+import com.ezzy.ccp.countrypicker.model.PhoneNumberValidity
+import com.ezzy.ccp.countrypicker.model.PhoneNumberValue
+import com.ezzy.ccp.countrypicker.model.toLegacy
+import com.ezzy.ccp.countrypicker.model.toLegacyPhone
+import com.ezzy.ccp.countrypicker.phone.PhoneNumberFormatter
+import com.ezzy.ccp.countrypicker.phone.PhoneNumberValidator
+import com.ezzy.ccp.countrypicker.phone.cursorOffsetForDigitCount
 import com.ezzy.ccp.model.Country
-import com.ezzy.ccp.model.Country.Companion.toSelectedCountry
 import com.ezzy.ccp.model.Phone
-import com.ezzy.ccp.utils.formatAndValidatePhone
-import com.ezzy.ccp.utils.parsePhoneNumber
+import com.ezzy.ccp.countrypicker.model.Country as CanonicalCountry
 
 /**
- * State holder for the phone number input. Owns all mutable state related to country
- * selection and phone formatting, and exposes methods to drive state transitions.
+ * State holder for [com.ezzy.ccp.components.PhoneNumberInput].
  *
- * Expose this to the host composable for state hoisting:
- * ```
+ * The public surface is unchanged from previous versions — [activeCountry], [phoneNumber],
+ * [phoneField], [formattedPhone], [unformattedPhone], [isValid], and the same five methods — but the
+ * implementation now runs on [PhoneNumberValidator] and [PhoneNumberFormatter] instead of its own
+ * parse/format helpers.
+ *
+ * ### What that buys existing callers
+ * - **Progressive formatting.** The field previously reformatted through libphonenumber's `NATIONAL`
+ *   formatter, which only produces grouping once a number is complete. It now uses
+ *   `AsYouTypeFormatter`, so `71` → `712` → `712 345 678` groups as the user types.
+ * - **Granular validity.** [validity] distinguishes "still typing" from "wrong"; [isValid] behaves
+ *   exactly as before.
+ * - **Correct E.164.** [unformattedPhone] is `null`-safe as before but is now only populated when the
+ *   number is actually parseable, instead of echoing raw input back as though it were E.164.
+ *
+ * Hoist it as before:
+ * ```kotlin
  * val phoneState = rememberPhoneState()
- * PhoneNumberInput(state = phoneState, ...)
- * // Later: phoneState.clearPhone(), phoneState.isValid, etc.
+ * PhoneNumberInput(state = phoneState)
+ * // Later: phoneState.clearPhone(), phoneState.isValid, phoneState.toPhone()
  * ```
  */
+@Stable
 class PhoneState {
 
-    var activeCountry by mutableStateOf(countryList.find { it.code == "US" })
+    /** The canonical country. The authority; [activeCountry] is a projection of it. */
+    internal var canonicalCountry: CanonicalCountry by mutableStateOf(defaultCountry())
         private set
 
-    var phoneNumber by mutableStateOf("")
+    /**
+     * The selected country in the legacy model.
+     *
+     * Nullable for source compatibility — it was nullable before and callers guard against null —
+     * but in practice it is never null, because the state always falls back to a default country.
+     */
+    val activeCountry: Country? get() = canonicalCountry.toLegacy()
+
+    /** Digits the user typed, with formatting stripped. */
+    var phoneNumber: String by mutableStateOf("")
         private set
 
-    var phoneField by mutableStateOf(TextFieldValue(""))
+    /** The field's text and cursor. Derived from [phoneNumber]; never set independently. */
+    var phoneField: TextFieldValue by mutableStateOf(TextFieldValue(""))
         private set
 
-    var formattedPhone by mutableStateOf("")
+    /** International display form, e.g. `+254 712 345 678`. */
+    var formattedPhone: String by mutableStateOf("")
         private set
 
-    var unformattedPhone by mutableStateOf("")
+    /**
+     * E.164 form, e.g. `+254712345678`.
+     *
+     * Empty — not a partial echo of the input — while the number cannot be parsed. Previously this
+     * fell back to the raw text on a parse failure, which meant callers could persist a value that was
+     * not E.164 at all.
+     */
+    var unformattedPhone: String by mutableStateOf("")
         private set
 
-    var isValid by mutableStateOf(false)
+    /** Whether the number is valid and dialable for [activeCountry]. */
+    var isValid: Boolean by mutableStateOf(false)
         private set
 
-    /** Updates all derived phone state (formatted, unformatted, validity) from a raw input. */
+    /**
+     * The granular reason behind [isValid].
+     *
+     * New in this version; use it to tell "incomplete" apart from "invalid" instead of inferring from
+     * length.
+     */
+    var validity: PhoneNumberValidity by mutableStateOf(PhoneNumberValidity.Empty)
+        private set
+
+    /** The full evaluated value, including the nullable E.164 form. */
+    var value: PhoneNumberValue by mutableStateOf(PhoneNumberValue.empty(defaultCountry()))
+        private set
+
+    /** Updates all derived phone state from a raw field edit. */
     fun updatePhoneNumber(newValue: TextFieldValue) {
-        val countryCode = activeCountry?.code ?: "US"
-        val digitsOnly = newValue.text.filter { it.isDigit() }
-        val result = formatAndValidatePhone(digitsOnly, countryCode)
-        phoneNumber = digitsOnly
-        formattedPhone = result.formattedNumber
-        unformattedPhone = result.unformattedNumber
-        isValid = result.isValid
-        phoneField = newValue.copy(
-            text = result.formattedWithoutCountryCode,
-            selection = TextRange(result.formattedWithoutCountryCode.length)
-        )
+        // Anchored by digit count, not character offset, so the cursor survives the reformat that
+        // follows — see applyDigits.
+        val digitsBeforeCursor = newValue.text.take(newValue.selection.end).count(Char::isDigit)
+        applyDigits(newValue.text.filter(Char::isDigit), digitsBeforeCursor)
     }
 
-    /** Sets the active country by ISO code (case-insensitive). Falls back to US if not found. */
+    /** Sets the active country by ISO code, case-insensitively. Falls back to the default if unknown. */
     fun setCountryByCode(code: String) {
-        activeCountry = countryList
-            .find { it.code.equals(code, ignoreCase = true) }
-            ?: countryList.find { it.code == "US" }
-    }
-
-    /** Sets the active country and reformats the current phone number for the new country. */
-    fun selectCountry(country: Country) {
-        activeCountry = country
-        updatePhoneNumber(TextFieldValue(phoneNumber))
+        canonicalCountry = DefaultCountryDataSource.findByIso2(code) ?: defaultCountry()
+        applyDigits(phoneNumber)
     }
 
     /**
-     * Parses a full phone string (E.164 or local), auto-detecting the country when possible,
-     * then updates all state accordingly.
+     * Sets the active country and reformats the current number for it.
+     *
+     * The typed digits are kept and **re-validated** against the new region, so a number valid for one
+     * country is never carried over as still-valid for another.
+     */
+    fun selectCountry(country: Country) {
+        canonicalCountry = DefaultCountryDataSource.findByIso2(country.code) ?: canonicalCountry
+        applyDigits(phoneNumber)
+    }
+
+    /** Sets the active country from the canonical model. */
+    fun selectCountry(country: CanonicalCountry) {
+        canonicalCountry = country
+        applyDigits(phoneNumber)
+    }
+
+    /**
+     * Parses a full phone string, adopting the country when the input identifies one.
+     *
+     * `+4915123456789` switches the field to Germany; a bare `0712345678` carries no country
+     * information and leaves the current country alone.
      */
     fun parseAndSet(value: String) {
-        if (value.startsWith("+") || value.length >= 8) {
-            val (country, localNumber) = parsePhoneNumber(value)
-            if (country != null) {
-                activeCountry = country
-                updatePhoneNumber(TextFieldValue(localNumber))
-            } else {
-                updatePhoneNumber(TextFieldValue(value))
-            }
-        } else {
-            updatePhoneNumber(TextFieldValue(value))
-        }
+        val parsed = PhoneNumberFormatter.parseInternational(value, canonicalCountry)
+        if (parsed.countryWasDetected) canonicalCountry = parsed.country
+        applyDigits(parsed.nationalDigits)
     }
 
-    /** Clears the entered phone number, resetting all derived state. */
+    /** Clears the number, leaving the country selected. */
     fun clearPhone() {
-        phoneNumber = ""
-        phoneField = TextFieldValue("")
-        formattedPhone = ""
-        unformattedPhone = ""
-        isValid = false
+        applyDigits("")
     }
 
-    /** Builds a [Phone] snapshot from the current state. */
-    fun toPhone(): Phone = Phone(
-        formattedPhone = formattedPhone,
-        phoneNumber = unformattedPhone,
-        isValid = isValid,
-        country = activeCountry?.toSelectedCountry()
-    )
+    /** Builds a [Phone] snapshot of the current state. */
+    fun toPhone(): Phone = value.toLegacyPhone()
+
+    /**
+     * Recomputes every derived value. The single mutation path for the number.
+     *
+     * @param digitsBeforeCursor How many digits preceded the edit's cursor, used to re-anchor the
+     *   cursor after reformatting instead of always placing it at the end. Defaults to the full
+     *   digit count (cursor at the end) for the country-change/programmatic paths below, where
+     *   there is no real edit position to preserve.
+     */
+    private fun applyDigits(digits: String, digitsBeforeCursor: Int = digits.length) {
+        val evaluated = PhoneNumberValidator.evaluate(digits, canonicalCountry)
+        phoneNumber = evaluated.nationalNumber
+        // The field displays international-style grouping (e.g. "712 084 336") since the dial code
+        // is already shown separately by the prefix beside it — see formatAsYouTypeInternational.
+        // PhoneNumberValue.formattedNationalNumber is unaffected: it stays the national form for any
+        // caller reading it directly off `value`.
+        val displayText = PhoneNumberFormatter.formatAsYouTypeInternational(digits, canonicalCountry)
+        phoneField = TextFieldValue(
+            text = displayText,
+            selection = TextRange(cursorOffsetForDigitCount(displayText, digitsBeforeCursor)),
+        )
+        formattedPhone = evaluated.internationalNumber
+        unformattedPhone = evaluated.e164Number.orEmpty()
+        isValid = evaluated.isValid
+        validity = evaluated.validity
+        value = evaluated
+    }
+
+    private companion object {
+        /**
+         * The fallback country when nothing has been selected or detected.
+         *
+         * The United States, matching the previous behaviour, resolved through the dataset rather than
+         * by scanning a list so it cannot silently become null if the dataset changes.
+         */
+        fun defaultCountry(): CanonicalCountry =
+            DefaultCountryDataSource.findByIso2("US") ?: DefaultCountryDataSource.countries.first()
+    }
 }
 
 @Composable

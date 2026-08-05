@@ -52,7 +52,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.ezzy.ccp.components.PhoneNumberInput
-import com.ezzy.ccp.model.CCPColors
+import com.ezzy.ccp.countrypicker.model.Country
+import com.ezzy.ccp.countrypicker.theme.PhoneFieldSize
+import com.ezzy.ccp.countrypicker.ui.CountrySelector
 import com.ezzy.ccp.model.CountryPickerStyle
 import com.ezzy.ccp.model.SelectedCountry
 import com.ezzy.ccp.ui.theme.CCPTheme
@@ -67,6 +69,7 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             var formatedPhone2 by remember { mutableStateOf("") }
+            var country by remember { mutableStateOf<Country?>(null) }
             var unFormatedPhone2 by remember { mutableStateOf("") }
             var selectedCountry by remember { mutableStateOf<SelectedCountry?>(null) }
             var valid2 by remember { mutableStateOf(false) }
@@ -128,10 +131,19 @@ class MainActivity : ComponentActivity() {
                         contentAlignment = Alignment.Center
                     ) {
                         Column {
+                            CountrySelector(
+                                selectedCountry = country,
+                                onCountrySelected = { country = it },
+                            )
+                            Spacer(modifier = Modifier.height(30.dp))
                             PhoneNumberInput(
                                 value = setPhone.toString(),
                                 onDone = {
-                                    Toast.makeText(this@MainActivity, "On Done", Toast.LENGTH_SHORT)
+                                    Toast.makeText(
+                                        this@MainActivity,
+                                        "On Done",
+                                        Toast.LENGTH_SHORT
+                                    )
                                         .show()
                                 },
                                 onValueChange = { (formattedPhone, phoneNumber, country, isValid) ->
@@ -148,7 +160,10 @@ class MainActivity : ComponentActivity() {
                                     searchBorderWidth = 1.dp,
                                     readOnly = false,
                                     countriesSheetShape = RectangleShape,
-                                    countryPickerStyle = CountryPickerStyle.BottomSheet
+                                    countryPickerStyle = CountryPickerStyle.BottomSheet,
+                                    showPhonePrefixDivider = false,
+                                    showLabel = true,
+                                    phoneFieldSize = PhoneFieldSize.Compact
                                 ),
                                 colors = CCPDefaults.colors(
                                     ccpSheetColor = CCPDefaults.ccpSheetColor(

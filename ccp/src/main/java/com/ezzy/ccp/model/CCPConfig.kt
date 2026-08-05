@@ -25,6 +25,7 @@ package com.ezzy.ccp.model
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
+import com.ezzy.ccp.countrypicker.theme.PhoneFieldSize
 
 /**
  * Configuration options for customizing the appearance and behavior of the CCP component.
@@ -54,6 +55,17 @@ import androidx.compose.ui.unit.Dp
  * or [CountryListStyle.Grid]. The user can toggle this at runtime via the sort button.
  * @property countryPickerStyle How to present the country picker — [CountryPickerStyle.BottomSheet]
  * (default, full-screen modal) or [CountryPickerStyle.Dropdown] (compact inline dropdown).
+ * @property showLabel Show a floating label above the phone field, notched into its outline —
+ * see [com.ezzy.ccp.components.PhoneNumberInput]'s `label` parameter for the label text. Only
+ * affects the [CountryPickerStyle.BottomSheet] rendering.
+ * @property showPhonePrefixDivider Show the thin vertical divider between the country prefix
+ * (flag, dial code, chevron) and the number editor inside the phone field. Only affects the
+ * [CountryPickerStyle.BottomSheet] rendering.
+ * @property phoneFieldSize Overall size of the phone field — see [PhoneFieldSize].
+ * [PhoneFieldSize.Regular] (the default) is unchanged from before this became configurable;
+ * [PhoneFieldSize.Compact]/[PhoneFieldSize.ExtraCompact] shrink the field's height by scaling its
+ * padding, flag, chevron, icon-button, and font sizes down together, so a shorter field never clips
+ * or crowds its own content. Only affects the [CountryPickerStyle.BottomSheet] rendering.
  */
 data class CCPConfig(
     val phoneInputCornerRadius: Dp,
@@ -79,4 +91,7 @@ data class CCPConfig(
     val enforceMaxLength: Boolean,
     val defaultCountryListStyle: CountryListStyle,
     val countryPickerStyle: CountryPickerStyle,
+    val showLabel: Boolean,
+    val showPhonePrefixDivider: Boolean,
+    val phoneFieldSize: PhoneFieldSize,
 )

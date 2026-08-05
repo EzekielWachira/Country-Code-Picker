@@ -26,11 +26,14 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
@@ -47,6 +50,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -58,6 +62,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -68,9 +73,27 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ezzy.ccp.R
+import com.ezzy.ccp.countrypicker.data.DefaultCountryDataSource
+import com.ezzy.ccp.countrypicker.model.PhonePrefixContentMode
+import com.ezzy.ccp.countrypicker.model.UiText
+import com.ezzy.ccp.countrypicker.model.toLegacy
+import com.ezzy.ccp.countrypicker.state.CountryPickerConfig
+import com.ezzy.ccp.countrypicker.state.rememberCountryPickerState
+import com.ezzy.ccp.countrypicker.theme.CountryFlagConfig
+import com.ezzy.ccp.countrypicker.theme.CountryFlagStyle
+import com.ezzy.ccp.countrypicker.theme.CountryPickerDefaults
+import com.ezzy.ccp.countrypicker.ui.CountryPickerSheet
+import com.ezzy.ccp.countrypicker.ui.EmbeddedPhonePrefix
+import com.ezzy.ccp.countrypicker.ui.PhonePrefixDivider
+import com.ezzy.ccp.countrypicker.ui.phoneFieldColors
+import com.ezzy.ccp.countrypicker.ui.rememberActiveInteractionSource
+import com.ezzy.ccp.countrypicker.ui.scaledForPhoneField
 import com.ezzy.ccp.data.countryList
 import com.ezzy.ccp.icons.ChevronDown
 import com.ezzy.ccp.icons.Close
@@ -100,6 +123,9 @@ import com.ezzy.ccp.utils.getMaxPhoneLength
  * @param modifier Modifier applied to the outermost layout (Column containing field + error text).
  * @param state Hoistable state holder. Defaults to an internal [rememberPhoneState].
  * @param phoneHint Placeholder text shown when the input is empty.
+ * @param label Floating label shown notched into the field's outline. Only rendered when
+ * [CCPConfig.showLabel] is true (off by default, matching the field's previous no-label look) —
+ * pass both to give the field a label.
  * @param onPhoneValueChange Deprecated – use [onValueChange].
  * @param onValueChange Callback invoked on every change, providing a [Phone] snapshot.
  * @param value Optional initial phone number (E.164 or local format).
@@ -118,6 +144,7 @@ fun PhoneNumberInput(
     modifier: Modifier = Modifier,
     state: PhoneState = rememberPhoneState(),
     phoneHint: String = "Enter phone",
+    label: String? = "Phone number",
     onPhoneValueChange: (formatedPhone: String, unFormatedPhone: String, valid: Boolean) -> Unit = { _, _, _ -> },
     onValueChange: (Phone) -> Unit = {},
     value: String = "",
@@ -132,7 +159,6 @@ fun PhoneNumberInput(
     onDone: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(setCountry, ccpConfig.autoDetectCountry) {
         when {
@@ -162,124 +188,39 @@ fun PhoneNumberInput(
     // Always show at least a 1dp border in error state so it's visible even when borderWidth = 0
     val effectiveBorderWidth = if (isError && ccpConfig.borderWidth == 0.dp) 1.dp else ccpConfig.borderWidth
 
-    var dropdownExpanded by remember { mutableStateOf(false) }
-    var boxWidthPx by remember { mutableStateOf(0) }
-    val density = LocalDensity.current
-
     Column(modifier = modifier) {
-        Box(modifier = Modifier.fillMaxWidth().onSizeChanged { boxWidthPx = it.width }) {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = ccpConfig.phoneInputShape,
-                color = colors.containerColor,
-                border = BorderStroke(width = effectiveBorderWidth, color = effectiveBorderColor)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(3.dp)
-                ) {
-                    SelectedCountryComponent(
-                        selectedCountry = state.activeCountry,
-                        onSelectCountry = state::selectCountry,
-                        countriesToShow = countriesToShow,
-                        countriesExclude = countriesExclude,
-                        pinnedCountries = pinnedCountries,
-                        ccpColors = colors,
-                        ccpConfig = ccpConfig,
-                        onDropdownExpand = if (ccpConfig.countryPickerStyle == CountryPickerStyle.Dropdown) {
-                            { dropdownExpanded = true }
-                        } else null
-                    )
-                    BasicTextField(
-                        value = state.phoneField,
-                        onValueChange = { newValue ->
-                            if (ccpConfig.enforceMaxLength) {
-                                val maxLen = getMaxPhoneLength(state.activeCountry?.code ?: "US")
-                                if (newValue.text.filter { it.isDigit() }.length <= maxLen) {
-                                    state.updatePhoneNumber(newValue)
-                                }
-                            } else {
-                                state.updatePhoneNumber(newValue)
-                            }
-                        },
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(color = colors.inputTextColor),
-                        cursorBrush = SolidColor(colors.cursorColor),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Phone,
-                            imeAction = ImeAction.Done
-                        ),
-                        singleLine = true,
-                        modifier = Modifier
-                            .weight(1f)
-                            .semantics { contentDescription = "Phone number input" },
-                        decorationBox = { innerTextField ->
-                            Box(contentAlignment = Alignment.CenterStart) {
-                                if (state.phoneNumber.isEmpty()) {
-                                    Text(
-                                        text = phoneHint,
-                                        style = ccpConfig.phoneHintStyle,
-                                        color = colors.phoneHintColor
-                                    )
-                                }
-                                innerTextField()
-                            }
-                        },
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                if (!state.isValid) {
-                                    context.showToast("Invalid phone number")
-                                    return@KeyboardActions
-                                }
-                                keyboardController?.hide()
-                                onDone()
-                            }
-                        ),
-                        readOnly = ccpConfig.readOnly
-                    )
-                    // Clear button — hidden when there is no text or the field is read-only
-                    AnimatedVisibility(
-                        visible = ccpConfig.showClearButton &&
-                            !ccpConfig.readOnly &&
-                            state.phoneNumber.isNotEmpty()
-                    ) {
-                        IconButton(
-                            onClick = state::clearPhone,
-                            modifier = Modifier.size(36.dp)
-                        ) {
-                            Icon(
-                                imageVector = EzzyIcons.Close,
-                                contentDescription = "Clear phone number",
-                                tint = colors.countryChevronColor,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Full-width dropdown anchored to the phone input Box, with 16dp start/end margin
-            if (ccpConfig.countryPickerStyle == CountryPickerStyle.Dropdown) {
-                val dropdownWidth = with(density) { boxWidthPx.toDp() - 32.dp }.coerceAtLeast(0.dp)
-                CountriesDropdown(
-                    expanded = dropdownExpanded,
-                    onDismiss = { dropdownExpanded = false },
-                    onSelectCountry = { country ->
-                        state.selectCountry(country)
-                        dropdownExpanded = false
-                    },
-                    countriesToShow = countriesToShow,
-                    countriesExclude = countriesExclude,
-                    pinnedCountries = pinnedCountries,
-                    ccpColors = colors,
-                    ccpConfig = ccpConfig,
-                    modifier = Modifier.requiredWidth(dropdownWidth),
-                    dropdownOffset = DpOffset(x = 16.dp, y = 8.dp)
-                )
-            }
-        } // end Box
+        // The Dropdown picker style anchors a separate popup below a compact selector button — a
+        // fundamentally different composition from the unified field below, and not the one shown to
+        // be broken, so it is left exactly as it was. The BottomSheet style (the default, and what the
+        // bug report's screenshots show) is rebuilt onto one shared outline instead of two adjacent
+        // Surfaces — see UnifiedLegacyPhoneField.
+        if (ccpConfig.countryPickerStyle == CountryPickerStyle.Dropdown) {
+            LegacyDropdownPhoneField(
+                state = state,
+                phoneHint = phoneHint,
+                countriesToShow = countriesToShow,
+                countriesExclude = countriesExclude,
+                pinnedCountries = pinnedCountries,
+                colors = colors,
+                ccpConfig = ccpConfig,
+                effectiveBorderColor = effectiveBorderColor,
+                effectiveBorderWidth = effectiveBorderWidth,
+                onDone = onDone,
+            )
+        } else {
+            UnifiedLegacyPhoneField(
+                state = state,
+                phoneHint = phoneHint,
+                label = label,
+                countriesToShow = countriesToShow,
+                countriesExclude = countriesExclude,
+                pinnedCountries = pinnedCountries,
+                colors = colors,
+                ccpConfig = ccpConfig,
+                isError = isError,
+                onDone = onDone,
+            )
+        }
 
         // Error message
         AnimatedVisibility(visible = isError && errorMessage != null) {
@@ -292,6 +233,346 @@ fun PhoneNumberInput(
         }
     }
 }
+
+/**
+ * The `CountryPickerStyle.BottomSheet` rendering: a real Material outlined text field — border plus
+ * a label notched into it, transparent container — with the flag, dial code, dropdown chevron and a
+ * vertical divider as its leading content. This is the fix for both the "two separate rounded boxes"
+ * bug and a follow-up regression where the rebuilt field was one filled box with the label drawn as a
+ * separate line of text above it, rather than a true outline. Internally this is the same
+ * [EmbeddedPhonePrefix]/[PhonePrefixDivider]/[phoneFieldColors] building blocks
+ * [com.ezzy.ccp.countrypicker.ui.PhoneNumberField] uses, so the legacy component is not a second,
+ * parallel implementation of the same idea.
+ *
+ * [label] and the vertical divider are both independently togglable via [CCPConfig.showLabel] and
+ * [CCPConfig.showPhonePrefixDivider] — off (no label) and on (divider shown) by default, matching
+ * the field's look before either became configurable. [phoneHint] remains the field's placeholder
+ * regardless of whether the label is shown.
+ */
+@Composable
+private fun UnifiedLegacyPhoneField(
+    state: PhoneState,
+    phoneHint: String,
+    label: String?,
+    countriesToShow: List<String>,
+    countriesExclude: List<String>,
+    pinnedCountries: List<String>,
+    colors: CCPColors,
+    ccpConfig: CCPConfig,
+    isError: Boolean,
+    onDone: () -> Unit,
+) {
+    val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val interactionSource = remember { MutableInteractionSource() }
+    val isFocused by interactionSource.collectIsFocusedAsState()
+    var isPrefixOpen by remember { mutableStateOf(false) }
+    val borderInteractionSource = rememberActiveInteractionSource(isFocused || isPrefixOpen)
+
+    val pickerColors = CountryPickerDefaults.colors(
+        selectorContent = colors.countryCodeTextColor,
+        chevron = colors.countryChevronColor,
+        selectorLabel = colors.phoneHintColor,
+        selectorBorder = colors.borderColor,
+        selectorFocusedBorder = colors.cursorColor,
+        error = colors.errorColor,
+    )
+    val pickerConfig = remember(countriesToShow, countriesExclude, pinnedCountries, ccpConfig) {
+        legacyCountryPickerConfig(countriesToShow, countriesExclude, pinnedCountries, ccpConfig)
+    }
+    val fieldColors = phoneFieldColors(pickerColors)
+    // ccpConfig.borderWidth defaults to 0.dp, meaning "no explicit override" for the older filled-box
+    // rendering (which relied on containerColor for contrast, not a border). An outlined field with a
+    // transparent container needs a real, visible border by default, so 0.dp falls back to the
+    // library's own outline width instead of literally rendering no border. A caller who set a
+    // non-zero width explicitly still gets it respected for the unfocused state.
+    val dimensions = CountryPickerDefaults.dimensions()
+    val unfocusedBorderWidth = if (ccpConfig.borderWidth > 0.dp) {
+        ccpConfig.borderWidth
+    } else {
+        dimensions.selectorBorderWidth
+    }
+    val showLabel = ccpConfig.showLabel && label != null
+
+    // Compact/ExtraCompact scale the flag, chevron, icon buttons, content padding, and font size
+    // down together (see PhoneFieldSize) — a smaller field never clips or crowds its own content,
+    // because the content shrinks along with it rather than staying fixed inside a squeezed box.
+    val contentScale = ccpConfig.phoneFieldSize.contentScale
+    val fontScale = ccpConfig.phoneFieldSize.fontScale
+    val effectiveDimensions = dimensions.scaledForPhoneField(ccpConfig.phoneFieldSize)
+    val effectiveTypography = CountryPickerDefaults.typography().scaledForPhoneField(fontScale)
+    val effectiveFlagConfig = CountryFlagConfig(style = CountryFlagStyle.Plain, size = LEGACY_FLAG_SIZE)
+        .scaledForPhoneField(ccpConfig.phoneFieldSize)
+    val effectiveValueStyle = MaterialTheme.typography.bodyLarge
+        .copy(color = colors.inputTextColor)
+        .scaledForPhoneField(fontScale)
+    val effectiveHintStyle = ccpConfig.phoneHintStyle.scaledForPhoneField(fontScale)
+    val fieldMinHeight = (
+        if (showLabel) dimensions.phoneFieldMinHeightWithLabel else dimensions.phoneFieldMinHeightNoLabel
+        ) * contentScale
+
+    BasicTextField(
+        value = state.phoneField,
+        onValueChange = { newValue ->
+            if (ccpConfig.enforceMaxLength) {
+                val maxLen = getMaxPhoneLength(state.activeCountry?.code ?: "US")
+                if (newValue.text.filter { it.isDigit() }.length <= maxLen) {
+                    state.updatePhoneNumber(newValue)
+                }
+            } else {
+                state.updatePhoneNumber(newValue)
+            }
+        },
+        textStyle = effectiveValueStyle,
+        cursorBrush = SolidColor(colors.cursorColor),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Phone,
+            imeAction = ImeAction.Done,
+        ),
+        singleLine = true,
+        interactionSource = interactionSource,
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = fieldMinHeight)
+            .semantics { contentDescription = "Phone number input" },
+        decorationBox = { innerTextField ->
+            OutlinedTextFieldDefaults.DecorationBox(
+                value = state.phoneNumber,
+                innerTextField = innerTextField,
+                enabled = !ccpConfig.readOnly,
+                singleLine = true,
+                visualTransformation = VisualTransformation.None,
+                interactionSource = borderInteractionSource,
+                isError = isError,
+                // No explicit style: the label's font size must come from DecorationBox's own
+                // ambient TextStyle so it animates between the resting and notched sizes — an
+                // explicit, fully-specified style here would freeze it at one size instead. This
+                // also means the label does not follow PhoneFieldSize's font scale.
+                label = if (showLabel) {
+                    { Text(text = label!!) }
+                } else {
+                    null
+                },
+                placeholder = { Text(text = phoneHint, style = effectiveHintStyle) },
+                leadingIcon = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        EmbeddedPhonePrefix(
+                            selectedCountry = state.canonicalCountry,
+                            onCountrySelected = { country -> state.selectCountry(country) },
+                            enabled = !ccpConfig.readOnly,
+                            contentMode = if (ccpConfig.showCountryFlag) {
+                                PhonePrefixContentMode.FlagAndDialCode
+                            } else {
+                                PhonePrefixContentMode.DialCodeOnly
+                            },
+                            // The legacy selector always showed a bare emoji with no backing shape —
+                            // Plain style reproduces that exactly rather than the newer tonal look.
+                            flagConfig = effectiveFlagConfig,
+                            config = pickerConfig,
+                            colors = pickerColors,
+                            dimensions = effectiveDimensions,
+                            typography = effectiveTypography,
+                            onOpenChanged = { isPrefixOpen = it },
+                        )
+
+                        PhonePrefixDivider(
+                            visible = ccpConfig.showPhonePrefixDivider,
+                            fieldHeight = effectiveDimensions.selectorDialMinHeight,
+                            colors = pickerColors,
+                        )
+                    }
+                },
+                trailingIcon = {
+                    // Hidden when there is no text or the field is read-only.
+                    AnimatedVisibility(
+                        visible = ccpConfig.showClearButton &&
+                            !ccpConfig.readOnly &&
+                            state.phoneNumber.isNotEmpty(),
+                    ) {
+                        IconButton(
+                            onClick = state::clearPhone,
+                            modifier = Modifier.size(CLEAR_BUTTON_SIZE * contentScale),
+                        ) {
+                            Icon(
+                                imageVector = EzzyIcons.Close,
+                                contentDescription = "Clear phone number",
+                                tint = colors.countryChevronColor,
+                                modifier = Modifier.size(CLEAR_ICON_SIZE * contentScale),
+                            )
+                        }
+                    }
+                },
+                colors = fieldColors,
+                contentPadding = OutlinedTextFieldDefaults.contentPadding(
+                    top = DECORATION_VERTICAL_PADDING * contentScale,
+                    bottom = DECORATION_VERTICAL_PADDING * contentScale,
+                ),
+                container = {
+                    OutlinedTextFieldDefaults.Container(
+                        enabled = !ccpConfig.readOnly,
+                        isError = isError,
+                        interactionSource = borderInteractionSource,
+                        colors = fieldColors,
+                        shape = ccpConfig.phoneInputShape,
+                        focusedBorderThickness = dimensions.selectorFocusedBorderWidth,
+                        unfocusedBorderThickness = unfocusedBorderWidth,
+                    )
+                },
+            )
+        },
+        keyboardActions = KeyboardActions(
+            onDone = {
+                if (!state.isValid) {
+                    context.showToast("Invalid phone number")
+                    return@KeyboardActions
+                }
+                keyboardController?.hide()
+                onDone()
+            },
+        ),
+        readOnly = ccpConfig.readOnly,
+    )
+}
+
+/**
+ * The `CountryPickerStyle.Dropdown` rendering — unchanged from before this redesign. A compact
+ * selector button with a popup anchored below it is a different composition from a unified outlined
+ * field and was not implicated in the reported visual bug, so it is preserved exactly.
+ */
+@Composable
+private fun LegacyDropdownPhoneField(
+    state: PhoneState,
+    phoneHint: String,
+    countriesToShow: List<String>,
+    countriesExclude: List<String>,
+    pinnedCountries: List<String>,
+    colors: CCPColors,
+    ccpConfig: CCPConfig,
+    effectiveBorderColor: Color,
+    effectiveBorderWidth: Dp,
+    onDone: () -> Unit,
+) {
+    val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var dropdownExpanded by remember { mutableStateOf(false) }
+    var boxWidthPx by remember { mutableStateOf(0) }
+    val density = LocalDensity.current
+
+    Box(modifier = Modifier.fillMaxWidth().onSizeChanged { boxWidthPx = it.width }) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = ccpConfig.phoneInputShape,
+            color = colors.containerColor,
+            border = BorderStroke(width = effectiveBorderWidth, color = effectiveBorderColor)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                SelectedCountryComponent(
+                    selectedCountry = state.activeCountry,
+                    onSelectCountry = state::selectCountry,
+                    countriesToShow = countriesToShow,
+                    countriesExclude = countriesExclude,
+                    pinnedCountries = pinnedCountries,
+                    ccpColors = colors,
+                    ccpConfig = ccpConfig,
+                    onDropdownExpand = { dropdownExpanded = true },
+                )
+                BasicTextField(
+                    value = state.phoneField,
+                    onValueChange = { newValue ->
+                        if (ccpConfig.enforceMaxLength) {
+                            val maxLen = getMaxPhoneLength(state.activeCountry?.code ?: "US")
+                            if (newValue.text.filter { it.isDigit() }.length <= maxLen) {
+                                state.updatePhoneNumber(newValue)
+                            }
+                        } else {
+                            state.updatePhoneNumber(newValue)
+                        }
+                    },
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = colors.inputTextColor),
+                    cursorBrush = SolidColor(colors.cursorColor),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Phone,
+                        imeAction = ImeAction.Done
+                    ),
+                    singleLine = true,
+                    modifier = Modifier
+                        .weight(1f)
+                        .semantics { contentDescription = "Phone number input" },
+                    decorationBox = { innerTextField ->
+                        Box(contentAlignment = Alignment.CenterStart) {
+                            if (state.phoneNumber.isEmpty()) {
+                                Text(
+                                    text = phoneHint,
+                                    style = ccpConfig.phoneHintStyle,
+                                    color = colors.phoneHintColor
+                                )
+                            }
+                            innerTextField()
+                        }
+                    },
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            if (!state.isValid) {
+                                context.showToast("Invalid phone number")
+                                return@KeyboardActions
+                            }
+                            keyboardController?.hide()
+                            onDone()
+                        }
+                    ),
+                    readOnly = ccpConfig.readOnly
+                )
+                // Clear button — hidden when there is no text or the field is read-only
+                AnimatedVisibility(
+                    visible = ccpConfig.showClearButton &&
+                        !ccpConfig.readOnly &&
+                        state.phoneNumber.isNotEmpty()
+                ) {
+                    IconButton(
+                        onClick = state::clearPhone,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = EzzyIcons.Close,
+                            contentDescription = "Clear phone number",
+                            tint = colors.countryChevronColor,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        // Full-width dropdown anchored to the phone input Box, with 16dp start/end margin
+        val dropdownWidth = with(density) { boxWidthPx.toDp() - 32.dp }.coerceAtLeast(0.dp)
+        CountriesDropdown(
+            expanded = dropdownExpanded,
+            onDismiss = { dropdownExpanded = false },
+            onSelectCountry = { country ->
+                state.selectCountry(country)
+                dropdownExpanded = false
+            },
+            countriesToShow = countriesToShow,
+            countriesExclude = countriesExclude,
+            pinnedCountries = pinnedCountries,
+            ccpColors = colors,
+            ccpConfig = ccpConfig,
+            modifier = Modifier.requiredWidth(dropdownWidth),
+            dropdownOffset = DpOffset(x = 16.dp, y = 8.dp)
+        )
+    }
+}
+
+private val LEGACY_FLAG_SIZE = 18.dp
+private val CLEAR_BUTTON_SIZE = 36.dp
+private val CLEAR_ICON_SIZE = 16.dp
+private val DECORATION_VERTICAL_PADDING = 16.dp
 
 /**
  * Displays the currently selected country (flag + dial code) and opens a [CountriesBottomSheet]
@@ -386,11 +667,17 @@ fun SelectedCountryComponent(
         }
     }
 
-    // Bottom sheet — rendered outside the Box so it covers the full screen
+    // Bottom sheet — rendered outside the Box so it covers the full screen.
+    //
+    // This is the migration point: the sheet is now the country-picker library's
+    // CountryPickerSheet rather than the older CountriesBottomSheet, so this component gains ranked
+    // search (ISO alpha-3, dial codes, aliases, accent folding), region filters, grouped sections and
+    // the full 236-country dataset without any change to its own public API. The legacy
+    // CountriesBottomSheet remains available but deprecated.
     if (ccpConfig.countryPickerStyle == CountryPickerStyle.BottomSheet && isExpanded) {
-        CountriesBottomSheet(
-            sheetState = sheetState,
-            onSelectCountries = { country ->
+        LegacyCountryPickerSheet(
+            selectedCountryCode = selectedCountry?.code,
+            onSelectCountry = { country ->
                 isExpanded = false
                 onSelectCountry(country)
             },
@@ -398,11 +685,75 @@ fun SelectedCountryComponent(
             countriesToShow = countriesToShow,
             countriesExclude = countriesExclude,
             pinnedCountries = pinnedCountries,
-            ccpColors = ccpColors,
-            ccpConfig = ccpConfig
+            ccpConfig = ccpConfig,
         )
     }
 }
+
+/**
+ * Bridges the legacy `PhoneNumberInput` parameters onto the new [CountryPickerSheet].
+ *
+ * Translates the old list-of-ISO-code parameters into a [CountryPickerConfig] and maps the canonical
+ * [com.ezzy.ccp.countrypicker.model.Country] the sheet returns back to the legacy [Country] the
+ * callback expects. Keeping this translation in one place is what lets the old API stay byte-for-byte
+ * source-compatible while the implementation underneath changes completely.
+ */
+@Composable
+private fun LegacyCountryPickerSheet(
+    selectedCountryCode: String?,
+    onSelectCountry: (Country) -> Unit,
+    onDismiss: () -> Unit,
+    countriesToShow: List<String>,
+    countriesExclude: List<String>,
+    pinnedCountries: List<String>,
+    ccpConfig: CCPConfig,
+) {
+    val config = remember(countriesToShow, countriesExclude, pinnedCountries, ccpConfig) {
+        legacyCountryPickerConfig(countriesToShow, countriesExclude, pinnedCountries, ccpConfig)
+    }
+
+    val selected = remember(selectedCountryCode) {
+        DefaultCountryDataSource.findByIso2(selectedCountryCode)?.let(::setOf).orEmpty()
+    }
+
+    val pickerState = rememberCountryPickerState(
+        config = config,
+        selectedCountries = selected,
+    )
+
+    // The legacy component opened its sheet by flipping a boolean; the new state holder needs to be
+    // told the sheet is showing so its pending selection is seeded from the confirmed one.
+    LaunchedEffect(Unit) { pickerState.open() }
+
+    CountryPickerSheet(
+        state = pickerState,
+        onCountrySelected = { country -> onSelectCountry(country.toLegacy()) },
+        onDismiss = onDismiss,
+        title = UiText.resource(R.string.ccp_country_code_title),
+        subtitle = UiText.resource(R.string.ccp_country_code_subtitle),
+    )
+}
+
+/**
+ * Translates the legacy allow/exclude/pinned-list parameters plus [CCPConfig] into a
+ * [CountryPickerConfig] — the one place this mapping happens, shared by [LegacyCountryPickerSheet]
+ * (used by [SelectedCountryComponent] and the Dropdown style) and [UnifiedLegacyPhoneField]'s embedded
+ * prefix, so the two call sites cannot drift into interpreting the legacy lists differently.
+ */
+private fun legacyCountryPickerConfig(
+    countriesToShow: List<String>,
+    countriesExclude: List<String>,
+    pinnedCountries: List<String>,
+    ccpConfig: CCPConfig,
+): CountryPickerConfig = CountryPickerConfig(
+    // An empty legacy whitelist meant "all countries", so it maps to null rather than to an empty
+    // allow-set, which in the new config means "nothing is allowed".
+    allowedCountryCodes = countriesToShow.takeIf { it.isNotEmpty() }?.toSet(),
+    excludedCountryCodes = countriesExclude.toSet(),
+    suggestedCountryCodes = pinnedCountries,
+    showDialCode = ccpConfig.showDialCodeCountryItem,
+    showFlag = ccpConfig.showFlagCountryItem,
+)
 
 fun Context.showToast(message: String) {
     Toast.makeText(this, message, Toast.LENGTH_SHORT).show()

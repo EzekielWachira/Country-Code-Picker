@@ -22,6 +22,7 @@
 
 package com.ezzy.ccp.utils
 
+import com.ezzy.ccp.countrypicker.data.DefaultCountryDataSource
 import com.ezzy.ccp.data.countryList
 import com.ezzy.ccp.model.Country
 import com.ezzy.ccp.model.PhoneValidationResult
@@ -52,12 +53,26 @@ fun formatAndValidatePhone(phone: String, countryCode: String): PhoneValidationR
     }
 }
 
+/**
+ * Parses an international number into its country and national form.
+ *
+ * The country is resolved with libphonenumber's `getRegionCodeForNumber`, which inspects the whole
+ * number, rather than by matching the calling code against the country list. Matching by calling code
+ * is ambiguous: `+1` belongs to 20+ NANP territories and `+44` to four, so a dial-code lookup returns
+ * whichever of them happens to come first — and the expanded dataset now contains all of them.
+ * Region inference gets it right for cases like `+44 7911 …`, which is a Guernsey range rather than a
+ * UK one.
+ */
 fun parsePhoneNumber(phone: String): Pair<Country?, String> {
     val phoneUtil = PhoneNumberUtil.getInstance()
     return try {
         val number = phoneUtil.parse(phone, null)
-        val countryCode = number.countryCode
-        val country = countryList.find { it.dialCode == "+$countryCode" }
+        val regionCode = phoneUtil.getRegionCodeForNumber(number)
+        val country = countryList.find { it.code.equals(regionCode, ignoreCase = true) }
+            // Falls back to the conventional owner of the calling code when the number itself is not
+            // specific enough for libphonenumber to name a region.
+            ?: DefaultCountryDataSource.primaryForDialCode(number.countryCode.toString())
+                ?.let { canonical -> countryList.find { it.code == canonical.iso2Code } }
         val localNumber = phoneUtil.format(number, PhoneNumberUtil.PhoneNumberFormat.NATIONAL).trim()
         Pair(country, localNumber)
     } catch (e: Exception) {

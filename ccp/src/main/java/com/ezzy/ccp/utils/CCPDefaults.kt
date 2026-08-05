@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.ezzy.ccp.countrypicker.theme.PhoneFieldSize
 import com.ezzy.ccp.model.CCPColors
 import com.ezzy.ccp.model.CCPConfig
 import com.ezzy.ccp.model.CountryListStyle
@@ -127,6 +128,9 @@ object CCPDefaults {
         enforceMaxLength: Boolean = true,
         defaultCountryListStyle: CountryListStyle = CountryListStyle.List,
         countryPickerStyle: CountryPickerStyle = CountryPickerStyle.BottomSheet,
+        showLabel: Boolean = false,
+        showPhonePrefixDivider: Boolean = true,
+        phoneFieldSize: PhoneFieldSize = PhoneFieldSize.Regular,
     ): CCPConfig = CCPConfig(
         phoneInputCornerRadius = phoneInputCornerRadius,
         phoneHintStyle = phoneHintStyle,
@@ -151,5 +155,8 @@ object CCPDefaults {
         enforceMaxLength = enforceMaxLength,
         defaultCountryListStyle = defaultCountryListStyle,
         countryPickerStyle = countryPickerStyle,
+        showLabel = showLabel,
+        showPhonePrefixDivider = showPhonePrefixDivider,
+        phoneFieldSize = phoneFieldSize,
     )
 }
