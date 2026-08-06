@@ -206,6 +206,7 @@ fun CountryPickerSheet(
                     country = state.confirmedSelection.firstOrNull(),
                     flagShape = if (config.flagsVisible) config.flagShape else
                         com.ezzy.ccp.countrypicker.theme.CountryFlagShape.Hidden,
+                    flagStyle = config.rowFlagStyle,
                     colors = colors,
                     shapes = shapes,
                     dimensions = dimensions,
@@ -440,6 +441,7 @@ private fun SheetHeader(
 private fun CurrentSelectionCard(
     country: Country?,
     flagShape: com.ezzy.ccp.countrypicker.theme.CountryFlagShape,
+    flagStyle: com.ezzy.ccp.countrypicker.theme.CountryFlagStyle,
     colors: CountryPickerColors,
     shapes: CountryPickerShapes,
     dimensions: CountryPickerDimensions,
@@ -470,6 +472,7 @@ private fun CurrentSelectionCard(
                 country = country,
                 size = CARD_FLAG_SIZE,
                 shape = flagShape,
+                style = flagStyle,
                 colors = colors,
                 dimensions = dimensions,
                 motion = motion,

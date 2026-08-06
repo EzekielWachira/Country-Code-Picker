@@ -45,6 +45,7 @@ import com.ezzy.ccp.countrypicker.state.CountryPickerConfig
 import com.ezzy.ccp.countrypicker.state.CountrySection
 import com.ezzy.ccp.countrypicker.state.CountrySectionKind
 import com.ezzy.ccp.countrypicker.theme.CountryFlagShape
+import com.ezzy.ccp.countrypicker.theme.CountryFlagStyle
 import com.ezzy.ccp.countrypicker.theme.CountryPickerColors
 import com.ezzy.ccp.countrypicker.theme.CountryPickerDefaults
 import com.ezzy.ccp.countrypicker.theme.CountryPickerDimensions
@@ -121,6 +122,7 @@ fun CountryList(
                 config = config,
                 isSearching = isSearching,
                 flagShape = flagShape,
+                flagStyle = config.rowFlagStyle,
                 colors = colors,
                 shapes = shapes,
                 dimensions = dimensions,
@@ -147,6 +149,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.countrySectionItems(
     config: CountryPickerConfig,
     isSearching: Boolean,
     flagShape: CountryFlagShape,
+    flagStyle: CountryFlagStyle,
     colors: CountryPickerColors,
     shapes: CountryPickerShapes,
     dimensions: CountryPickerDimensions,
@@ -203,6 +206,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.countrySectionItems(
                 highlightMatches = config.highlightSearchMatches,
                 unavailable = !enabled,
                 flagShape = flagShape,
+                flagStyle = flagStyle,
                 colors = colors,
                 shapes = shapes,
                 dimensions = dimensions,

@@ -28,6 +28,7 @@ import com.ezzy.ccp.countrypicker.model.CountryRegion
 import com.ezzy.ccp.countrypicker.model.CountrySearchField
 import com.ezzy.ccp.countrypicker.model.CountrySelectionMode
 import com.ezzy.ccp.countrypicker.theme.CountryFlagShape
+import com.ezzy.ccp.countrypicker.theme.CountryFlagStyle
 
 /**
  * Everything about *how* a picker behaves, in one value.
@@ -71,6 +72,10 @@ import com.ezzy.ccp.countrypicker.theme.CountryFlagShape
  * @property showFlag Show flags. Superseded by `flagShape = Hidden`, which is the more expressive way
  *   to say the same thing.
  * @property flagShape How flags are masked.
+ * @property rowFlagStyle Whether a background is drawn behind each row's flag — see
+ *   [CountryFlagStyle]. Defaults to [CountryFlagStyle.Plain] (no background), matching the flag-only
+ *   look used elsewhere in the picker; pass [CountryFlagStyle.TonalContainer] to restore the sheet's
+ *   original tonal-circle look.
  * @property closeOnSingleSelection Dismiss the sheet after a single selection. Disable for a picker
  *   the user is expected to browse.
  * @property minimumSelectionCount Multi-select floor. Confirm stays disabled below it.
@@ -107,6 +112,7 @@ data class CountryPickerConfig(
     val showDialCode: Boolean = false,
     val showFlag: Boolean = true,
     val flagShape: CountryFlagShape = CountryFlagShape.Circle,
+    val rowFlagStyle: CountryFlagStyle = CountryFlagStyle.Plain,
     val closeOnSingleSelection: Boolean = true,
     val minimumSelectionCount: Int = 0,
     val maximumSelectionCount: Int? = null,

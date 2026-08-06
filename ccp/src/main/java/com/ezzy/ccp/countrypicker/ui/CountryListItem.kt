@@ -73,6 +73,7 @@ import com.ezzy.ccp.countrypicker.model.CountryMatch
 import com.ezzy.ccp.countrypicker.model.CountrySearchField
 import com.ezzy.ccp.countrypicker.model.CountrySelectionMode
 import com.ezzy.ccp.countrypicker.theme.CountryFlagShape
+import com.ezzy.ccp.countrypicker.theme.CountryFlagStyle
 import com.ezzy.ccp.countrypicker.theme.CountryPickerColors
 import com.ezzy.ccp.countrypicker.theme.CountryPickerDefaults
 import com.ezzy.ccp.countrypicker.theme.CountryPickerDimensions
@@ -131,6 +132,7 @@ fun CountryListItem(
     highlightMatches: Boolean = true,
     unavailable: Boolean = false,
     flagShape: CountryFlagShape = CountryFlagShape.Circle,
+    flagStyle: CountryFlagStyle = CountryFlagStyle.Plain,
     colors: CountryPickerColors = CountryPickerDefaults.colors(),
     shapes: CountryPickerShapes = CountryPickerDefaults.shapes(),
     dimensions: CountryPickerDimensions = CountryPickerDefaults.dimensions(),
@@ -194,6 +196,7 @@ fun CountryListItem(
             country = country,
             size = dimensions.flagSizeRow,
             shape = flagShape,
+            style = flagStyle,
             colors = colors,
             dimensions = dimensions,
             motion = motion,

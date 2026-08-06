@@ -22,6 +22,9 @@
 
 package com.ezzy.ccp.countrypicker.data
 
+import com.ezzy.ccp.countrypicker.data.DefaultCountryDataSource.countries
+import com.ezzy.ccp.countrypicker.data.DefaultCountryDataSource.localizedNames
+import com.ezzy.ccp.countrypicker.data.DefaultCountryDataSource.primaryForDialCode
 import com.ezzy.ccp.countrypicker.model.Country
 import com.ezzy.ccp.countrypicker.model.CountryRegion
 import java.util.Locale
@@ -54,8 +57,8 @@ object DefaultCountryDataSource : CountryDataSource {
     }
 
     /** Looks up a country by ISO alpha-2 code, case-insensitively. */
-    fun findByIso2(code: String?): Country? =
-        code?.takeIf { it.isNotBlank() }?.let { byIso2[normalizeIsoCode(it)] }
+    fun findByIso2(code: String?): Country? = code?.takeIf { it.isNotBlank() }
+        ?.let { byIso2[normalizeIsoCode(it)] }
 
     /**
      * Every country whose dial code matches [dialCode], with or without a leading `+`.
@@ -65,7 +68,8 @@ object DefaultCountryDataSource : CountryDataSource {
      * their own tie-break (see [primaryForDialCode]).
      */
     fun findByDialCode(dialCode: String): List<Country> {
-        val digits = dialCode.trim().removePrefix("+")
+        val digits = dialCode.trim()
+            .removePrefix("+")
         if (digits.isEmpty()) return emptyList()
         return countries.filter { it.dialCodeDigits == digits }
     }
@@ -78,7 +82,8 @@ object DefaultCountryDataSource : CountryDataSource {
      * cases where we only have a dial code and no national number to disambiguate with.
      */
     fun primaryForDialCode(dialCode: String): Country? {
-        val digits = dialCode.trim().removePrefix("+")
+        val digits = dialCode.trim()
+            .removePrefix("+")
         val candidates = findByDialCode(digits)
         if (candidates.size <= 1) return candidates.firstOrNull()
         val preferred = PRIMARY_BY_DIAL_CODE[digits]
@@ -96,16 +101,21 @@ object DefaultCountryDataSource : CountryDataSource {
      * The English name is kept as an alias so searching "Germany" still finds "Allemagne".
      */
     fun localizedNames(locale: Locale): List<Country> {
-        val collator = java.text.Collator.getInstance(locale).apply {
-            strength = java.text.Collator.PRIMARY
-        }
-        return countries
-            .map { country ->
+        val collator = java.text.Collator.getInstance(locale)
+            .apply {
+                strength = java.text.Collator.PRIMARY
+            }
+        return countries.map { country ->
                 val localized = Locale.Builder()
                     .setRegion(country.iso2Code)
                     .build()
                     .getDisplayCountry(locale)
-                    .takeIf { it.isNotBlank() && !it.equals(country.iso2Code, ignoreCase = true) }
+                    .takeIf {
+                        it.isNotBlank() && !it.equals(
+                            country.iso2Code,
+                            ignoreCase = true
+                        )
+                    }
                 if (localized == null || localized == country.displayName) {
                     country
                 } else {
@@ -116,12 +126,18 @@ object DefaultCountryDataSource : CountryDataSource {
                     )
                 }
             }
-            .sortedWith { a, b -> collator.compare(a.displayName, b.displayName) }
+            .sortedWith { a, b ->
+                collator.compare(
+                    a.displayName,
+                    b.displayName
+                )
+            }
     }
 
     /** Uppercases and maps well-known non-ISO codes (`UK` → `GB`) to their canonical form. */
     fun normalizeIsoCode(code: String): String {
-        val upper = code.trim().uppercase(Locale.ROOT)
+        val upper = code.trim()
+            .uppercase(Locale.ROOT)
         return ISO_ALIASES[upper] ?: upper
     }
 
@@ -163,7 +179,10 @@ object DefaultCountryDataSource : CountryDataSource {
     /** ISO codes with no Unicode regional-indicator sequence. */
     private val NO_EMOJI_FLAG = setOf("XK")
 
-    private val ISO_ALIASES = mapOf("UK" to "GB", "EL" to "GR")
+    private val ISO_ALIASES = mapOf(
+        "UK" to "GB",
+        "EL" to "GR"
+    )
 
     /** Conventional owner of a shared dial code, keyed by the dial code without `+`. */
     private val PRIMARY_BY_DIAL_CODE = mapOf(
@@ -186,18 +205,42 @@ object DefaultCountryDataSource : CountryDataSource {
      * misspellings. Matched by [CountrySearchEngine] but never displayed.
      */
     private val SEARCH_ALIASES: Map<String, List<String>> = mapOf(
-        "US" to listOf("usa", "united states of america", "america"),
-        "GB" to listOf("uk", "great britain", "britain", "england", "scotland", "wales"),
-        "AE" to listOf("uae", "emirates"),
-        "KR" to listOf("south korea", "republic of korea"),
-        "KP" to listOf("dprk", "north korea"),
+        "US" to listOf(
+            "usa",
+            "united states of america",
+            "america"
+        ),
+        "GB" to listOf(
+            "uk",
+            "great britain",
+            "britain",
+            "england",
+            "scotland",
+            "wales"
+        ),
+        "AE" to listOf(
+            "uae",
+            "emirates"
+        ),
+        "KR" to listOf(
+            "south korea",
+            "republic of korea"
+        ),
+        "KP" to listOf(
+            "dprk",
+            "north korea"
+        ),
         "NL" to listOf("holland"),
         "CI" to listOf("ivory coast"),
         "MM" to listOf("burma"),
         "CZ" to listOf("czech republic"),
         "SZ" to listOf("swaziland"),
         "TR" to listOf("turkey"),
-        "CD" to listOf("drc", "zaire", "democratic republic of the congo"),
+        "CD" to listOf(
+            "drc",
+            "zaire",
+            "democratic republic of the congo"
+        ),
         "CG" to listOf("republic of the congo"),
         "CV" to listOf("cape verde"),
         "TL" to listOf("east timor"),
@@ -206,10 +249,19 @@ object DefaultCountryDataSource : CountryDataSource {
         "VN" to listOf("viet nam"),
         "MK" to listOf("macedonia"),
         "DE" to listOf("deutschland"),
-        "ES" to listOf("espana", "españa"),
+        "ES" to listOf(
+            "espana",
+            "españa"
+        ),
         "IT" to listOf("italia"),
-        "JP" to listOf("nippon", "nihon"),
-        "CN" to listOf("prc", "peoples republic of china"),
+        "JP" to listOf(
+            "nippon",
+            "nihon"
+        ),
+        "CN" to listOf(
+            "prc",
+            "peoples republic of china"
+        ),
         "IN" to listOf("bharat"),
         "GR" to listOf("hellas"),
         "FI" to listOf("suomi"),
@@ -218,15 +270,28 @@ object DefaultCountryDataSource : CountryDataSource {
         "DK" to listOf("danmark"),
         "PL" to listOf("polska"),
         "BR" to listOf("brasil"),
-        "CH" to listOf("suisse", "schweiz", "svizzera"),
-        "AT" to listOf("osterreich", "österreich"),
-        "BE" to listOf("belgique", "belgie"),
+        "CH" to listOf(
+            "suisse",
+            "schweiz",
+            "svizzera"
+        ),
+        "AT" to listOf(
+            "osterreich",
+            "österreich"
+        ),
+        "BE" to listOf(
+            "belgique",
+            "belgie"
+        ),
         "PT" to listOf("portugal"),
         "MX" to listOf("mejico"),
         "EG" to listOf("misr"),
         "ET" to listOf("abyssinia"),
         "ZA" to listOf("rsa"),
-        "SA" to listOf("ksa", "kingdom of saudi arabia"),
+        "SA" to listOf(
+            "ksa",
+            "kingdom of saudi arabia"
+        ),
         "LA" to listOf("lao"),
         "SY" to listOf("syrian arab republic"),
         "IR" to listOf("persia"),
@@ -238,9 +303,19 @@ object DefaultCountryDataSource : CountryDataSource {
         "BA" to listOf("bosnia"),
         "AX" to listOf("aland"),
         "HK" to listOf("hong kong sar"),
-        "MO" to listOf("macao", "macau sar"),
-        "TW" to listOf("republic of china", "chinese taipei"),
-        "PS" to listOf("palestinian territories", "west bank", "gaza"),
+        "MO" to listOf(
+            "macao",
+            "macau sar"
+        ),
+        "TW" to listOf(
+            "republic of china",
+            "chinese taipei"
+        ),
+        "PS" to listOf(
+            "palestinian territories",
+            "west bank",
+            "gaza"
+        ),
     )
 
     /**
