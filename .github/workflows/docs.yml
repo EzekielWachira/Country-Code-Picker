@@ -1,0 +1,75 @@
+# Builds the documentation site and publishes it to GitHub Pages.
+#
+#   docs/ + mkdocs.yml  --mkdocs-->  site/
+#   ccp KDoc            --dokka--->  site/api/
+#
+# Pull requests only build (to catch broken pages); pushes to main also deploy.
+name: Docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history so the latest tag is available for the API version label
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Generate API reference (Dokka)
+        run: |
+          VERSION="$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo dev)"
+          echo "Documenting version ${VERSION}"
+          ./gradlew :ccp:dokkaGenerate -PdocsVersion="${VERSION}" --no-daemon --stacktrace
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: docs/requirements.txt
+
+      - name: Install MkDocs
+        run: pip install -r docs/requirements.txt
+
+      - name: Build guides (MkDocs)
+        run: mkdocs build --strict
+
+      - name: Add API reference to site
+        run: cp -r ccp/build/dokka/html site/api
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

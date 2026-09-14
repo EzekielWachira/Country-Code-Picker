@@ -460,13 +460,13 @@ private fun VerificationStatusIcon(
     }
 }
 
-/** True when [state] means the field should be treated as verified for [value]. */
+/** True when this verification state means the field should be treated as verified for [value]. */
 internal fun PhoneVerificationState.isVerifiedFor(value: PhoneNumberValue): Boolean =
     this is PhoneVerificationState.Verified && e164Number == value.e164Number
 
 /**
  * Maps [colors] onto Material's [androidx.compose.material3.TextFieldColors], shared by
- * [PhoneNumberField] and the legacy `UnifiedLegacyPhoneField` (which bridges its own [CCPColors]
+ * [PhoneNumberField] and the legacy `UnifiedLegacyPhoneField` (which bridges its own [com.ezzy.ccp.model.CCPColors]
  * into a [CountryPickerColors] first) so the "what the outline actually looks like" mapping exists
  * in exactly one place.
  *

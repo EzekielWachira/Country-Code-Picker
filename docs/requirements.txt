@@ -1,0 +1,4 @@
+# Python dependencies for building the documentation site (see .github/workflows/docs.yml).
+# MkDocs 2.0 removes the plugin/theme system Material depends on, so stay on 1.x.
+mkdocs>=1.6,<2
+mkdocs-material==9.7.7

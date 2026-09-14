@@ -92,7 +92,7 @@ import com.ezzy.ccp.icons.EzzyIcons
  * parallel one.
  *
  * @param onCountrySelected Called with the newly chosen country. The caller re-formats/re-validates the
- *   number for the new region — [PhoneNumberField] already does this via [PhoneNumberFieldState.selectCountry].
+ *   number for the new region — [PhoneNumberField] already does this via [com.ezzy.ccp.countrypicker.state.PhoneNumberFieldState.selectCountry].
  */
 @Composable
 internal fun EmbeddedPhonePrefix(
@@ -302,7 +302,7 @@ internal fun PhonePrefixDivider(
 
 /**
  * Builds "Kenya, calling code plus two five four. Double tap to change country." — the dial code is
- * spelled out digit-by-digit via [R.array.ccp_digit_words] rather than left as "+254", since a screen
+ * spelled out digit-by-digit via `R.array.ccp_digit_words` rather than left as "+254", since a screen
  * reader given the numeral form tends to read it as a cardinal number ("two hundred fifty-four")
  * instead of a sequence of individual digits.
  */
