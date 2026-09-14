@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.maven.publish)
+    alias(libs.plugins.dokka)
 }
 
 android {
@@ -87,5 +88,48 @@ publishing {
                 from(components["release"])
             }
         }
+    }
+}
+
+// API reference (Dokka). Run `./gradlew :ccp:dokkaGenerate`; output lands in ccp/build/dokka/html.
+// The published site (docs/ + this output under /api/) is built by .github/workflows/docs.yml.
+dokka {
+    moduleName.set("ccp")
+    moduleVersion.set(providers.gradleProperty("docsVersion").orElse("0.2.0"))
+
+    dokkaSourceSets.configureEach {
+        includes.from("Module.md")
+        reportUndocumented.set(false)
+        skipEmptyPackages.set(true)
+        suppressGeneratedFiles.set(true)
+
+        // 170+ generated flag ImageVectors: valid API, but noise in a reference.
+        perPackageOption {
+            matchingRegex.set("""com\.ezzy\.ccp\.icons.*""")
+            suppress.set(true)
+        }
+        // @Preview composables and the sample screen are examples, not API.
+        perPackageOption {
+            matchingRegex.set("""com\.ezzy\.ccp\.countrypicker\.sample.*""")
+            suppress.set(true)
+        }
+
+        sourceLink {
+            localDirectory.set(file("src/main/java"))
+            remoteUrl("https://github.com/EzekielWachira/Country-Code-Picker/tree/main/ccp/src/main/java")
+            remoteLineSuffix.set("#L")
+        }
+
+        externalDocumentationLinks.register("androidx") {
+            url("https://developer.android.com/reference/kotlin/")
+            packageListUrl("https://developer.android.com/reference/kotlin/androidx/package-list")
+        }
+        externalDocumentationLinks.register("kotlinx-coroutines") {
+            url("https://kotlinlang.org/api/kotlinx.coroutines/")
+        }
+    }
+
+    pluginsConfiguration.html {
+        footerMessage.set("© 2025 Ezekiel Wachira · MIT License")
     }
 }

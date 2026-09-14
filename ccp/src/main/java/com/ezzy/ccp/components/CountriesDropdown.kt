@@ -69,7 +69,7 @@ import com.ezzy.ccp.utils.countryToFlagEmoji
  * Controlled by the caller via [expanded] / [onDismiss], matching the pattern of
  * Material3's [DropdownMenu].
  *
- * Note: the country list uses [Column] + [verticalScroll] rather than [LazyColumn]
+ * Note: the country list uses [Column] + [verticalScroll] rather than `LazyColumn`
  * because [DropdownMenu] measures its children's intrinsic sizes to size the popup,
  * and SubcomposeLayout-based components (LazyColumn) do not support intrinsic measurement.
  * Search filtering keeps the rendered count small in practice.

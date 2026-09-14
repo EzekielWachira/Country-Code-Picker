@@ -38,7 +38,7 @@ import androidx.compose.runtime.Immutable
  *
  * @property iso2Code ISO 3166-1 alpha-2 code, uppercase (e.g. `"KE"`). The stable identity.
  * @property iso3Code ISO 3166-1 alpha-3 code, uppercase (e.g. `"KEN"`).
- * @property displayName Name shown to the user (e.g. `"Kenya"`). See [localizedName] for the
+ * @property displayName Name shown to the user (e.g. `"Kenya"`). See [com.ezzy.ccp.countrypicker.data.DefaultCountryDataSource.localizedNames] for the
  *   locale-aware variant resolved by the data source.
  * @property dialCode International dial code including the leading `+` (e.g. `"+254"`).
  * @property flag Default flag representation — a regional-indicator emoji, or `null` for the few

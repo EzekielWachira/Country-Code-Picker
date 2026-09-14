@@ -31,7 +31,7 @@ import com.ezzy.ccp.utils.CCPSheetColor
  * @property containerColor Background color of the phone number input container.
  * @property cursorColor Color of the text cursor inside the phone number field.
  * @property borderColor Border color of the phone number input field (normal state).
- * @property errorBorderColor Border color shown when [PhoneNumberInput] is in error state.
+ * @property errorBorderColor Border color shown when [com.ezzy.ccp.components.PhoneNumberInput] is in error state.
  * @property inputTextColor Color of the text entered into the phone number field.
  * @property phoneHintColor Color of the hint/placeholder text.
  * @property countryCodeTextColor Color of the country dial code displayed in the picker.

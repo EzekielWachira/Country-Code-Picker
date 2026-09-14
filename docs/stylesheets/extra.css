@@ -1,0 +1,20 @@
+/* Slightly wider content column for API tables. */
+.md-grid { max-width: 68rem; }
+
+/* Feature cards on the home page. */
+.grid.cards > ul > li { border-radius: 0.6rem; }
+.grid.cards > ul > li > hr { margin: 0.6em 0; }
+
+/* Inline "pill" rendering hints used in the variants table. */
+.pill {
+  display: inline-block;
+  padding: 0.1em 0.6em;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 999px;
+  font-family: var(--md-code-font-family);
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+/* Keep long KDoc-style tables readable. */
+.md-typeset table:not([class]) td code { white-space: nowrap; }

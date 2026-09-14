@@ -105,7 +105,7 @@ class DefaultCountryDetector(
 }
 
 /**
- * Builds a detector that tries [primary] first and falls back to [fallback] when it yields nothing.
+ * Builds a detector that tries the receiver first and falls back to [fallback] when it yields nothing.
  *
  * The idiomatic way to add a backend IP lookup without giving up the device signals:
  * ```kotlin

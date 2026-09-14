@@ -308,7 +308,7 @@ object CountryPickerDefaults {
     /**
      * Text styles derived from the host's type scale.
      *
-     * [sectionHeader] is the one style built by hand: the design's uppercase, 0.8px-tracked accent
+     * [CountryPickerTypography.sectionHeader] is the one style built by hand: the design's uppercase, 0.8px-tracked accent
      * header has no Material equivalent, so it is `labelMedium` with the tracking and weight the
      * design specifies rather than an arbitrary invented style.
      */

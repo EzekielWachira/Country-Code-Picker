@@ -2,6 +2,8 @@
 
 [![](https://jitpack.io/v/EzekielWachira/Country-Code-Picker.svg)](https://jitpack.io/#EzekielWachira/Country-Code-Picker)
 
+📖 **Documentation:** [ezekielwachira.github.io/Country-Code-Picker](https://ezekielwachira.github.io/Country-Code-Picker/) — guides, recipes and the [API reference](https://ezekielwachira.github.io/Country-Code-Picker/api/).
+
 A lightweight, fully customizable Jetpack Compose library for country selection, country code selection, phone number validation, and real-time formatting based on country-specific rules.
 
 The library ships two layers:
