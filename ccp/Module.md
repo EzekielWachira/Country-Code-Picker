@@ -1,7 +1,7 @@
 # Module ccp
 
-A Jetpack Compose library for country selection, phone country-code selection, phone number
-validation and real-time formatting. Everything here is pure Compose state — no ViewModels, no
+A Compose Multiplatform library for Android and iOS: country selection, phone country-code
+selection, phone number validation and real-time formatting. Everything here is pure Compose state — no ViewModels, no
 navigation coupling.
 
 Start with [CountrySelector][com.ezzy.ccp.countrypicker.ui.CountrySelector] for any

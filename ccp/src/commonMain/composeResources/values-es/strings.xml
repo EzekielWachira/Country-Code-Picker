@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Spanish. -->
+<resources>
+
+    <!-- ── Sheet chrome ─────────────────────────────────────────────────────── -->
+    <string name="ccp_select_country">Seleccionar país</string>
+    <string name="ccp_select_country_subtitle">Elige tu país de residencia</string>
+    <string name="ccp_country_code_title">Código de país</string>
+    <string name="ccp_country_code_subtitle">Busca por país o prefijo telefónico</string>
+    <string name="ccp_close">Cerrar</string>
+    <string name="ccp_back">Atrás</string>
+    <string name="ccp_drag_handle">Arrastra para redimensionar o cerrar</string>
+
+    <!-- ── Legacy PhoneNumberInput / CountriesBottomSheet ───────────────────── -->
+    <string name="ccp_layout_list">Vista de lista</string>
+    <string name="ccp_layout_grid">Vista de cuadrícula</string>
+    <string name="ccp_change_country_a11y">%1$s %2$s, toca para cambiar de país</string>
+
+    <!-- ── Search ───────────────────────────────────────────────────────────── -->
+    <string name="ccp_search_hint">Busca país, código o prefijo</string>
+    <string name="ccp_search_label">Buscar países</string>
+    <string name="ccp_clear_search">Borrar búsqueda</string>
+    <plurals name="ccp_result_count">
+        <item quantity="one">%1$d resultado</item>
+        <item quantity="many">%1$d de resultados</item>
+        <item quantity="other">%1$d resultados</item>
+    </plurals>
+    <string name="ccp_result_count_in_region">%1$s en %2$s</string>
+    <string name="ccp_did_you_mean">¿Quisiste decir?</string>
+    <plurals name="ccp_countries_found">
+        <item quantity="one">%1$d país encontrado</item>
+        <item quantity="many">%1$d de países encontrados</item>
+        <item quantity="other">%1$d países encontrados</item>
+    </plurals>
+
+    <!-- ── Sections ─────────────────────────────────────────────────────────── -->
+    <string name="ccp_section_selected">Seleccionados</string>
+    <string name="ccp_section_selected_count">Seleccionados · %1$d</string>
+    <string name="ccp_section_recent">Seleccionados recientemente</string>
+    <string name="ccp_section_suggested">Sugeridos</string>
+    <string name="ccp_section_all">Todos los países</string>
+    <string name="ccp_section_quick_picks">Selección rápida</string>
+
+    <!-- ── Region filters ───────────────────────────────────────────────────── -->
+    <string name="ccp_region_all">Todas</string>
+    <string name="ccp_region_africa">África</string>
+    <string name="ccp_region_americas">América</string>
+    <string name="ccp_region_asia">Asia</string>
+    <string name="ccp_region_europe">Europa</string>
+    <string name="ccp_region_oceania">Oceanía</string>
+    <string name="ccp_region_filter_label">Filtrar por región</string>
+
+    <!-- ── Actions ──────────────────────────────────────────────────────────── -->
+    <string name="ccp_reset">Restablecer</string>
+    <string name="ccp_cancel">Cancelar</string>
+    <string name="ccp_confirm">Confirmar</string>
+    <string name="ccp_confirm_count">Confirmar (%1$d)</string>
+    <string name="ccp_retry">Reintentar</string>
+    <string name="ccp_use">Usar</string>
+    <string name="ccp_change">Cambiar</string>
+    <string name="ccp_remove_country_a11y">Quitar %1$s</string>
+
+    <!-- ── Selector ─────────────────────────────────────────────────────────── -->
+    <string name="ccp_country_of_residence">País de residencia</string>
+    <string name="ccp_select_country_placeholder">Seleccionar país</string>
+    <string name="ccp_optional_label">%1$s (opcional)</string>
+    <string name="ccp_required_label">%1$s *</string>
+    <string name="ccp_selector_a11y_selected">%1$s. %2$s seleccionado. Toca dos veces para cambiar.</string>
+    <string name="ccp_selector_a11y_empty">%1$s. %2$s. Toca dos veces para elegir un país.</string>
+    <string name="ccp_multi_selector_a11y">%1$s. %2$s. Toca dos veces para cambiar.</string>
+    <string name="ccp_flag_only_a11y">País seleccionado: %1$s. Toca dos veces para cambiar.</string>
+    <string name="ccp_flag_only_a11y_empty">Ningún país seleccionado. Toca dos veces para elegir uno.</string>
+    <string name="ccp_dial_code_a11y">Prefijo telefónico %1$s, %2$s. Toca dos veces para cambiar.</string>
+    <string name="ccp_phone_prefix_a11y">%1$s, prefijo %2$s. Toca dos veces para cambiar de país.</string>
+    <string name="ccp_phone_prefix_plus">más</string>
+    <string name="ccp_loading_countries">Cargando países</string>
+
+    <!-- ── Detection ────────────────────────────────────────────────────────── -->
+    <string name="ccp_detecting">Detectando tu país…</string>
+    <string name="ccp_detected_badge">Detectado</string>
+    <string name="ccp_detected_from_sim">De tu tarjeta SIM · toca para cambiar</string>
+    <string name="ccp_detected_from_network">De tu red · toca para cambiar</string>
+    <string name="ccp_detected_from_locale">Según el idioma del dispositivo · toca para cambiar</string>
+    <string name="ccp_detected_from_profile">De tu perfil · toca para cambiar</string>
+    <string name="ccp_detected_from_saved">Tu última elección · toca para cambiar</string>
+    <string name="ccp_detected_generic">Detectado automáticamente · toca para cambiar</string>
+    <string name="ccp_detected_suggestion">Parece que estás en %1$s, según %2$s.</string>
+    <string name="ccp_detect_source_sim">tu tarjeta SIM</string>
+    <string name="ccp_detect_source_network">tu red</string>
+    <string name="ccp_detect_source_locale">el idioma de tu dispositivo</string>
+
+    <!-- ── Empty / error states ─────────────────────────────────────────────── -->
+    <string name="ccp_empty_title">No se encontraron países</string>
+    <string name="ccp_empty_body">Revisa la ortografía o busca por código ISO o prefijo telefónico.</string>
+    <string name="ccp_empty_title_query">Ningún país coincide con «%1$s»</string>
+    <string name="ccp_error_title">No se pudieron cargar los países</string>
+    <string name="ccp_error_body">Algo salió mal de nuestro lado. Tu selección no se ha visto afectada.</string>
+    <string name="ccp_offline_title">Estás sin conexión</string>
+    <string name="ccp_offline_body">Mostrando la última lista guardada. Vuelve a conectarte para actualizar.</string>
+    <string name="ccp_none_available_title">No hay países disponibles</string>
+    <string name="ccp_none_available_body">La configuración actual excluye todos los países.</string>
+    <string name="ccp_row_unavailable">No disponible</string>
+    <plurals name="ccp_max_selection_reached">
+        <item quantity="one">Puedes seleccionar como máximo %1$d país</item>
+        <item quantity="many">Puedes seleccionar como máximo %1$d de países</item>
+        <item quantity="other">Puedes seleccionar como máximo %1$d países</item>
+    </plurals>
+    <plurals name="ccp_min_selection_required">
+        <item quantity="one">Selecciona al menos %1$d país</item>
+        <item quantity="many">Selecciona al menos %1$d de países</item>
+        <item quantity="other">Selecciona al menos %1$d países</item>
+    </plurals>
+    <plurals name="ccp_countries_selected">
+        <item quantity="one">%1$d país seleccionado</item>
+        <item quantity="many">%1$d de países seleccionados</item>
+        <item quantity="other">%1$d países seleccionados</item>
+    </plurals>
+
+    <!-- ── Accessibility state announcements ────────────────────────────────── -->
+    <string name="ccp_a11y_selected">seleccionado</string>
+    <string name="ccp_a11y_not_selected">no seleccionado</string>
+    <string name="ccp_a11y_country_selected_announce">%1$s seleccionado</string>
+    <string name="ccp_a11y_country_deselected_announce">%1$s deseleccionado</string>
+    <string name="ccp_a11y_row">%1$s, %2$s</string>
+
+    <!-- ── Phone number ─────────────────────────────────────────────────────── -->
+    <string name="ccp_phone_number">Número de teléfono</string>
+    <string name="ccp_phone_hint">Introduce el teléfono</string>
+    <string name="ccp_phone_input_label">Número de teléfono</string>
+    <!-- Spoken by TalkBack on the legacy PhoneNumberInput editor. Distinct from
+         ccp_phone_input_label, which is a visible label: this one describes the control
+         itself, and its wording is the legacy component's existing accessibility
+         contract. -->
+    <string name="ccp_phone_input_a11y">Campo de número de teléfono</string>
+    <string name="ccp_clear_phone">Borrar número de teléfono</string>
+    <string name="ccp_phone_helper">Formato en vivo para %1$s · p. ej. %2$s %3$s</string>
+    <string name="ccp_phone_helper_no_example">Formato en vivo para %1$s</string>
+    <string name="ccp_phone_error_empty">Introduce un número de teléfono</string>
+    <plurals name="ccp_phone_error_incomplete">
+        <item quantity="one">Introduce un número de %1$s válido: %2$d dígito después de %3$s</item>
+        <item quantity="many">Introduce un número de %1$s válido: %2$d de dígitos después de %3$s</item>
+        <item quantity="other">Introduce un número de %1$s válido: %2$d dígitos después de %3$s</item>
+    </plurals>
+    <string name="ccp_phone_error_too_short">Ese número es demasiado corto para %1$s</string>
+    <string name="ccp_phone_error_too_long">Ese número es demasiado largo para %1$s</string>
+    <string name="ccp_phone_error_invalid">Introduce un número de teléfono válido para %1$s</string>
+    <string name="ccp_phone_error_invalid_generic">Introduce un número de teléfono válido</string>
+    <string name="ccp_phone_error_unsupported_country">Los números de teléfono no son compatibles con %1$s</string>
+    <string name="ccp_phone_error_invalid_country_code">Ese prefijo telefónico no se reconoce</string>
+    <string name="ccp_number_type_mobile">Móvil</string>
+    <string name="ccp_number_type_landline">Fijo</string>
+    <string name="ccp_number_type_mobile_or_landline">Móvil o fijo</string>
+    <string name="ccp_number_type_toll_free">Gratuito</string>
+    <string name="ccp_number_type_voip">VoIP</string>
+    <string name="ccp_phone_state_valid">Número válido</string>
+    <string name="ccp_phone_state_valid_type">Número válido, %1$s</string>
+    <!-- Shown when the number is real but the wrong kind of line for this flow -->
+    <string name="ccp_phone_error_requires_mobile">Introduce un número de móvil</string>
+    <string name="ccp_phone_error_requires_landline">Introduce un número fijo</string>
+    <string name="ccp_phone_error_wrong_type">Ese tipo de número no se acepta aquí</string>
+
+    <!-- ── Phone verification ───────────────────────────────────────────────── -->
+    <string name="ccp_verify_send_code">Enviar código</string>
+    <string name="ccp_verify_sending">Enviando código…</string>
+    <string name="ccp_verify_code_sent">Enviamos un código a %1$s</string>
+    <string name="ccp_verify_code_label">Código de verificación</string>
+    <string name="ccp_verify_submit">Verificar</string>
+    <string name="ccp_verify_verifying">Verificando…</string>
+    <string name="ccp_verify_verified">Número verificado</string>
+    <string name="ccp_verify_resend">Reenviar código</string>
+    <string name="ccp_verify_resend_in">Reenviar código en %1$d s</string>
+    <string name="ccp_verify_expired">Ese código caducó. Solicita uno nuevo.</string>
+    <string name="ccp_verify_failed">Ese código no es correcto. Inténtalo de nuevo.</string>
+    <string name="ccp_verify_request_failed">No pudimos enviar el código. Inténtalo de nuevo.</string>
+    <string name="ccp_verify_requires_valid_number">Introduce primero un número de teléfono válido</string>
+
+    <!-- ── Digit words ──────────────────────────────────────────────────────── -->
+    <string-array name="ccp_digit_words">
+        <item>cero</item>
+        <item>uno</item>
+        <item>dos</item>
+        <item>tres</item>
+        <item>cuatro</item>
+        <item>cinco</item>
+        <item>seis</item>
+        <item>siete</item>
+        <item>ocho</item>
+        <item>nueve</item>
+    </string-array>
+
+</resources>

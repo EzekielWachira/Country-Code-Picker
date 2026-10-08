@@ -1,0 +1,105 @@
+/**
+ * Copyright (c) 2025 Ezekiel Wachira
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+package com.ezzy.ccp.state
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.ezzy.ccp.data.countryList
+import com.ezzy.ccp.model.Country
+
+/**
+ * State holder for country search and filtering inside the countries bottom sheet.
+ *
+ * All derived lists ([pinnedList], [filteredCountries]) recompute automatically via
+ * [derivedStateOf] — no coroutines or manual invalidation needed.
+ *
+ * @param countriesToShow Whitelist of ISO codes to show. Empty = all countries.
+ * @param countriesToExclude Blacklist of ISO codes to hide regardless of [countriesToShow].
+ * @param pinnedCountries ISO codes of countries pinned to a "Suggested" section at the top
+ * of the list. Only visible when [query] is blank.
+ *
+ * Create via [rememberCountrySearchState].
+ */
+public class CountrySearchState(
+    public val countriesToShow: List<String> = emptyList(),
+    public val countriesToExclude: List<String> = emptyList(),
+    public val pinnedCountries: List<String> = emptyList(),
+) {
+    public var query: String by mutableStateOf("")
+        private set
+
+    /**
+     * Countries pinned to the top "Suggested" section. Empty while the user is searching,
+     * so the pinned header disappears and the results are consolidated.
+     */
+    public val pinnedList: List<Country> by derivedStateOf {
+        if (query.isBlank() && pinnedCountries.isNotEmpty()) {
+            countryList.filter { it.code in pinnedCountries && it.code !in countriesToExclude }
+        } else {
+            emptyList()
+        }
+    }
+
+    /**
+     * Grouped and filtered country list. When [query] is blank and [pinnedCountries] is set,
+     * pinned countries are excluded from this map to avoid duplication with [pinnedList].
+     */
+    public val filteredCountries: Map<Char, List<Country>> by derivedStateOf {
+        val base = if (countriesToShow.isNotEmpty()) {
+            countryList.filter { it.code in countriesToShow }
+        } else {
+            countryList
+        }.filter { it.code !in countriesToExclude }
+
+        // Hide pinned from the main list only when not searching (they appear in the pinned section)
+        val hiddenFromMain = if (query.isBlank()) pinnedCountries.toSet() else emptySet()
+
+        val filtered = if (query.isBlank()) {
+            base.filter { it.code !in hiddenFromMain }
+        } else {
+            base.filter {
+                it.name.contains(query, ignoreCase = true) ||
+                    it.dialCode.contains(query, ignoreCase = true) ||
+                    it.code.contains(query, ignoreCase = true)
+            }
+        }
+        filtered.sortedBy { it.name[0] }.groupBy { it.name[0] }
+    }
+
+    public fun updateQuery(newQuery: String) {
+        query = newQuery
+    }
+}
+
+@Composable
+public fun rememberCountrySearchState(
+    countriesToShow: List<String> = emptyList(),
+    countriesToExclude: List<String> = emptyList(),
+    pinnedCountries: List<String> = emptyList(),
+): CountrySearchState = remember(countriesToShow, countriesToExclude, pinnedCountries) {
+    CountrySearchState(countriesToShow, countriesToExclude, pinnedCountries)
+}

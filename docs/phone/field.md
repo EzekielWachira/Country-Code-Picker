@@ -1,8 +1,8 @@
 # Phone number field
 
 `PhoneNumberField` is an international phone number field: the country prefix (flag, dial code,
-chevron) and the national number editor inside **one** unified outlined container, with a label that
-floats into a notch in the border the way a Material outlined text field does.
+chevron) and the number in **one** field, with a label that rests where the number goes and lifts
+above it as soon as the field has focus or a value.
 
 ```kotlin
 val kenya = remember { DefaultCountryDataSource.findByIso2("KE")!! }
@@ -31,6 +31,14 @@ What you get:
   libphonenumber metadata for the selected country, so no example number is hardcoded anywhere.
 - **Max length enforcement.** Input is capped at the region's maximum (with tolerance for countries
   whose national lengths vary), so a mistyped extra digit cannot silently invalidate a correct number.
+- **Ghost digits.** The empty field shows the country's example number; once typing starts, the rest
+  of it is ghosted as zeros — `712 3|00 000` — so the expected length and grouping stay visible.
+- **Progress and confirmation.** A hairline along the bottom fills as digits arrive and turns green
+  when the number is valid, and a valid number earns a badge naming its kind — `✓ Mobile`,
+  `✓ Landline` — so a landline entered where a mobile is wanted is visible before submitting. Screen
+  readers hear the same as the field's state: *"Valid number, Mobile"*.
+- **Tools while editing, results at rest.** The clear button appears only while the field has focus,
+  as on iOS, so a filled field shows the number and its badge rather than its controls.
 
 !!! warning "Pass an initial country"
     The default `state` starts on the first dataset entry alphabetically (Afghanistan). Always pass
@@ -47,15 +55,17 @@ What you get:
 | `label` | "Phone number" | Floating label. Rendered only when `inputStyle.labelMode` is `Floating` |
 | `accessibilityLabel` | `label` | The label exposed to screen readers regardless of whether the visible label renders |
 | `placeholder` | `null` | Placeholder inside the editor |
-| `inputStyle` | `PhoneNumberInputDefaults.style()` | Label mode, flag presentation, prefix content, divider, size. See [Styling the field](#styling-the-field) |
+| `variant` | `Elevated` | `Elevated`, `Outlined`, `Filled`, `Underlined` or `Card` — the same containers as the [country selector](../country-picker/selector.md#variants) |
+| `inputStyle` | `PhoneNumberInputDefaults.style()` | Label, prefix content, divider, size, and the ghost digits, progress, badge and check. See [Styling the field](#styling-the-field) |
 | `config` | `CountryPickerDefaults.phoneConfig()` | The embedded picker's [configuration](../country-picker/configuration.md): allowed/excluded countries, suggestions, search |
 | `showHelperText` | `true` | The live "Formats live for …" helper |
 | `showClearButton` | `true` | A clear button while the field has content |
+| `autofillEnabled` | `true` | Advertise the field to Android Autofill and password managers. See [Autofill](#autofill) |
 | `isError` / `errorMessage` | `false` / `null` | Force the error treatment and override the derived message, e.g. for a server-side rejection. Combined with local validation, never replacing it |
 | `validateWhileTyping` | `false` | Show validation errors before the field loses focus |
 | `verificationController` | `null` | Opt in to [verification](verification.md) |
 | `recentCountryStore`, `repository` | no-op / bundled | As on every selector |
-| `colors`, `shapes`, `dimensions`, `typography`, `motion`, `flagContent` | defaults | [Theming](../theming.md) |
+| `style`, `flagContent` | the theme's | [Theming](../theming.md) |
 | `onDone` | `{}` | Invoked when the keyboard action fires **and** the number is valid |
 
 ## `PhoneNumberFieldState`
@@ -68,6 +78,7 @@ val state = rememberPhoneNumberFieldState(
     initialCountry = kenya,
     initialNumber = "+254712345678",   // optional; an E.164 value also sets the country
     enforceMaxLength = true,
+    allowedNumberTypes = emptySet(),   // or PhoneNumberType.SmsCapable to require a mobile
 )
 ```
 
@@ -81,7 +92,8 @@ val state = rememberPhoneNumberFieldState(
 | `setFullNumber(raw, allowCountryChange = true)` | Parses a pasted or prefilled number. `+4915123456789` switches the field to Germany; a bare `0712345678` carries no country signal and leaves the country alone |
 | `clear()` | Clears the number, leaves the country alone |
 | `markTouched()` | Makes validation messages visible, e.g. on a submit tap |
-| `onTextChanged(TextFieldValue)` | The field's own text callback; strips everything non-digit so pasting `(0712) 345-678` works |
+| `onTextChanged(TextFieldValue)` | The field's own text callback. Strips everything non-digit so pasting `(0712) 345-678` works, and adopts the country from text that names one — see [Autofill](#autofill) |
+| `allowedNumberTypes` | The line types the field accepts. See [Restricting the line type](validation.md#restricting-the-line-type) |
 
 The state is saved with `rememberSaveable` (country code, digits and touched flag), so it survives
 rotation and process death.
@@ -99,6 +111,7 @@ data class PhoneNumberValue(
     val isPossible: Boolean,               // length is plausible for the region
     val isValid: Boolean,                  // a real, dialable number — the only flag that should gate submission
     val validity: PhoneNumberValidity,     // the granular reason behind isValid
+    val numberType: PhoneNumberType?,      // mobile, landline, toll-free… null until parseable
 ) {
     val isEmpty: Boolean
 }
@@ -130,18 +143,22 @@ PhoneNumberField(
 | Property | Default | Options |
 |---|---|---|
 | `labelMode` | `Floating` | `Floating` or `Hidden`. Hiding never removes the label from accessibility |
-| `flagConfig` | plain flag, 24dp | See [Flags](../theming.md#flags) |
 | `showDropdownIcon` | `true` | The chevron in the prefix |
 | `showPrefixDivider` | `true` | The thin vertical divider between prefix and editor. Off removes it from the layout entirely, leaving no dead space |
 | `prefixContentMode` | `FlagAndDialCode` | `FlagOnly` (🇰🇪), `DialCodeOnly` (+254), `FlagAndDialCode` (🇰🇪 +254), `CountryCodeAndDialCode` (KE +254) |
 | `size` | `Regular` | `Regular`, `Compact`, `ExtraCompact` |
+| `showGhostDigits` | `true` | Ghost the rest of the example number as the user types |
+| `showProgress` | `true` | The hairline that fills as digits arrive |
+| `showNumberType` | `true` | The `✓ Mobile` badge on a valid number |
+| `showValidIndicator` | `true` | A check on a valid number when the badge is off |
+
+The prefix's flag follows the style's [`flagStyle` and `flagSource`](../theming.md#flags), like every
+other flag in the library.
 
 ### Sizes
 
-The field is built on Material's real outlined text field decoration, whose minimum height comes from
-its own content, so it cannot simply be told a smaller height. `PhoneFieldSize.Compact` and
-`ExtraCompact` instead scale padding, flag, chevron, icon-button and font sizes **together**, so a
-shorter field looks proportioned rather than clipped.
+`PhoneFieldSize.Compact` and `ExtraCompact` scale padding, flag, chevron, icon-button and font sizes
+**together**, so a shorter field looks proportioned rather than squeezed.
 
 | `PhoneFieldSize` | Content scale | Font scale |
 |---|---|---|
@@ -175,6 +192,38 @@ Row {
 Inside `PhoneNumberField` the prefix is *not* this pill: it is a bare clickable region sharing the
 field's single outline, which is what avoids the "two separate rounded boxes" look. The standalone
 pill remains correct on its own.
+
+## Autofill
+
+The field declares `ContentType.PhoneNumber + ContentType.PhoneNumberNational`, so Android Autofill
+and password managers offer to fill it. Nothing to wire up — it is on by default; pass
+`autofillEnabled = false` to opt out.
+
+Both content types are declared because providers store different shapes: some hold a full E.164
+number, others the national part with the country code separately. Either works, because the fill
+arrives through the same path as a paste and that path understands international numbers:
+
+```
+autofill supplies "+254712345678"
+  → PhoneNumberFieldState.onTextChanged
+  → text names a country, so the field switches to Kenya
+  → national digits become 712345678
+```
+
+Without that, the `+` would be stripped, `254` would be read as the first three digits of the
+subscriber number, and the field would report a plausible but wrong value under whichever country
+happened to be selected. The same applies to a user *pasting* or typing `+254…` by hand, which is
+why the behaviour lives in the state rather than in an autofill-specific callback.
+
+The rule for adopting a country is deliberately narrow:
+
+| Input | Country changes? |
+|---|---|
+| `+254712345678` typed or pasted | Yes — the `+` form always names its country |
+| `00254712345678` pasted | Yes |
+| `00…` typed one key at a time | No — `00` is two ordinary keystrokes, and re-parsing mid-entry would yank the country out from under the user |
+| `0712345678` | No — a bare national number carries no country signal |
+| `+2` (incomplete) | No — not until the input actually resolves to a country |
 
 ## Keyboard "Done"
 

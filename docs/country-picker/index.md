@@ -19,12 +19,15 @@ flowchart LR
 - A **selector** is the tappable field you place in a form. It shows the current value and opens the
   sheet. All variants open the *same* sheet with the *same* configuration; they differ only in
   footprint.
-- The **sheet** is a standard Material 3 `ModalBottomSheet` with a "Current selection" card, a search
-  field, region filter chips, and a grouped list (Selected, Recent, Suggested, All countries).
+- The **sheet** is a Material 3 `ModalBottomSheet` on phones and a centered dialog on wide windows,
+  with a search field, a sliding region filter, a carousel of quick picks (recent, suggested and
+  detected countries), and a grouped list with an A–Z rail. `CountryPickerPanel` is the same picker
+  with no container, for a full-screen route or a pane.
 - **`CountryPickerState`** owns the sheet's *transient* state: visibility, query, region, and the
   *pending* selection. It never owns the *confirmed* selection; that is hoisted to you.
-- **`CountryPickerConfig`** describes *how* a picker behaves: allowed and excluded countries, which
-  sections and filters appear, search fields, selection bounds.
+- **`CountryPickerConfig`** describes *how* a picker behaves: allowed and excluded countries, recents
+  and suggestions, search fields, selection bounds. How it *looks* is a
+  [`CountryPickerStyle`](../theming.md).
 - Data, recents and detection are pluggable interfaces with sensible local defaults, so the picker
   works offline and writes nothing to disk unless you ask.
 

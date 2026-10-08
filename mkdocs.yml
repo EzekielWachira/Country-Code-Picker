@@ -1,6 +1,6 @@
 site_name: Country Code Picker
 site_description: >-
-  A Jetpack Compose library for country selection, phone country codes, phone number validation
+  A Compose Multiplatform library (Android and iOS) for country selection, phone country codes, phone number validation
   and real-time formatting.
 site_author: Ezekiel Wachira
 site_url: https://ezekielwachira.github.io/Country-Code-Picker/
@@ -114,6 +114,7 @@ nav:
       - Phone verification: phone/verification.md
   - Theming: theming.md
   - Accessibility: accessibility.md
+  - Localization and RTL: localization.md
   - Legacy API:
       - legacy/index.md
       - PhoneNumberInput: legacy/phone-number-input.md

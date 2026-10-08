@@ -20,7 +20,7 @@ theming system.
 | `pinnedCountries` | `CountryPickerConfig.suggestedCountryCodes` |
 | `setCountry = "KE"` | `rememberPhoneNumberFieldState(initialCountry = DefaultCountryDataSource.findByIso2("KE")!!)` |
 | `value = "+254…"` | `rememberPhoneNumberFieldState(initialNumber = "+254…")` or `state.setFullNumber(...)` |
-| `CCPConfig.autoDetectCountry` | `detector = DefaultCountryDetector(context)` on a selector, or run the detector and call `state.selectCountry` |
+| `CCPConfig.autoDetectCountry` | `detector = rememberDefaultCountryDetector()` on a selector, or run the detector and call `state.selectCountry` |
 | `CCPConfig.enforceMaxLength` | `rememberPhoneNumberFieldState(enforceMaxLength = ...)` |
 | `CCPConfig.showClearButton` | `PhoneNumberField(showClearButton = ...)` |
 | `CCPConfig.showLabel` / `showPhonePrefixDivider` / `phoneFieldSize` | `PhoneNumberInputStyle.labelMode` / `showPrefixDivider` / `size` |

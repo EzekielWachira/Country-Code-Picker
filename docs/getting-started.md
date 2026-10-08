@@ -4,63 +4,83 @@
 
 | | |
 |---|---|
-| **Min SDK** | 24 (Android 7.0) |
-| **UI toolkit** | Jetpack Compose with Material 3 |
-| **Kotlin** | A Kotlin 2.x toolchain (the library is built with Kotlin 2.2) |
-| **Transitive dependencies** | Google [libphonenumber](https://github.com/google/libphonenumber) and `kotlinx-coroutines-core`. No DataStore, no image-loading library, no `material-icons-extended`. |
+| **Platforms** | Android (min SDK 24, Android 7.0) and iOS (`iosArm64`, `iosSimulatorArm64`) |
+| **UI toolkit** | Compose Multiplatform with Material 3 — or Jetpack Compose in an Android-only app |
+| **Kotlin** | A Kotlin 2.x toolchain (the library is built with Kotlin 2.4) |
+| **Transitive dependencies** | Google [libphonenumber](https://github.com/google/libphonenumber) on Android and `kotlinx-coroutines-core`. On iOS the phone-number engine, [libPhoneNumber-iOS](https://github.com/iziz/libPhoneNumber-iOS), is compiled into the library. No DataStore, no image-loading library, no `material-icons-extended`. |
 
-Flags are rendered as the platform's emoji glyphs, so the library adds no flag bitmaps to your APK.
+Flags are rendered as the platform's emoji glyphs, so the library adds no flag bitmaps to your app.
 
 ## Installation
 
-### 1. Add the JitPack repository
+The library is on Maven Central, which most projects already list in `settings.gradle.kts`.
 
-=== "settings.gradle.kts"
+=== "Kotlin Multiplatform"
 
     ```kotlin
-    dependencyResolutionManagement {
-        repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-        repositories {
-            google()
-            mavenCentral()
-            maven("https://jitpack.io")
+    kotlin {
+        sourceSets {
+            commonMain.dependencies {
+                implementation("io.github.ezekielwachira:ccp:<LATEST_VERSION>")
+            }
         }
     }
     ```
 
-=== "settings.gradle"
-
-    ```groovy
-    dependencyResolutionManagement {
-        repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-        repositories {
-            google()
-            mavenCentral()
-            maven { url 'https://jitpack.io' }
-        }
-    }
-    ```
-
-### 2. Add the dependency
-
-The latest release is shown on the JitPack badge:
-[![JitPack](https://jitpack.io/v/EzekielWachira/Country-Code-Picker.svg)](https://jitpack.io/#EzekielWachira/Country-Code-Picker)
-
-=== "build.gradle.kts"
+=== "Android (build.gradle.kts)"
 
     ```kotlin
     dependencies {
-        implementation("com.github.EzekielWachira:Country-Code-Picker:v0.2.0")
+        implementation("io.github.ezekielwachira:ccp:<LATEST_VERSION>")
     }
     ```
 
-=== "build.gradle"
+=== "Android (build.gradle)"
 
     ```groovy
     dependencies {
-        implementation 'com.github.EzekielWachira:Country-Code-Picker:v0.2.0'
+        implementation 'io.github.ezekielwachira:ccp:<LATEST_VERSION>'
     }
     ```
+
+Gradle resolves the right artifact for each target — `ccp-android`, `ccp-iosarm64` or
+`ccp-iossimulatorarm64`.
+
+### iOS
+
+There is nothing to add on the Xcode side. libPhoneNumber-iOS is compiled into the library's iOS
+klib under a `CCP` symbol prefix, so no CocoaPod, Swift package or linker flag is needed, and an app
+that also links libPhoneNumber-iOS itself does not hit duplicate symbols.
+
+Show the components from your iOS source set like any other Compose Multiplatform UI:
+
+```kotlin
+fun MainViewController(): UIViewController = ComposeUIViewController {
+    var country by remember { mutableStateOf<Country?>(null) }
+    CountrySelector(selectedCountry = country, onCountrySelected = { country = it })
+}
+```
+
+The repository's `iosApp/` is a working Xcode project around the shared sample.
+
+### JitPack (Android only)
+
+JitPack also builds the library, but on Linux, which cannot produce the iOS artifacts — use it only
+from Android-only projects:
+
+```kotlin
+// settings.gradle.kts
+dependencyResolutionManagement {
+    repositories {
+        maven("https://jitpack.io")
+    }
+}
+
+// build.gradle.kts
+dependencies {
+    implementation("com.github.EzekielWachira:Country-Code-Picker:<LATEST_VERSION>")
+}
+```
 
 !!! tip "Experimental Material 3 APIs"
     The library opts in to `ExperimentalMaterial3Api` and `ExperimentalFoundationApi` internally

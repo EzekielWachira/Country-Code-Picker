@@ -3,6 +3,10 @@
 Accessibility is built into the components rather than left to the host. These are the guarantees
 the library makes.
 
+The guarantees are expressed as Compose semantics, so they hold on both platforms: TalkBack reads them
+on Android, and Compose Multiplatform's accessibility bridge exposes the same tree to VoiceOver on
+iOS. The examples below name TalkBack because that is where they were written and tested.
+
 ## Touch targets
 
 Every clickable element is at least **48dp**, via `CountryPickerDimensions.minimumTouchTarget`. The

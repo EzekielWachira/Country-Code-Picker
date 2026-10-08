@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Simplified Chinese. Chinese has a single CLDR plural category ("other"), so each plurals block
+  carries one item — the singular/plural distinction the English source draws does not exist here.
+-->
+<resources>
+
+    <!-- ── Sheet chrome ─────────────────────────────────────────────────────── -->
+    <string name="ccp_select_country">选择国家/地区</string>
+    <string name="ccp_select_country_subtitle">选择你的居住国家/地区</string>
+    <string name="ccp_country_code_title">国家/地区代码</string>
+    <string name="ccp_country_code_subtitle">按国家/地区或区号搜索</string>
+    <string name="ccp_close">关闭</string>
+    <string name="ccp_back">返回</string>
+    <string name="ccp_drag_handle">拖动以调整大小或关闭</string>
+
+    <!-- ── Legacy PhoneNumberInput / CountriesBottomSheet ───────────────────── -->
+    <string name="ccp_layout_list">列表视图</string>
+    <string name="ccp_layout_grid">网格视图</string>
+    <string name="ccp_change_country_a11y">%1$s %2$s，点按以更改国家/地区</string>
+
+    <!-- ── Search ───────────────────────────────────────────────────────────── -->
+    <string name="ccp_search_hint">搜索国家/地区、代码或区号</string>
+    <string name="ccp_search_label">搜索国家/地区</string>
+    <string name="ccp_clear_search">清除搜索</string>
+    <plurals name="ccp_result_count">
+        <item quantity="other">%1$d 个结果</item>
+    </plurals>
+    <string name="ccp_result_count_in_region">%2$s中有%1$s</string>
+    <string name="ccp_did_you_mean">您是不是要找：</string>
+    <plurals name="ccp_countries_found">
+        <item quantity="other">找到 %1$d 个国家/地区</item>
+    </plurals>
+
+    <!-- ── Sections ─────────────────────────────────────────────────────────── -->
+    <string name="ccp_section_selected">已选择</string>
+    <string name="ccp_section_selected_count">已选择 · %1$d</string>
+    <string name="ccp_section_recent">最近选择</string>
+    <string name="ccp_section_suggested">推荐</string>
+    <string name="ccp_section_all">所有国家/地区</string>
+    <string name="ccp_section_quick_picks">快速选择</string>
+
+    <!-- ── Region filters ───────────────────────────────────────────────────── -->
+    <string name="ccp_region_all">全部</string>
+    <string name="ccp_region_africa">非洲</string>
+    <string name="ccp_region_americas">美洲</string>
+    <string name="ccp_region_asia">亚洲</string>
+    <string name="ccp_region_europe">欧洲</string>
+    <string name="ccp_region_oceania">大洋洲</string>
+    <string name="ccp_region_filter_label">按区域筛选</string>
+
+    <!-- ── Actions ──────────────────────────────────────────────────────────── -->
+    <string name="ccp_reset">重置</string>
+    <string name="ccp_cancel">取消</string>
+    <string name="ccp_confirm">确认</string>
+    <string name="ccp_confirm_count">确认 (%1$d)</string>
+    <string name="ccp_retry">重试</string>
+    <string name="ccp_use">使用</string>
+    <string name="ccp_change">更改</string>
+    <string name="ccp_remove_country_a11y">移除%1$s</string>
+
+    <!-- ── Selector ─────────────────────────────────────────────────────────── -->
+    <string name="ccp_country_of_residence">居住国家/地区</string>
+    <string name="ccp_select_country_placeholder">选择国家/地区</string>
+    <string name="ccp_optional_label">%1$s（可选）</string>
+    <string name="ccp_required_label">%1$s *</string>
+    <string name="ccp_selector_a11y_selected">%1$s。已选择%2$s。双击以更改。</string>
+    <string name="ccp_selector_a11y_empty">%1$s。%2$s。双击以选择国家/地区。</string>
+    <string name="ccp_multi_selector_a11y">%1$s。%2$s。双击以更改。</string>
+    <string name="ccp_flag_only_a11y">已选择的国家/地区：%1$s。双击以更改。</string>
+    <string name="ccp_flag_only_a11y_empty">未选择国家/地区。双击以选择。</string>
+    <string name="ccp_dial_code_a11y">国家/地区区号 %1$s，%2$s。双击以更改。</string>
+    <string name="ccp_phone_prefix_a11y">%1$s，区号 %2$s。双击以更改国家/地区。</string>
+    <string name="ccp_phone_prefix_plus">加</string>
+    <string name="ccp_loading_countries">正在加载国家/地区</string>
+
+    <!-- ── Detection ────────────────────────────────────────────────────────── -->
+    <string name="ccp_detecting">正在检测你的国家/地区…</string>
+    <string name="ccp_detected_badge">已检测</string>
+    <string name="ccp_detected_from_sim">来自你的 SIM 卡 · 点按以更改</string>
+    <string name="ccp_detected_from_network">来自你的网络 · 点按以更改</string>
+    <string name="ccp_detected_from_locale">根据设备语言 · 点按以更改</string>
+    <string name="ccp_detected_from_profile">来自你的个人资料 · 点按以更改</string>
+    <string name="ccp_detected_from_saved">你上次的选择 · 点按以更改</string>
+    <string name="ccp_detected_generic">自动检测 · 点按以更改</string>
+    <string name="ccp_detected_suggestion">根据%2$s，你似乎在%1$s。</string>
+    <string name="ccp_detect_source_sim">你的 SIM 卡</string>
+    <string name="ccp_detect_source_network">你的网络</string>
+    <string name="ccp_detect_source_locale">你的设备语言</string>
+
+    <!-- ── Empty / error states ─────────────────────────────────────────────── -->
+    <string name="ccp_empty_title">未找到国家/地区</string>
+    <string name="ccp_empty_body">请检查拼写，或按 ISO 代码或区号搜索。</string>
+    <string name="ccp_empty_title_query">没有与“%1$s”匹配的国家/地区</string>
+    <string name="ccp_error_title">无法加载国家/地区</string>
+    <string name="ccp_error_body">我们这边出了点问题。你的选择未受影响。</string>
+    <string name="ccp_offline_title">你已离线</string>
+    <string name="ccp_offline_body">正在显示上次缓存的国家/地区列表。重新连接即可刷新。</string>
+    <string name="ccp_none_available_title">没有可用的国家/地区</string>
+    <string name="ccp_none_available_body">当前配置过滤掉了所有国家/地区。</string>
+    <string name="ccp_row_unavailable">不可用</string>
+    <plurals name="ccp_max_selection_reached">
+        <item quantity="other">最多可选择 %1$d 个国家/地区</item>
+    </plurals>
+    <plurals name="ccp_min_selection_required">
+        <item quantity="other">请至少选择 %1$d 个国家/地区</item>
+    </plurals>
+    <plurals name="ccp_countries_selected">
+        <item quantity="other">已选择 %1$d 个国家/地区</item>
+    </plurals>
+
+    <!-- ── Accessibility state announcements ────────────────────────────────── -->
+    <string name="ccp_a11y_selected">已选择</string>
+    <string name="ccp_a11y_not_selected">未选择</string>
+    <string name="ccp_a11y_country_selected_announce">已选择%1$s</string>
+    <string name="ccp_a11y_country_deselected_announce">已取消选择%1$s</string>
+    <string name="ccp_a11y_row">%1$s，%2$s</string>
+
+    <!-- ── Phone number ─────────────────────────────────────────────────────── -->
+    <string name="ccp_phone_number">电话号码</string>
+    <string name="ccp_phone_hint">输入电话号码</string>
+    <string name="ccp_phone_input_label">电话号码</string>
+    <!-- Spoken by TalkBack on the legacy PhoneNumberInput editor. Distinct from
+         ccp_phone_input_label, which is a visible label: this one describes the control
+         itself, and its wording is the legacy component's existing accessibility
+         contract. -->
+    <string name="ccp_phone_input_a11y">电话号码输入框</string>
+    <string name="ccp_clear_phone">清除电话号码</string>
+    <string name="ccp_phone_helper">按%1$s格式实时排版 · 例如 %2$s %3$s</string>
+    <string name="ccp_phone_helper_no_example">按%1$s格式实时排版</string>
+    <string name="ccp_phone_error_empty">请输入电话号码</string>
+    <plurals name="ccp_phone_error_incomplete">
+        <item quantity="other">请输入有效的%1$s号码 — %3$s 后应有 %2$d 位数字</item>
+    </plurals>
+    <string name="ccp_phone_error_too_short">该号码对%1$s来说太短</string>
+    <string name="ccp_phone_error_too_long">该号码对%1$s来说太长</string>
+    <string name="ccp_phone_error_invalid">请输入有效的%1$s电话号码</string>
+    <string name="ccp_phone_error_invalid_generic">请输入有效的电话号码</string>
+    <string name="ccp_phone_error_unsupported_country">%1$s不支持电话号码</string>
+    <string name="ccp_phone_error_invalid_country_code">无法识别该国家/地区区号</string>
+    <string name="ccp_number_type_mobile">手机</string>
+    <string name="ccp_number_type_landline">固话</string>
+    <string name="ccp_number_type_mobile_or_landline">手机或固话</string>
+    <string name="ccp_number_type_toll_free">免费电话</string>
+    <string name="ccp_number_type_voip">网络电话</string>
+    <string name="ccp_phone_state_valid">号码有效</string>
+    <string name="ccp_phone_state_valid_type">号码有效，%1$s</string>
+    <!-- Shown when the number is real but the wrong kind of line for this flow -->
+    <string name="ccp_phone_error_requires_mobile">请输入手机号码</string>
+    <string name="ccp_phone_error_requires_landline">请输入固定电话号码</string>
+    <string name="ccp_phone_error_wrong_type">此处不接受该类型的号码</string>
+
+    <!-- ── Phone verification ───────────────────────────────────────────────── -->
+    <string name="ccp_verify_send_code">发送验证码</string>
+    <string name="ccp_verify_sending">正在发送验证码…</string>
+    <string name="ccp_verify_code_sent">我们已向 %1$s 发送验证码</string>
+    <string name="ccp_verify_code_label">验证码</string>
+    <string name="ccp_verify_submit">验证</string>
+    <string name="ccp_verify_verifying">正在验证…</string>
+    <string name="ccp_verify_verified">号码已验证</string>
+    <string name="ccp_verify_resend">重新发送验证码</string>
+    <string name="ccp_verify_resend_in">%1$d 秒后可重新发送</string>
+    <string name="ccp_verify_expired">该验证码已过期。请重新获取。</string>
+    <string name="ccp_verify_failed">验证码不正确。请重试。</string>
+    <string name="ccp_verify_request_failed">我们无法发送验证码。请重试。</string>
+    <string name="ccp_verify_requires_valid_number">请先输入有效的电话号码</string>
+
+    <!-- ── Digit words ──────────────────────────────────────────────────────── -->
+    <string-array name="ccp_digit_words">
+        <item>零</item>
+        <item>一</item>
+        <item>二</item>
+        <item>三</item>
+        <item>四</item>
+        <item>五</item>
+        <item>六</item>
+        <item>七</item>
+        <item>八</item>
+        <item>九</item>
+    </string-array>
+
+</resources>
