@@ -42,6 +42,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -98,7 +99,6 @@ import com.ezzy.ccp.resources.Res
 import com.ezzy.ccp.resources.ccp_close
 import com.ezzy.ccp.resources.ccp_confirm
 import com.ezzy.ccp.resources.ccp_confirm_count
-import com.ezzy.ccp.resources.ccp_countries_selected
 import com.ezzy.ccp.resources.ccp_drag_handle
 import com.ezzy.ccp.resources.ccp_reset
 import com.ezzy.ccp.resources.ccp_result_count
@@ -681,20 +681,10 @@ private fun ConfirmBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        StackedFlags(countries = selection, ringColor = colors.surfaceRaised)
-        val summary = pluralStringResource(Res.plurals.ccp_countries_selected, selection.size, selection.size)
-        AnimatedContent(
-            targetState = summary,
-            transitionSpec = { fadeIn(style.motion.fadeIn) togetherWith fadeOut(style.motion.fadeOut) },
-            modifier = Modifier.weight(1f),
-            label = "selectionSummary",
-        ) { value ->
-            SingleLineText(
-                text = if (selection.isEmpty()) "" else value,
-                style = style.typography.chip,
-                color = colors.textSecondary,
-            )
-        }
+        // The selection as faces, not words: the title's badge and the button already state the
+        // count, and a third "4 countries selected" would only crowd — and truncate — the bar.
+        StackedFlags(countries = selection, ringColor = colors.surfaceRaised, max = BAR_FLAGS)
+        Spacer(Modifier.weight(1f))
         PickerButton(onClick = onConfirm, enabled = canConfirm) {
             Text(
                 if (selection.isEmpty()) {
@@ -801,6 +791,9 @@ private val RAIL_GAP = 4.dp
 
 /** List padding that keeps the last rows clear of the floating confirmation bar. */
 private val CONFIRM_BAR_CLEARANCE = 104.dp
+
+/** Flags the confirmation bar stacks before folding the rest into a "+N" disc. */
+private const val BAR_FLAGS = 5
 
 /** How long the selection-limit notice stays up. */
 private const val FEEDBACK_MILLIS = 2600L

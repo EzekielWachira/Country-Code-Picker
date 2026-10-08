@@ -111,10 +111,13 @@ public data class CountryPickerColors(
          * mode, near-black layers in dark mode.
          *
          * Status colors are tuned for at least 4.5:1 contrast on [surface] in both modes.
+         *
+         * @param onAccent Content on the accent. Defaults to white when that reaches 3:1 contrast
+         *   against [accent], and black otherwise.
          */
         public fun signature(
             accent: Color,
-            onAccent: Color = if (accent.luminance() > ON_ACCENT_LUMINANCE_THRESHOLD) Color.Black else Color.White,
+            onAccent: Color = readableOn(accent),
             dark: Boolean = false,
         ): CountryPickerColors = if (dark) {
             val surface = Color(0xFF17181C)
@@ -188,5 +191,19 @@ internal fun Color.blendTowards(other: Color, fraction: Float): Color = Color(
     alpha = alpha,
 )
 
+/**
+ * White or black content for [background]: white when it reaches 3:1 contrast — the WCAG minimum for
+ * UI components and bold text — and black otherwise.
+ *
+ * Biased towards white rather than picking the strictly higher contrast, because that is the
+ * convention for saturated accents: iOS's system blue carries white text at about 4:1, where black
+ * would technically contrast more. A pale accent — a dark theme's lavender primary — gets black.
+ */
+internal fun readableOn(background: Color): Color {
+    val whiteContrast = (1f + WCAG_FLARE) / (background.luminance() + WCAG_FLARE)
+    return if (whiteContrast >= MIN_ON_ACCENT_CONTRAST) Color.White else Color.Black
+}
+
 private const val DARK_LUMINANCE_THRESHOLD = 0.4f
-private const val ON_ACCENT_LUMINANCE_THRESHOLD = 0.6f
+private const val WCAG_FLARE = 0.05f
+private const val MIN_ON_ACCENT_CONTRAST = 3f

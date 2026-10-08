@@ -25,6 +25,7 @@ package com.ezzy.ccp.sample
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -59,6 +60,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -171,12 +174,15 @@ fun ShowcaseScreen(dark: Boolean, onDarkChange: (Boolean) -> Unit, modifier: Mod
         haptics = if (haptics) base.haptics else CountryPickerHaptics.Off,
     )
     val current = style.layout
+    val focusManager = LocalFocusManager.current
 
     CountryPickerTheme(style) {
         Column(
             modifier = modifier
                 .fillMaxSize()
                 .background(style.colors.background)
+                // A tap on the page itself dismisses the keyboard — iOS's number pad has no Done key.
+                .pointerInput(Unit) { detectTapGestures { focusManager.clearFocus() } }
                 // Keeps the focused field above the keyboard by shrinking the scroll viewport, rather
                 // than letting the platform shift the whole window (see MainViewController on iOS).
                 .imePadding()

@@ -342,6 +342,7 @@ public fun PhoneNumberField(
                 TrailingStatus(
                     value = value,
                     typeLabel = typeLabel,
+                    editing = focused,
                     verified = verified,
                     verifying = verifying,
                     inputStyle = inputStyle,
@@ -549,13 +550,17 @@ internal fun ghostDigits(typed: String, example: String, ghost: Color): Annotate
 private fun RowScope.TrailingStatus(
     value: PhoneNumberValue,
     typeLabel: String?,
+    editing: Boolean,
     verified: Boolean,
     verifying: Boolean,
     inputStyle: PhoneNumberInputStyle,
     style: CountryPickerStyle,
 ) {
     val colors = style.colors
-    val showBadge = inputStyle.showNumberType && value.isValid && typeLabel != null && !verified && !verifying
+    // While editing, the number needs the room the clear button already shares, so the badge
+    // collapses to a check and expands again when the field is left.
+    val showBadge = inputStyle.showNumberType && value.isValid && typeLabel != null && !verified && !verifying && !editing
+    val showCheck = value.isValid && (inputStyle.showValidIndicator || inputStyle.showNumberType) && !showBadge
     // Emitted straight into the field's row: a hidden AnimatedVisibility emits nothing, so a hidden
     // badge or check leaves no stray gap behind.
     AnimatedVisibility(
@@ -573,7 +578,7 @@ private fun RowScope.TrailingStatus(
         )
     }
     AnimatedVisibility(
-        visible = verifying || verified || (inputStyle.showValidIndicator && value.isValid && !showBadge),
+        visible = verifying || verified || showCheck,
         enter = scaleIn(style.motion.selection, initialScale = 0.4f) + fadeIn(style.motion.fadeIn),
         exit = scaleOut(style.motion.fadeOut, targetScale = 0.4f) + fadeOut(style.motion.fadeOut),
     ) {

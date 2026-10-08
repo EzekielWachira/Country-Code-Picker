@@ -44,6 +44,7 @@ import com.ezzy.ccp.countrypicker.model.PhonePrefixContentMode
  * @property showProgress A thin bar along the bottom of the field that fills as digits are entered and
  *   turns to the success color once the number is valid.
  * @property showNumberType A badge naming the kind of number — Mobile, Landline — once it is valid.
+ *   While the field is being edited it collapses to a check, leaving the number its room.
  * @property showValidIndicator A check mark once the number is valid.
  */
 @Immutable
