@@ -41,6 +41,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import com.ezzy.ccp.countrypicker.data.DefaultCountryDataSource
@@ -348,7 +349,8 @@ class CountryPickerUiTest {
         // It also lives in the search field's own text, so two nodes legitimately contain it — assert
         // on the title specifically rather than expecting a single match.
         rule.onNode(hasText("No countries match", substring = true)).assertIsDisplayed()
-        rule.onNodeWithText(CLEAR_SEARCH).assertIsDisplayed()
+        // Below the fold on a small screen with the keyboard up, so scrolled to first.
+        rule.onNodeWithText(CLEAR_SEARCH).performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -358,11 +360,12 @@ class CountryPickerUiTest {
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextInput("zzzznotacountry")
         rule.waitForIdle()
 
-        rule.onNodeWithText(CLEAR_SEARCH).performClick()
+        rule.onNodeWithText(CLEAR_SEARCH).performScrollTo().performClick()
         rule.waitForIdle()
 
-        // First alphabetically, so it is on screen with no scrolling once the search clears.
-        assertRowDisplayed(afghanistan)
+        // First alphabetically, so the restored list starts with it — scrolled to, since the
+        // keyboard can cover the top of the list on a small screen.
+        rule.onNodeWithContentDescription(rowDescription(afghanistan)).performScrollTo().assertIsDisplayed()
     }
 
     @Test

@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
 import com.ezzy.ccp.countrypicker.ui.LocalFlagImageLoader
+import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
 import org.junit.Rule
 
@@ -76,6 +77,18 @@ abstract class ScreenshotTestBase {
                 }
             }
         }
-        compose.onRoot().captureRoboImage("src/androidHostTest/screenshots/$name.png")
+        compose.onRoot().captureRoboImage("src/androidHostTest/screenshots/$name.png", roborazziOptions = OPTIONS)
+    }
+
+    private companion object {
+        /**
+         * Up to 1% of pixels may differ. Goldens are recorded on macOS and verified on CI's Linux
+         * runner, whose text antialiasing differs: measured at 0.2–0.65% of pixels, all along glyph
+         * edges. A real regression — a moved element, a changed color, a missing icon — changes far
+         * more than that.
+         */
+        val OPTIONS = RoborazziOptions(
+            compareOptions = RoborazziOptions.CompareOptions(changeThreshold = 0.01f),
+        )
     }
 }
