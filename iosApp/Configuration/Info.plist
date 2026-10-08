@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Merged with the build-setting-generated Info.plist (GENERATE_INFOPLIST_FILE = YES).
+	     Lives outside the synchronized iosApp/ group so Xcode doesn't copy it as a resource. -->
+	<!-- Compose Multiplatform needs this to render at 120 Hz on ProMotion devices. -->
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UILaunchScreen</key>
+	<dict/>
+</dict>
+</plist>

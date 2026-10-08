@@ -20,5 +20,11 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "CCP"
-include(":app")
+
+// The library (Android + iOS).
 include(":ccp")
+
+// The demo, shared between platforms: `:sample` holds the Compose UI in commonMain and produces the
+// iOS framework that iosApp/ embeds; `:app` is the thin Android shell around the same UI.
+include(":sample")
+include(":app")

@@ -135,14 +135,18 @@ Every string in the library flows through `UiText`, which keeps the components f
 English while letting you override any title, subtitle or message at the call site.
 
 ```kotlin
-UiText.of("Nationality")                          // literal
-UiText.resource(R.string.pick_market)             // string resource
-UiText.resource(R.string.hello_name, "Ada")       // with format arguments
-UiText.plural(R.plurals.countries_selected, 3)    // plurals resource
+UiText.of("Nationality")                            // literal
+UiText.resource(Res.string.pick_market)             // Compose Multiplatform string resource
+UiText.resource(Res.string.hello_name, "Ada")       // with format arguments
+UiText.plural(Res.plurals.countries_selected, 3)    // plurals resource
 
-val text: String = uiText.resolve()               // inside composition
-val text: String = uiText.resolve(context)        // outside composition
+val text: String = uiText.resolve()                 // inside composition
 ```
+
+`Res` is your own module's generated Compose resources class. Android-only apps can keep passing
+classic resource ids — `UiText.resource(R.string.pick_market)`, `UiText.plural(R.plurals.x, 3)` —
+through Android overloads (import `com.ezzy.ccp.countrypicker.model.resource` / `plural`). Anything
+else can be bridged by subclassing `UiText.Custom`.
 
 ## Data, recents and detection
 

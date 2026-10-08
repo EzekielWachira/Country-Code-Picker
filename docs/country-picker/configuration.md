@@ -108,7 +108,7 @@ CountrySelector(
     selectedCountry = country,
     onCountrySelected = { country = it },
     config = config,
-    recentCountryStore = DefaultRecentCountryStore(context),  // omit to persist nothing
+    recentCountryStore = rememberDefaultRecentCountryStore(),  // omit to persist nothing
 )
 ```
 
@@ -158,6 +158,54 @@ Omitting `DialCode` makes a purely numeric query match nothing, which is what a 
 wants. Results are ranked by match quality, then by name; see
 [Ranked search](data.md#ranked-search) for the tiers.
 
+## Alphabet index
+
+236 countries is roughly fifteen screens. Search covers the user who knows the name; the A–Z rail
+covers the one who is browsing, or knows only roughly where a country falls.
+
+```kotlin
+CountryPickerConfig(showAlphabetIndex = true)
+```
+
+Tap a letter to jump, or drag along the rail to scrub continuously, with a light haptic on each
+letter change. The rail only offers letters that lead somewhere, and it hides itself while a search
+or a region filter is narrowing the list — it indexes the alphabetical "All countries" group, which
+is not what is on screen then.
+
+It is **off by default** and hidden from the accessibility tree. A screen-reader user already
+reaches every row by swiping through the list, and putting 26 unlabelled single-character targets in
+front of that list makes it harder to use, not easier; search remains the accessible fast path.
+
+### Building your own
+
+If you render `CountryList` yourself, the same machinery is public. The piece worth reusing is the
+index: `CountryList` flattens sections *and their sticky headers* into one `LazyColumn`, so the
+*n*th country is not at lazy index *n*, and doing that arithmetic per call site is how off-by-one
+scroll bugs get written.
+
+```kotlin
+val index = rememberCountryListIndex(state.sections.value)
+val scope = rememberCoroutineScope()
+
+Row {
+    CountryList(state = state, onCountryClick = …, listState = listState, modifier = Modifier.weight(1f))
+    CountryIndexRail(
+        letters = index.letters,
+        onLetterSelected = { letter ->
+            index.lazyIndexOf(letter)?.let { scope.launch { listState.scrollToItem(it) } }
+        },
+    )
+}
+```
+
+`CountryListIndex` also resolves a specific country, which is what to use for "scroll to the
+selected country when the sheet opens":
+
+```kotlin
+index.lazyIndexOf("KE")        // by ISO code
+index.lazyIndexOf(country)     // by Country
+```
+
 ## Reference
 
 Every property of `CountryPickerConfig`, with its default.
@@ -188,6 +236,7 @@ Every property of `CountryPickerConfig`, with its default.
 | `minimumSearchQueryLength` | `1` | Characters before search filters |
 | `highlightSearchMatches` | `true` | Highlight the matched substring in names |
 | `showResultCount` | `true` | "12 results" while searching |
+| `showAlphabetIndex` | `false` | An A–Z rail down the edge of the list. See [Alphabet index](#alphabet-index) |
 | `suggestedCountryCodes` | `emptyList()` | Codes for the Suggested section |
 | `recentCountryLimit` | `5` | How many recents to display |
 | `countryComparator` | `null` | Custom ordering within All countries; `null` = alphabetical by display name |

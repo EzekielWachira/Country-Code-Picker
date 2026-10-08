@@ -1,0 +1,81 @@
+# Publishes a release to Maven Central (Central Portal) when a v* tag is pushed.
+#
+# The tag is the source of truth for the version: it is written into gradle.properties before
+# publishing, so a release can never be cut with a stale VERSION_NAME.
+#
+# Required repository secrets:
+#   MAVEN_CENTRAL_USERNAME / MAVEN_CENTRAL_PASSWORD  — Central Portal user token
+#   SIGNING_KEY                                      — ASCII-armoured GPG private key
+#   SIGNING_KEY_PASSWORD                             — its passphrase
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g. 0.3.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Publish to Maven Central
+    # macOS, because the publication includes the iOS klibs (and their embedded libPhoneNumber-iOS
+    # archive), which only Xcode's toolchain can build. A Linux runner would publish the Android
+    # artifact and a Gradle module file pointing at iOS variants that do not exist.
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: true
+
+      - name: Resolve version from tag
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          # Replace rather than append: a duplicate key would leave the old value in effect
+          # depending on read order. (perl rather than sed -i, whose syntax differs on macOS.)
+          perl -pi -e "s/^VERSION_NAME=.*/VERSION_NAME=${VERSION}/" gradle.properties
+          echo "Publishing ${VERSION}"
+
+      # The same gates as CI. A tag must never publish something that would have failed a PR.
+      - name: Verify
+        run: >-
+          ./gradlew :ccp:verifyRoborazziAndroidHostTest :ccp:iosSimulatorArm64Test
+          :ccp:checkKotlinAbi :ccp:lint :ccp:verifyTranslationParity
+          :ccp:verifyPhoneNumberMetadataFootprint --stacktrace
+
+      - name: Publish
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: ./gradlew publishToMavenCentral --no-configuration-cache --stacktrace
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          generate_release_notes: true
+          name: ${{ steps.version.outputs.version }}

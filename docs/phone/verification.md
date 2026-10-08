@@ -19,7 +19,7 @@ class MyVerificationHandler(private val api: MyAuthApi) : PhoneNumberVerificatio
                 resendAvailableAtMillis = System.currentTimeMillis() + 30_000,
             )
         } catch (e: IOException) {
-            VerificationRequestResult.Failure(UiText.resource(R.string.network_error), retryable = true)
+            VerificationRequestResult.Failure(UiText.resource(Res.string.network_error), retryable = true)
         }
 
     override suspend fun verifyCode(verificationId: String, code: String): VerificationResult =

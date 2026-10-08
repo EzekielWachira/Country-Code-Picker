@@ -51,6 +51,7 @@ What you get:
 | `config` | `CountryPickerDefaults.phoneConfig()` | The embedded picker's [configuration](../country-picker/configuration.md): allowed/excluded countries, suggestions, search |
 | `showHelperText` | `true` | The live "Formats live for …" helper |
 | `showClearButton` | `true` | A clear button while the field has content |
+| `autofillEnabled` | `true` | Advertise the field to Android Autofill and password managers. See [Autofill](#autofill) |
 | `isError` / `errorMessage` | `false` / `null` | Force the error treatment and override the derived message, e.g. for a server-side rejection. Combined with local validation, never replacing it |
 | `validateWhileTyping` | `false` | Show validation errors before the field loses focus |
 | `verificationController` | `null` | Opt in to [verification](verification.md) |
@@ -68,6 +69,7 @@ val state = rememberPhoneNumberFieldState(
     initialCountry = kenya,
     initialNumber = "+254712345678",   // optional; an E.164 value also sets the country
     enforceMaxLength = true,
+    allowedNumberTypes = emptySet(),   // or PhoneNumberType.SmsCapable to require a mobile
 )
 ```
 
@@ -81,7 +83,8 @@ val state = rememberPhoneNumberFieldState(
 | `setFullNumber(raw, allowCountryChange = true)` | Parses a pasted or prefilled number. `+4915123456789` switches the field to Germany; a bare `0712345678` carries no country signal and leaves the country alone |
 | `clear()` | Clears the number, leaves the country alone |
 | `markTouched()` | Makes validation messages visible, e.g. on a submit tap |
-| `onTextChanged(TextFieldValue)` | The field's own text callback; strips everything non-digit so pasting `(0712) 345-678` works |
+| `onTextChanged(TextFieldValue)` | The field's own text callback. Strips everything non-digit so pasting `(0712) 345-678` works, and adopts the country from text that names one — see [Autofill](#autofill) |
+| `allowedNumberTypes` | The line types the field accepts. See [Restricting the line type](validation.md#restricting-the-line-type) |
 
 The state is saved with `rememberSaveable` (country code, digits and touched flag), so it survives
 rotation and process death.
@@ -99,6 +102,7 @@ data class PhoneNumberValue(
     val isPossible: Boolean,               // length is plausible for the region
     val isValid: Boolean,                  // a real, dialable number — the only flag that should gate submission
     val validity: PhoneNumberValidity,     // the granular reason behind isValid
+    val numberType: PhoneNumberType?,      // mobile, landline, toll-free… null until parseable
 ) {
     val isEmpty: Boolean
 }
@@ -175,6 +179,38 @@ Row {
 Inside `PhoneNumberField` the prefix is *not* this pill: it is a bare clickable region sharing the
 field's single outline, which is what avoids the "two separate rounded boxes" look. The standalone
 pill remains correct on its own.
+
+## Autofill
+
+The field declares `ContentType.PhoneNumber + ContentType.PhoneNumberNational`, so Android Autofill
+and password managers offer to fill it. Nothing to wire up — it is on by default; pass
+`autofillEnabled = false` to opt out.
+
+Both content types are declared because providers store different shapes: some hold a full E.164
+number, others the national part with the country code separately. Either works, because the fill
+arrives through the same path as a paste and that path understands international numbers:
+
+```
+autofill supplies "+254712345678"
+  → PhoneNumberFieldState.onTextChanged
+  → text names a country, so the field switches to Kenya
+  → national digits become 712345678
+```
+
+Without that, the `+` would be stripped, `254` would be read as the first three digits of the
+subscriber number, and the field would report a plausible but wrong value under whichever country
+happened to be selected. The same applies to a user *pasting* or typing `+254…` by hand, which is
+why the behaviour lives in the state rather than in an autofill-specific callback.
+
+The rule for adopting a country is deliberately narrow:
+
+| Input | Country changes? |
+|---|---|
+| `+254712345678` typed or pasted | Yes — the `+` form always names its country |
+| `00254712345678` pasted | Yes |
+| `00…` typed one key at a time | No — `00` is two ordinary keystrokes, and re-parsing mid-entry would yank the country out from under the user |
+| `0712345678` | No — a bare national number carries no country signal |
+| `+2` (incomplete) | No — not until the input actually resolves to a country |
 
 ## Keyboard "Done"
 

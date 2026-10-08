@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Swahili. -->
+<resources>
+
+    <!-- ── Sheet chrome ─────────────────────────────────────────────────────── -->
+    <string name="ccp_select_country">Chagua nchi</string>
+    <string name="ccp_select_country_subtitle">Chagua nchi unayoishi</string>
+    <string name="ccp_country_code_title">Msimbo wa nchi</string>
+    <string name="ccp_country_code_subtitle">Tafuta kwa nchi au msimbo wa simu</string>
+    <string name="ccp_title_with_count">%1$s · %2$d</string>
+    <string name="ccp_close">Funga</string>
+    <string name="ccp_back">Rudi</string>
+    <string name="ccp_drag_handle">Buruta kubadilisha ukubwa au kufunga</string>
+
+    <!-- ── Legacy PhoneNumberInput / CountriesBottomSheet ───────────────────── -->
+    <string name="ccp_layout_list">Mwonekano wa orodha</string>
+    <string name="ccp_layout_grid">Mwonekano wa gridi</string>
+    <string name="ccp_change_country_a11y">%1$s %2$s, gusa kubadilisha nchi</string>
+
+    <!-- ── Search ───────────────────────────────────────────────────────────── -->
+    <string name="ccp_search_hint">Tafuta nchi, msimbo au msimbo wa simu</string>
+    <string name="ccp_search_label">Tafuta nchi</string>
+    <string name="ccp_clear_search">Futa utafutaji</string>
+    <plurals name="ccp_result_count">
+        <item quantity="one">Matokeo %1$d</item>
+        <item quantity="other">Matokeo %1$d</item>
+    </plurals>
+    <string name="ccp_result_count_in_region">%1$s katika %2$s</string>
+    <plurals name="ccp_countries_found">
+        <item quantity="one">Nchi %1$d imepatikana</item>
+        <item quantity="other">Nchi %1$d zimepatikana</item>
+    </plurals>
+
+    <!-- ── Sections ─────────────────────────────────────────────────────────── -->
+    <string name="ccp_section_selected">Zilizochaguliwa</string>
+    <string name="ccp_section_selected_count">Zilizochaguliwa · %1$d</string>
+    <string name="ccp_section_recent">Zilizochaguliwa hivi karibuni</string>
+    <string name="ccp_section_suggested">Zinazopendekezwa</string>
+    <string name="ccp_section_all">Nchi zote</string>
+    <string name="ccp_current_selection">Chaguo la sasa</string>
+
+    <!-- ── Region filters ───────────────────────────────────────────────────── -->
+    <string name="ccp_region_all">Zote</string>
+    <string name="ccp_region_africa">Afrika</string>
+    <string name="ccp_region_americas">Amerika</string>
+    <string name="ccp_region_asia">Asia</string>
+    <string name="ccp_region_europe">Ulaya</string>
+    <string name="ccp_region_oceania">Oshania</string>
+    <string name="ccp_region_filter_label">Chuja kwa kanda</string>
+
+    <!-- ── Actions ──────────────────────────────────────────────────────────── -->
+    <string name="ccp_reset">Weka upya</string>
+    <string name="ccp_cancel">Ghairi</string>
+    <string name="ccp_confirm">Thibitisha</string>
+    <string name="ccp_confirm_count">Thibitisha (%1$d)</string>
+    <string name="ccp_retry">Jaribu tena</string>
+    <string name="ccp_use">Tumia</string>
+
+    <!-- ── Selector ─────────────────────────────────────────────────────────── -->
+    <string name="ccp_country_of_residence">Nchi unayoishi</string>
+    <string name="ccp_select_country_placeholder">Chagua nchi</string>
+    <string name="ccp_optional_label">%1$s (si lazima)</string>
+    <string name="ccp_required_label">%1$s *</string>
+    <string name="ccp_selector_a11y_selected">%1$s. %2$s imechaguliwa. Gusa mara mbili kubadilisha.</string>
+    <string name="ccp_selector_a11y_empty">%1$s. %2$s. Gusa mara mbili kuchagua nchi.</string>
+    <string name="ccp_multi_selector_a11y">%1$s. %2$s. Gusa mara mbili kubadilisha.</string>
+    <string name="ccp_flag_only_a11y">Nchi iliyochaguliwa: %1$s. Gusa mara mbili kubadilisha.</string>
+    <string name="ccp_flag_only_a11y_empty">Hakuna nchi iliyochaguliwa. Gusa mara mbili kuchagua nchi.</string>
+    <string name="ccp_dial_code_a11y">Msimbo wa simu wa nchi %1$s, %2$s. Gusa mara mbili kubadilisha.</string>
+    <string name="ccp_phone_prefix_a11y">%1$s, msimbo wa simu %2$s. Gusa mara mbili kubadilisha nchi.</string>
+    <string name="ccp_phone_prefix_plus">jumlisha</string>
+    <string name="ccp_loading_countries">Inapakia nchi</string>
+
+    <!-- ── Detection ────────────────────────────────────────────────────────── -->
+    <string name="ccp_detecting">Inatambua nchi yako…</string>
+    <string name="ccp_detected_badge">Imetambuliwa</string>
+    <string name="ccp_detected_from_sim">Kutoka kadi yako ya SIM · gusa kubadilisha</string>
+    <string name="ccp_detected_from_network">Kutoka mtandao wako · gusa kubadilisha</string>
+    <string name="ccp_detected_from_locale">Kulingana na lugha ya kifaa · gusa kubadilisha</string>
+    <string name="ccp_detected_from_profile">Kutoka wasifu wako · gusa kubadilisha</string>
+    <string name="ccp_detected_from_saved">Chaguo lako la mwisho · gusa kubadilisha</string>
+    <string name="ccp_detected_generic">Imetambuliwa kiotomatiki · gusa kubadilisha</string>
+    <string name="ccp_detected_suggestion">Inaonekana uko %1$s, kulingana na %2$s.</string>
+    <string name="ccp_detect_source_sim">kadi yako ya SIM</string>
+    <string name="ccp_detect_source_network">mtandao wako</string>
+    <string name="ccp_detect_source_locale">lugha ya kifaa chako</string>
+
+    <!-- ── Empty / error states ─────────────────────────────────────────────── -->
+    <string name="ccp_empty_title">Hakuna nchi iliyopatikana</string>
+    <string name="ccp_empty_body">Angalia tahajia, au tafuta kwa msimbo wa ISO au msimbo wa simu.</string>
+    <string name="ccp_empty_title_query">Hakuna nchi inayolingana na “%1$s”</string>
+    <string name="ccp_error_title">Imeshindwa kupakia nchi</string>
+    <string name="ccp_error_body">Kuna hitilafu upande wetu. Chaguo lako halijaathirika.</string>
+    <string name="ccp_offline_title">Huna muunganisho</string>
+    <string name="ccp_offline_body">Inaonyesha orodha ya mwisho iliyohifadhiwa. Unganisha tena ili kusasisha.</string>
+    <string name="ccp_none_available_title">Hakuna nchi zinazopatikana</string>
+    <string name="ccp_none_available_body">Mipangilio ya sasa inaondoa nchi zote.</string>
+    <string name="ccp_row_unavailable">Haipatikani</string>
+    <plurals name="ccp_max_selection_reached">
+        <item quantity="one">Unaweza kuchagua nchi %1$d pekee</item>
+        <item quantity="other">Unaweza kuchagua nchi %1$d pekee</item>
+    </plurals>
+    <plurals name="ccp_min_selection_required">
+        <item quantity="one">Chagua angalau nchi %1$d</item>
+        <item quantity="other">Chagua angalau nchi %1$d</item>
+    </plurals>
+    <plurals name="ccp_countries_selected">
+        <item quantity="one">Nchi %1$d imechaguliwa</item>
+        <item quantity="other">Nchi %1$d zimechaguliwa</item>
+    </plurals>
+
+    <!-- ── Accessibility state announcements ────────────────────────────────── -->
+    <string name="ccp_a11y_selected">imechaguliwa</string>
+    <string name="ccp_a11y_not_selected">haijachaguliwa</string>
+    <string name="ccp_a11y_country_selected_announce">%1$s imechaguliwa</string>
+    <string name="ccp_a11y_country_deselected_announce">%1$s imeondolewa</string>
+    <string name="ccp_a11y_row">%1$s, %2$s</string>
+
+    <!-- ── Phone number ─────────────────────────────────────────────────────── -->
+    <string name="ccp_phone_number">Nambari ya simu</string>
+    <string name="ccp_phone_hint">Weka nambari ya simu</string>
+    <string name="ccp_phone_input_label">Nambari ya simu</string>
+    <!-- Spoken by TalkBack on the legacy PhoneNumberInput editor. Distinct from
+         ccp_phone_input_label, which is a visible label: this one describes the control
+         itself, and its wording is the legacy component's existing accessibility
+         contract. -->
+    <string name="ccp_phone_input_a11y">Sehemu ya kuweka nambari ya simu</string>
+    <string name="ccp_clear_phone">Futa nambari ya simu</string>
+    <string name="ccp_phone_helper">Mpangilio wa moja kwa moja kwa %1$s · mf. %2$s %3$s</string>
+    <string name="ccp_phone_helper_no_example">Mpangilio wa moja kwa moja kwa %1$s</string>
+    <string name="ccp_phone_error_empty">Weka nambari ya simu</string>
+    <plurals name="ccp_phone_error_incomplete">
+        <item quantity="one">Weka nambari sahihi ya %1$s — tarakimu %2$d baada ya %3$s</item>
+        <item quantity="other">Weka nambari sahihi ya %1$s — tarakimu %2$d baada ya %3$s</item>
+    </plurals>
+    <string name="ccp_phone_error_too_short">Nambari hiyo ni fupi mno kwa %1$s</string>
+    <string name="ccp_phone_error_too_long">Nambari hiyo ni ndefu mno kwa %1$s</string>
+    <string name="ccp_phone_error_invalid">Weka nambari sahihi ya simu ya %1$s</string>
+    <string name="ccp_phone_error_invalid_generic">Weka nambari sahihi ya simu</string>
+    <string name="ccp_phone_error_unsupported_country">Nambari za simu hazitumiki kwa %1$s</string>
+    <string name="ccp_phone_error_invalid_country_code">Msimbo huo wa simu wa nchi hautambuliki</string>
+    <!-- Shown when the number is real but the wrong kind of line for this flow -->
+    <string name="ccp_phone_error_requires_mobile">Weka nambari ya simu ya mkononi</string>
+    <string name="ccp_phone_error_requires_landline">Weka nambari ya simu ya mezani</string>
+    <string name="ccp_phone_error_wrong_type">Aina hiyo ya nambari haikubaliki hapa</string>
+
+    <!-- ── Phone verification ───────────────────────────────────────────────── -->
+    <string name="ccp_verify_send_code">Tuma msimbo</string>
+    <string name="ccp_verify_sending">Inatuma msimbo…</string>
+    <string name="ccp_verify_code_sent">Tumetuma msimbo kwa %1$s</string>
+    <string name="ccp_verify_code_label">Msimbo wa uthibitisho</string>
+    <string name="ccp_verify_submit">Thibitisha</string>
+    <string name="ccp_verify_verifying">Inathibitisha…</string>
+    <string name="ccp_verify_verified">Nambari imethibitishwa</string>
+    <string name="ccp_verify_resend">Tuma msimbo tena</string>
+    <string name="ccp_verify_resend_in">Tuma msimbo tena baada ya sekunde %1$d</string>
+    <string name="ccp_verify_expired">Msimbo huo umeisha muda. Omba mpya.</string>
+    <string name="ccp_verify_failed">Msimbo huo si sahihi. Jaribu tena.</string>
+    <string name="ccp_verify_request_failed">Hatukuweza kutuma msimbo. Jaribu tena.</string>
+    <string name="ccp_verify_requires_valid_number">Weka kwanza nambari sahihi ya simu</string>
+
+    <!-- ── Digit words ──────────────────────────────────────────────────────── -->
+    <string-array name="ccp_digit_words">
+        <item>sifuri</item>
+        <item>moja</item>
+        <item>mbili</item>
+        <item>tatu</item>
+        <item>nne</item>
+        <item>tano</item>
+        <item>sita</item>
+        <item>saba</item>
+        <item>nane</item>
+        <item>tisa</item>
+    </string-array>
+
+</resources>

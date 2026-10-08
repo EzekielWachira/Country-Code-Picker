@@ -1,0 +1,18 @@
+# Kotlin bindings for the vendored libPhoneNumber-iOS (ccp/src/nativeInterop/libPhoneNumber-iOS).
+#
+# The compiled archive is embedded in the klib (`staticLibraries`), so an iOS app that depends on
+# this library links the phone-number engine automatically: no CocoaPods, SwiftPM or linker flags
+# on the consumer side. The archive is built per target by scripts/build-libphonenumber-ios.sh and
+# handed to cinterop through `-libraryPath` (see ccp/build.gradle.kts).
+#
+# Only the four headers the iOS backend calls are bound (through ccp_libphonenumber.h, which also
+# applies the CCP symbol prefix); the rest of the library is reached through them.
+language = Objective-C
+package = com.ezzy.ccp.internal.libphonenumber
+headers = ccp_libphonenumber.h
+headerFilter = NB*.h
+compilerOpts = -fobjc-arc
+staticLibraries = libccpphonenumber.a
+# Also recorded as autolink entries in the archive itself; listed here for dynamic frameworks and
+# test executables, which Kotlin/Native links directly.
+linkerOpts = -lz -framework Contacts -framework Foundation

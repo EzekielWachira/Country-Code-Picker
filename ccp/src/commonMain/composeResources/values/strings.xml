@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Every user-facing string in the country picker. Nothing is hardcoded in a composable.
+
+  These are Compose Multiplatform resources, shared by Android and iOS. Hosts override titles,
+  subtitles and labels per call site through the UiText parameters on CountrySelector /
+  CountryPickerSheet; resources are scoped to this module, so redefining a ccp_ name in the app does
+  not change the default.
+
+  Format arguments must be positional (%1$s, %2$d): Compose resources substitute only that form.
+  Apostrophes and quotes are written unescaped.
+-->
+<resources>
+
+    <!-- ── Sheet chrome ─────────────────────────────────────────────────────── -->
+    <string name="ccp_select_country">Select country</string>
+    <string name="ccp_select_country_subtitle">Choose your country of residence</string>
+    <string name="ccp_country_code_title">Country code</string>
+    <string name="ccp_country_code_subtitle">Search by country or dial code</string>
+    <!-- Title suffix showing how many countries are selected, e.g. "Select country · 2" -->
+    <string name="ccp_title_with_count">%1$s · %2$d</string>
+    <string name="ccp_close">Close</string>
+    <string name="ccp_back">Back</string>
+    <string name="ccp_drag_handle">Drag to resize or dismiss</string>
+
+    <!-- ── Legacy PhoneNumberInput / CountriesBottomSheet ───────────────────── -->
+    <!-- Layout toggle in the legacy bottom sheet -->
+    <string name="ccp_layout_list">List view</string>
+    <string name="ccp_layout_grid">Grid view</string>
+    <!-- e.g. "Kenya +254, tap to change country" -->
+    <string name="ccp_change_country_a11y">%1$s %2$s, tap to change country</string>
+
+    <!-- ── Search ───────────────────────────────────────────────────────────── -->
+    <string name="ccp_search_hint">Search country, code or dial code</string>
+    <string name="ccp_search_label">Search countries</string>
+    <string name="ccp_clear_search">Clear search</string>
+    <plurals name="ccp_result_count">
+        <item quantity="one">%1$d result</item>
+        <item quantity="other">%1$d results</item>
+    </plurals>
+    <!-- Result count narrowed to a region, e.g. "12 results in Africa" -->
+    <string name="ccp_result_count_in_region">%1$s in %2$s</string>
+    <plurals name="ccp_countries_found">
+        <item quantity="one">%1$d country found</item>
+        <item quantity="other">%1$d countries found</item>
+    </plurals>
+
+    <!-- ── Sections ─────────────────────────────────────────────────────────── -->
+    <string name="ccp_section_selected">Selected</string>
+    <!-- Selected section header with a count, e.g. "Selected · 2" -->
+    <string name="ccp_section_selected_count">Selected · %1$d</string>
+    <string name="ccp_section_recent">Recently selected</string>
+    <string name="ccp_section_suggested">Suggested</string>
+    <string name="ccp_section_all">All countries</string>
+    <string name="ccp_current_selection">Current selection</string>
+
+    <!-- ── Region filters ───────────────────────────────────────────────────── -->
+    <string name="ccp_region_all">All</string>
+    <string name="ccp_region_africa">Africa</string>
+    <string name="ccp_region_americas">Americas</string>
+    <string name="ccp_region_asia">Asia</string>
+    <string name="ccp_region_europe">Europe</string>
+    <string name="ccp_region_oceania">Oceania</string>
+    <string name="ccp_region_filter_label">Filter by region</string>
+
+    <!-- ── Actions ──────────────────────────────────────────────────────────── -->
+    <string name="ccp_reset">Reset</string>
+    <string name="ccp_cancel">Cancel</string>
+    <string name="ccp_confirm">Confirm</string>
+    <!-- Confirm button with a selection count, e.g. "Confirm (2)" -->
+    <string name="ccp_confirm_count">Confirm (%1$d)</string>
+    <string name="ccp_retry">Try again</string>
+    <string name="ccp_use">Use</string>
+
+    <!-- ── Selector ─────────────────────────────────────────────────────────── -->
+    <string name="ccp_country_of_residence">Country of residence</string>
+    <string name="ccp_select_country_placeholder">Select country</string>
+    <string name="ccp_optional_label">%1$s (optional)</string>
+    <string name="ccp_required_label">%1$s *</string>
+    <!-- Spoken by TalkBack on the selector: "Country of residence. Kenya selected. Double tap to change." -->
+    <string name="ccp_selector_a11y_selected">%1$s. %2$s selected. Double tap to change.</string>
+    <string name="ccp_selector_a11y_empty">%1$s. %2$s. Double tap to choose a country.</string>
+    <!-- Multi-select selector above one selection: %1$s label, %2$s a pre-localized summary such as
+         "3 countries selected" — e.g. "Country of residence. 3 countries selected. Double tap to change." -->
+    <string name="ccp_multi_selector_a11y">%1$s. %2$s. Double tap to change.</string>
+    <!-- Flag-only selector, which has no visible text at all -->
+    <string name="ccp_flag_only_a11y">Selected country: %1$s. Double tap to change.</string>
+    <string name="ccp_flag_only_a11y_empty">No country selected. Double tap to choose a country.</string>
+    <string name="ccp_dial_code_a11y">Country calling code %1$s, %2$s. Double tap to change.</string>
+    <!-- Embedded phone-prefix accessibility text, e.g. "Kenya, calling code plus two five four.
+         Double tap to change country." %2$s is the dial code spelled out via ccp_digit_words, so a
+         screen reader reads each digit distinctly instead of cardinalizing "254". -->
+    <string name="ccp_phone_prefix_a11y">%1$s, calling code %2$s. Double tap to change country.</string>
+    <string name="ccp_phone_prefix_plus">plus</string>
+    <string name="ccp_loading_countries">Loading countries</string>
+
+    <!-- ── Detection ────────────────────────────────────────────────────────── -->
+    <string name="ccp_detecting">Detecting your country…</string>
+    <string name="ccp_detected_badge">Detected</string>
+    <string name="ccp_detected_from_sim">From your SIM card · tap to change</string>
+    <string name="ccp_detected_from_network">From your network · tap to change</string>
+    <string name="ccp_detected_from_locale">Based on your device language · tap to change</string>
+    <string name="ccp_detected_from_profile">From your profile · tap to change</string>
+    <string name="ccp_detected_from_saved">Your last choice · tap to change</string>
+    <string name="ccp_detected_generic">Detected automatically · tap to change</string>
+    <!-- Ask-first suggestion, e.g. "Looks like you're in Germany, from your network." -->
+    <string name="ccp_detected_suggestion">Looks like you're in %1$s, from %2$s.</string>
+    <string name="ccp_detect_source_sim">your SIM card</string>
+    <string name="ccp_detect_source_network">your network</string>
+    <string name="ccp_detect_source_locale">your device language</string>
+
+    <!-- ── Empty / error states ─────────────────────────────────────────────── -->
+    <string name="ccp_empty_title">No countries found</string>
+    <string name="ccp_empty_body">Check the spelling, or search by ISO code or dial code.</string>
+    <!-- Empty state that echoes the query back, e.g. "No countries match “xyz”" -->
+    <string name="ccp_empty_title_query">No countries match “%1$s”</string>
+    <string name="ccp_error_title">Couldn't load countries</string>
+    <string name="ccp_error_body">Something went wrong on our side. Your selection is unaffected.</string>
+    <string name="ccp_offline_title">You're offline</string>
+    <string name="ccp_offline_body">Showing the last cached country list. Reconnect to refresh.</string>
+    <string name="ccp_none_available_title">No countries available</string>
+    <string name="ccp_none_available_body">The current configuration filters out every country.</string>
+    <string name="ccp_row_unavailable">Not available</string>
+    <!-- Shown when the user tries to select past the configured maximum -->
+    <plurals name="ccp_max_selection_reached">
+        <item quantity="one">You can select at most %1$d country</item>
+        <item quantity="other">You can select at most %1$d countries</item>
+    </plurals>
+    <plurals name="ccp_min_selection_required">
+        <item quantity="one">Select at least %1$d country</item>
+        <item quantity="other">Select at least %1$d countries</item>
+    </plurals>
+    <plurals name="ccp_countries_selected">
+        <item quantity="one">%1$d country selected</item>
+        <item quantity="other">%1$d countries selected</item>
+    </plurals>
+
+    <!-- ── Accessibility state announcements ────────────────────────────────── -->
+    <string name="ccp_a11y_selected">selected</string>
+    <string name="ccp_a11y_not_selected">not selected</string>
+    <string name="ccp_a11y_country_selected_announce">%1$s selected</string>
+    <string name="ccp_a11y_country_deselected_announce">%1$s deselected</string>
+    <!-- Row description built as one phrase so TalkBack never reads disjoint fragments -->
+    <string name="ccp_a11y_row">%1$s, %2$s</string>
+
+    <!-- ── Phone number ─────────────────────────────────────────────────────── -->
+    <string name="ccp_phone_number">Phone number</string>
+    <string name="ccp_phone_hint">Enter phone</string>
+    <string name="ccp_phone_input_label">Phone number</string>
+    <!-- Spoken by TalkBack on the legacy PhoneNumberInput editor. Distinct from
+         ccp_phone_input_label, which is a visible label: this one describes the control
+         itself, and its wording is the legacy component's existing accessibility
+         contract. -->
+    <string name="ccp_phone_input_a11y">Phone number input</string>
+    <string name="ccp_clear_phone">Clear phone number</string>
+    <!-- Live formatting helper, e.g. "Formats live for Kenya · e.g. +254 712 345 678" -->
+    <string name="ccp_phone_helper">Formats live for %1$s · e.g. %2$s %3$s</string>
+    <string name="ccp_phone_helper_no_example">Formats live for %1$s</string>
+    <string name="ccp_phone_error_empty">Enter a phone number</string>
+    <!-- e.g. "Enter a valid Kenya number — 9 digits after +254". The digit count selects the
+         plural form; %1$s is the country, %2$d the digit count, %3$s the dial code. -->
+    <plurals name="ccp_phone_error_incomplete">
+        <item quantity="one">Enter a valid %1$s number — %2$d digit after %3$s</item>
+        <item quantity="other">Enter a valid %1$s number — %2$d digits after %3$s</item>
+    </plurals>
+    <string name="ccp_phone_error_too_short">That number is too short for %1$s</string>
+    <string name="ccp_phone_error_too_long">That number is too long for %1$s</string>
+    <string name="ccp_phone_error_invalid">Enter a valid %1$s phone number</string>
+    <string name="ccp_phone_error_invalid_generic">Enter a valid phone number</string>
+    <string name="ccp_phone_error_unsupported_country">Phone numbers aren't supported for %1$s</string>
+    <string name="ccp_phone_error_invalid_country_code">That country calling code isn't recognised</string>
+    <!-- Shown when the number is real but the wrong kind of line for this flow -->
+    <string name="ccp_phone_error_requires_mobile">Enter a mobile number</string>
+    <string name="ccp_phone_error_requires_landline">Enter a landline number</string>
+    <string name="ccp_phone_error_wrong_type">That kind of number isn't accepted here</string>
+
+    <!-- ── Phone verification ───────────────────────────────────────────────── -->
+    <string name="ccp_verify_send_code">Send code</string>
+    <string name="ccp_verify_sending">Sending code…</string>
+    <!-- e.g. "We sent a code to +254 712 345 678" -->
+    <string name="ccp_verify_code_sent">We sent a code to %1$s</string>
+    <string name="ccp_verify_code_label">Verification code</string>
+    <string name="ccp_verify_submit">Verify</string>
+    <string name="ccp_verify_verifying">Verifying…</string>
+    <string name="ccp_verify_verified">Number verified</string>
+    <string name="ccp_verify_resend">Resend code</string>
+    <!-- Resend countdown, e.g. "Resend code in 28s" -->
+    <string name="ccp_verify_resend_in">Resend code in %1$ds</string>
+    <string name="ccp_verify_expired">That code expired. Request a new one.</string>
+    <string name="ccp_verify_failed">That code isn't right. Try again.</string>
+    <string name="ccp_verify_request_failed">We couldn't send the code. Try again.</string>
+    <string name="ccp_verify_requires_valid_number">Enter a valid phone number first</string>
+
+    <!-- ── Digit words ──────────────────────────────────────────────────────── -->
+    <!-- Spoken form of 0-9, used to read a dial code digit-by-digit ("+254" → "plus two five four")
+         instead of letting a screen reader cardinalize it as "two hundred fifty four". Index N is the
+         word for digit N. -->
+    <string-array name="ccp_digit_words">
+        <item>zero</item>
+        <item>one</item>
+        <item>two</item>
+        <item>three</item>
+        <item>four</item>
+        <item>five</item>
+        <item>six</item>
+        <item>seven</item>
+        <item>eight</item>
+        <item>nine</item>
+    </string-array>
+
+</resources>

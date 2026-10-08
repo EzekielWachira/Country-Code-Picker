@@ -103,8 +103,9 @@ call `motion.withMotionEnabled(false)` to disable animation on a particular scre
 
 ## Flags
 
-Flags are the platform's emoji glyphs, so the library ships no bitmaps. When a country has no emoji
-sequence (Kosovo is the real case), an ISO-code badge is drawn instead of an empty box.
+Flags are the platform's emoji glyphs, so the library ships no bitmaps — ~250 flag PNGs at four
+densities is about a megabyte of APK for something the device can already draw, and it goes stale
+whenever a flag changes.
 
 Two independent axes describe how a flag is drawn:
 
@@ -116,8 +117,8 @@ Two independent axes describe how a flag is drawn:
 components that accept a `flagConfig`, such as `CountrySelectorContentConfig` and
 `PhoneNumberInputStyle`. The sheet's rows use `CountryPickerConfig.flagShape` and `rowFlagStyle`.
 
-To draw flags yourself, for example from the bundled `EzzyIcons` vectors or a remote image, pass
-`flagContent` to any selector, sheet or list:
+To draw flags yourself — from your own drawable resources or a remote image — pass `flagContent` to
+any selector, sheet or list:
 
 ```kotlin
 CountrySelector(
@@ -128,6 +129,31 @@ CountrySelector(
 ```
 
 The `CountryFlag` composable is public too, for use in your own rows or summaries.
+
+### When the emoji cannot be drawn
+
+Two different things can go wrong, and only one of them is obvious.
+
+**The country has no emoji flag.** Kosovo (`XK`) is the real case: no regional-indicator sequence
+was ever assigned to it.
+
+**The device's font cannot render the one it has.** A flag emoji is a *pair* of regional-indicator
+code points that the font is supposed to compose into a single glyph — and plenty of shipping
+devices do not. Most Chinese OEM ROMs strip flag glyphs, and Android TV and many low-end and Wear
+builds ship a reduced emoji font. There, `🇰🇪` draws as two boxed letters or as tofu.
+
+The second case used to go undetected, because the string is perfectly present and only the
+*rendering* fails — a `flag != null` check cannot see it. The library now probes the font once with
+`Paint.hasGlyph` and takes the fallback path when flags are unrenderable, so those devices get a
+clean ISO-code badge instead of a column of boxes.
+
+In both cases the ISO alpha-2 code is drawn in a tinted badge instead. That is always available and
+references no assets, so an app that never hits the fallback pays nothing for it.
+
+If you want real artwork on those devices, supply it yourself through `flagContent` — a drawable
+resource per country, or a remote image. The library used to bundle a partial set of vector flags
+for this, but they covered barely half the dataset and every component drew the emoji glyph anyway,
+so they were removed rather than kept as a half-answer.
 
 ## Custom rows
 

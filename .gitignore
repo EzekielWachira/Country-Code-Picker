@@ -17,3 +17,9 @@ local.properties
 
 # MkDocs build output (see .github/workflows/docs.yml)
 /site
+
+# Kotlin Multiplatform / Xcode
+xcuserdata/
+*.xcuserstate
+/iosApp/build
+/iosApp/DerivedData

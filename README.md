@@ -4,7 +4,7 @@
 
 📖 **Documentation:** [ezekielwachira.github.io/Country-Code-Picker](https://ezekielwachira.github.io/Country-Code-Picker/) — guides, recipes and the [API reference](https://ezekielwachira.github.io/Country-Code-Picker/api/).
 
-A lightweight, fully customizable Jetpack Compose library for country selection, country code selection, phone number validation, and real-time formatting based on country-specific rules.
+A lightweight, fully customizable **Compose Multiplatform** library for **Android and iOS**: country selection, country code selection, phone number validation, and real-time formatting based on country-specific rules — one API, written once in common code.
 
 The library ships two layers:
 
@@ -24,50 +24,135 @@ The library ships two layers:
 - **Region filters** – Africa, Americas, Asia, Europe, Oceania, plus an "All" view
 - **Selected / Recent / Suggested grouping** – No duplicates across sections
 - **Ranked search** – By name, ISO alpha-2/3, dial code, or alias — accent-insensitive
-- **Phone Number Validation** – Country-aware validation powered by Google libphonenumber
+- **A–Z index rail** – Optional scrubbable alphabet index for browsing the full list
+- **Android and iOS** – Every component works in shared `commonMain` code via Compose Multiplatform
+- **Phone Number Validation** – Country-aware validation powered by Google libphonenumber on Android
+  and its Objective-C port, libPhoneNumber-iOS, on iOS — generated from the same metadata, so a
+  number validates the same way on both
+- **Line-type restrictions** – Require a mobile number for SMS flows, not merely a valid one
+- **Autofill** – Declares the right content types; an autofilled `+254…` adopts its own country
 - **Real-time Formatting** – Formats to E.164, international, and national formats as the user types
 - **Phone verification** – Optional, via a host-supplied `PhoneNumberVerificationHandler`
 - **Max Length Enforcement** – Caps input at the correct digit count for the selected country
-- **Auto Country Detection** – Detects from SIM → network → locale, with fallback; never overrides an
-  explicit user choice
+- **Auto Country Detection** – Detects from SIM → network → locale on Android and the Region setting
+  on iOS, with fallback; never overrides an explicit user choice
 - **State Hoisting** – Expose `CountryPickerState` / `PhoneState` to the caller for external control
 - **Error / disabled / loading / success states** – On every selector variant
 - **Themeable** – Colors, shapes, dimensions and typography all flow from `CountryPickerDefaults`
-- **Accessibility** – Full TalkBack / content description support, 48dp touch targets, no color-only
-  signaling
+- **Localized** – Ships Arabic, German, Spanish, French, Portuguese, Swahili and Simplified Chinese;
+  country names come from the platform in every language it has data for
+- **Right-to-left** – Mirrors correctly, and pins dial codes and phone numbers LTR so `+254` never
+  renders as `254+`
+- **Graceful flags** – Detects devices whose font cannot draw flag emoji and falls back cleanly
+  instead of showing boxes
+- **Accessibility** – Full content description support (TalkBack; VoiceOver through Compose
+  Multiplatform's accessibility bridge), 48dp touch targets, no color-only signaling
 - **Compose-First API** – No ViewModels, no navigation coupling, pure Compose state
 
 ## Installation
 
-### Step 1 — Add JitPack
+### From Maven Central
 
-In your root `settings.gradle`:
+In a Kotlin Multiplatform module, add it to `commonMain`:
 
-```gradle
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        mavenCentral()
-        maven { url 'https://jitpack.io' }
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("io.github.ezekielwachira:ccp:<LATEST_VERSION>")
+        }
     }
 }
 ```
 
-### Step 2 — Add the dependency
+In an Android-only module, as before:
 
-```gradle
+```kotlin
 dependencies {
-    implementation 'com.github.EzekielWachira:Country-Code-Picker:<LATEST_VERSION>'
+    implementation("io.github.ezekielwachira:ccp:<LATEST_VERSION>")
 }
 ```
+
+`mavenCentral()` is in most projects' repository list already; nothing else to add. Gradle picks the
+right artifact per target (`ccp-android`, `ccp-iosarm64`, `ccp-iossimulatorarm64`).
+
+### iOS
+
+Nothing beyond the Gradle dependency. The phone-number engine (libPhoneNumber-iOS) is compiled into
+the library's iOS klib, so there is no CocoaPod, Swift package or linker flag to add, and an app that
+also uses libPhoneNumber-iOS directly links fine — the embedded copy's symbols are prefixed.
+
+Host the shared UI the usual Compose Multiplatform way, from your iOS source set:
+
+```kotlin
+fun MainViewController(): UIViewController = ComposeUIViewController {
+    var country by remember { mutableStateOf<Country?>(null) }
+    CountrySelector(selectedCountry = country, onCountrySelected = { country = it })
+}
+```
+
+[`iosApp/`](iosApp) is a complete example: open `iosApp/iosApp.xcodeproj` in Xcode and run the
+**CCP Sample** scheme. It builds the shared [`:sample`](sample) module — the same demo the Android
+[`:app`](app) runs.
+
+### From JitPack (Android only)
+
+JitPack builds on Linux, which cannot produce the iOS artifacts, so use it only for Android-only
+projects. Add the repository to your root `settings.gradle.kts`:
+
+```kotlin
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+```
+
+```kotlin
+dependencies {
+    implementation("com.github.EzekielWachira:Country-Code-Picker:<LATEST_VERSION>")
+}
+```
+
+### Optional (Android) — trim ~99 KB of unused metadata
+
+libphonenumber ships three metadata blobs. The picker only ever reaches `PhoneNumberUtil` and
+`AsYouTypeFormatter`, which need one of them:
+
+| Blob | Size | Needed |
+|---|---|---|
+| `PhoneNumberMetadataProto` | ~235 KB | yes |
+| `ShortNumberMetadataProto` | ~75 KB | only by `ShortNumberInfo` — unused here |
+| `PhoneNumberAlternateFormatsProto` | ~23 KB | only by `PhoneNumberMatcher` — unused here |
+
+If your app does not use those APIs either, drop the two unused blobs:
+
+```kotlin
+android {
+    packaging {
+        resources {
+            excludes += setOf(
+                "/com/google/i18n/phonenumbers/data/ShortNumberMetadataProto*",
+                "/com/google/i18n/phonenumbers/data/PhoneNumberAlternateFormatsProto*",
+            )
+        }
+    }
+}
+```
+
+The sample app in this repository ships with these exclusions applied, so CI builds and tests the
+configuration rather than only documenting it. A build task (`verifyPhoneNumberMetadataFootprint`)
+fails the library's own build if it ever starts using an API that would need them back.
 
 ## Country Picker library
 
 Everything below lives under `com.ezzy.ccp.countrypicker` — the country model, search, state, theme
 and UI are all reusable independently of phone numbers. A sample screen reproducing the flow below is
-in [`YourDetailsSampleScreen`](ccp/src/main/java/com/ezzy/ccp/countrypicker/sample/YourDetailsSampleScreen.kt),
+in [`YourDetailsSampleScreen`](ccp/src/commonMain/kotlin/com/ezzy/ccp/countrypicker/sample/YourDetailsSampleScreen.kt),
 and every state described here has a matching `@Preview` in
-[`CountryPickerPreviews.kt`](ccp/src/main/java/com/ezzy/ccp/countrypicker/sample/CountryPickerPreviews.kt).
+[`CountryPickerPreviews.kt`](ccp/src/commonMain/kotlin/com/ezzy/ccp/countrypicker/sample/CountryPickerPreviews.kt).
 
 ### A basic country selector
 
@@ -224,7 +309,7 @@ CountryPickerDefaults.config(
 CountrySelector(
     selectedCountry = country,
     onCountrySelected = { country = it },
-    recentCountryStore = DefaultRecentCountryStore(context),  // omit to persist nothing
+    recentCountryStore = rememberDefaultRecentCountryStore(),  // omit to persist nothing
 )
 ```
 
@@ -255,7 +340,8 @@ Ticking rows edits a *pending* selection inside the sheet; Cancel and dismiss di
 CountrySelector(
     selectedCountry = country,
     onCountrySelected = { country = it },
-    detector = DefaultCountryDetector(context),   // SIM → network → locale; no location permission
+    // Android: SIM → network → locale. iOS: the Region setting. No location permission either way.
+    detector = rememberDefaultCountryDetector(),
     detectionBehavior = CountryDetectionBehavior.ShowBadge,
 )
 ```
@@ -387,7 +473,8 @@ PhoneNumberInput(
 ```kotlin
 PhoneNumberInput(
     ccpConfig = CCPDefaults.defaultConfig(autoDetectCountry = true)
-    // Priority: SIM → network → configuration locale → default locale → US
+    // Android: SIM → network → configuration locale → default locale → US
+    // iOS: Region setting → US
 )
 ```
 
@@ -554,13 +641,13 @@ filters, recents/suggestions, or phone verification. The building blocks map lik
 | `Country` (`com.ezzy.ccp.model`) | `Country` (`com.ezzy.ccp.countrypicker.model`) — adds ISO alpha-3, region, aliases |
 | `countriesToShow` / `countriesExclude` | `CountryPickerConfig.allowedCountryCodes` / `excludedCountryCodes` |
 | `pinnedCountries` | `CountryPickerConfig.suggestedCountryCodes` |
-| `CCPConfig.autoDetectCountry` | `detector = DefaultCountryDetector(context)` |
+| `CCPConfig.autoDetectCountry` | `detector = rememberDefaultCountryDetector()` |
 | `CCPColors` / `CCPConfig` shape params | `CountryPickerColors` / `CountryPickerShapes` via `CountryPickerDefaults` |
 | — (did not exist) | `MultiCountrySelector`, region filters, `PhoneNumberVerificationHandler` |
 
 A couple of behaviors changed as part of the underlying migration — both are described in the doc
-comments on [`countryList`](ccp/src/main/java/com/ezzy/ccp/data/Data.kt) and
-[`PhoneState`](ccp/src/main/java/com/ezzy/ccp/state/PhoneState.kt):
+comments on [`countryList`](ccp/src/commonMain/kotlin/com/ezzy/ccp/data/Data.kt) and
+[`PhoneState`](ccp/src/commonMain/kotlin/com/ezzy/ccp/state/PhoneState.kt):
 
 - The bundled country list grew from ~200 to 236 entries, and a few names now follow current ISO usage
   (`"Czech Republic"` → `"Czechia"`, `"Turkey"` → `"Türkiye"`) — former names remain searchable as
@@ -598,3 +685,48 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Contributing
+
+```bash
+./gradlew :ccp:verifyRoborazziAndroidHostTest :ccp:iosSimulatorArm64Test :ccp:checkKotlinAbi :ccp:lint
+```
+
+The iOS targets need macOS with Xcode. CI runs those on every pull request (the iOS ones on a macOS
+runner), plus an assemble of the library, the Android sample app and the iOS sample app, and the
+Compose UI tests on emulators at API 26 and 34.
+
+Source sets: shared code and the tests that run on both platforms live in `commonMain` /
+`commonTest`; platform code in `androidMain` / `iosMain`; Robolectric and screenshot tests in
+`androidHostTest`; Compose UI tests in `androidDeviceTest`. Kotlin/Native does not allow commas in
+backticked test names, so `commonTest` names avoid them.
+
+Three of them are worth explaining:
+
+- **`verifyRoborazziAndroidHostTest`** runs the JVM tests and diffs the screenshot suite against the
+  goldens in `ccp/src/androidHostTest/screenshots`. Re-record deliberately with
+  `./gradlew :ccp:recordRoborazziAndroidHostTest` and review the image diff.
+- **`checkKotlinAbi`** compares the compiled public API of every target against the dumps in
+  `ccp/api/` (`android/ccp.api`, `ccp.klib.api`). The module is in Kotlin explicit-API mode, so every
+  public declaration states its visibility and return type, and any change to the published ABI has
+  to be an explicit commit. When a change is intended, run `./gradlew :ccp:updateKotlinAbi` and
+  commit the diff — that diff *is* the API review.
+- **`lint`** treats warnings as errors and has no baseline file. The module sits at zero findings; a
+  baseline would only let the next regression be recorded rather than fixed.
+
+### The vendored iOS phone-number engine
+
+`ccp/src/nativeInterop/libPhoneNumber-iOS` is an unmodified copy of libPhoneNumber-iOS (version in its
+`VERSION` file, Apache-2.0 licence alongside). `scripts/build-libphonenumber-ios.sh` compiles it per
+iOS target with every global symbol renamed by `ccp_libphonenumber_namespace.h`, and fails if any
+symbol escapes the prefix. To update it, copy the new release's `libPhoneNumber/` and
+`libPhoneNumberInternal/` headers and sources over the old ones, update `VERSION`, and bump
+`lib-phone` in `gradle/libs.versions.toml` to the libphonenumber release the new metadata was
+generated from, so Android and iOS stay on the same data.
+
+### Releasing
+
+Push a `v*` tag. `.github/workflows/release.yml` writes the version from the tag into
+`gradle.properties`, re-runs the full verification, publishes to Maven Central and drafts the GitHub
+release. It needs `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`, `SIGNING_KEY` and
+`SIGNING_KEY_PASSWORD` as repository secrets.

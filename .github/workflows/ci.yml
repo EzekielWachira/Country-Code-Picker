@@ -1,0 +1,170 @@
+# Build, test and API checks for every push and pull request.
+#
+# The library ships to consumers on Android and iOS, so the gates here are the ones that would
+# otherwise break them silently: compilation for every target, the common test suite on both the
+# JVM and the iOS simulator, screenshot and lint checks for Android, and the ABI dumps (a public API
+# change must be an explicit, reviewed commit — see ccp/api/).
+#
+# Android work runs on Linux. Anything that touches iOS (klibs, cinterop, the simulator, Xcode)
+# needs macOS, so it has its own job. Instrumented tests run separately again because an emulator
+# costs ~5 minutes of extra wall clock and should not hold up the fast feedback from the build jobs.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    name: Android — build, test & lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      - name: Assemble library (Android)
+        run: ./gradlew :ccp:assembleAndroidMain --stacktrace
+
+      # commonTest + the Android-only host tests on the JVM, and the screenshot suite: renders the
+      # component matrix under Robolectric and diffs it against the goldens in
+      # ccp/src/androidHostTest/screenshots. No emulator needed, so it belongs in this fast job.
+      - name: Unit & screenshot tests
+        run: ./gradlew :ccp:verifyRoborazziAndroidHostTest --stacktrace
+
+      - name: Android Lint
+        run: ./gradlew :ccp:lint --stacktrace
+
+      # Translation completeness and the libphonenumber metadata footprint the README documents.
+      - name: Library invariants
+        run: ./gradlew :ccp:verifyTranslationParity :ccp:verifyPhoneNumberMetadataFootprint --stacktrace
+
+      - name: Assemble sample app
+        run: ./gradlew :app:assembleDebug --stacktrace
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-reports
+          path: |
+            ccp/build/reports/
+            app/build/reports/
+            ccp/build/outputs/roborazzi/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  ios:
+    name: iOS — test, ABI check & sample app
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      # The same commonTest suite the Android job runs, against libPhoneNumber-iOS instead of the
+      # Java libphonenumber: this is what proves the two engines agree.
+      - name: Tests on the iOS simulator
+        run: ./gradlew :ccp:iosSimulatorArm64Test --stacktrace
+
+      # Fails when the public API of any target differs from the checked-in dumps (ccp/api/).
+      # Regenerate deliberately with `./gradlew :ccp:updateKotlinAbi` and commit the diff — that
+      # diff is the API review. Runs here because only macOS can build the iOS klibs it inspects.
+      - name: Public API check
+        run: ./gradlew :ccp:checkKotlinAbi --stacktrace
+
+      # Device klib too, so a cinterop or archive problem specific to arm64 devices surfaces here
+      # rather than at release time.
+      - name: Compile for iOS devices
+        run: ./gradlew :ccp:compileKotlinIosArm64 --stacktrace
+
+      # Builds the Xcode project end to end, including the Gradle framework build phase and the
+      # final link — the step where a missing system library or symbol clash would show up.
+      - name: Build iOS sample app
+        run: >-
+          xcodebuild -project iosApp/iosApp.xcodeproj -scheme "CCP Sample" -configuration Debug
+          -sdk iphonesimulator -destination 'generic/platform=iOS Simulator'
+          CODE_SIGNING_ALLOWED=NO build
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-reports
+          path: ccp/build/reports/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  instrumented:
+    name: Instrumented tests (API ${{ matrix.api-level }})
+    runs-on: ubuntu-latest
+    # The Compose UI tests are the only coverage for sheet/dropdown behaviour, so they run on
+    # both the minSdk-adjacent and a current API level.
+    strategy:
+      fail-fast: false
+      matrix:
+        api-level: [26, 34]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: true
+
+      # KVM is required for the x86_64 system images to run at a usable speed.
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run instrumented tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          script: ./gradlew :ccp:connectedAndroidDeviceTest --stacktrace
+
+      - name: Upload instrumented reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrumented-reports-api${{ matrix.api-level }}
+          path: ccp/build/reports/androidTests/
+          retention-days: 7
+          if-no-files-found: ignore

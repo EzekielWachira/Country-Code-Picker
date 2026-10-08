@@ -20,6 +20,7 @@ result is a `PhoneNumberValidity` rather than a boolean so "still typing" never 
 | `Invalid` | Parsed, but not valid for the region and not merely a length problem | yes |
 | `InvalidCountryCode` | The leading calling code matches no region | yes |
 | `UnsupportedCountry` | libphonenumber has no metadata for the selected country. A configuration problem, not user error | yes |
+| `WrongNumberType` | A real, dialable number — but not one of the line types the caller accepts. See [Restricting the line type](#restricting-the-line-type) | yes |
 
 ```kotlin
 when (phoneState.value.validity) {
@@ -38,10 +39,65 @@ Compose field.
 
 | Function | Returns |
 |---|---|
-| `evaluate(nationalNumber, country)` | The complete `PhoneNumberValue`: formatted forms, E.164 and validity in one pass |
-| `isValid(nationalNumber, country)` | Convenience predicate for "is this submittable" |
-| `errorMessage(value, treatIncompleteAsError = false)` | The `UiText` to show under the field, or `null` for `Empty`, `Valid` and `Incomplete`. Pass `treatIncompleteAsError = true` when validating on submit |
+| `evaluate(nationalNumber, country, allowedNumberTypes = emptySet())` | The complete `PhoneNumberValue`: formatted forms, E.164, validity and line type in one pass |
+| `isValid(nationalNumber, country, allowedNumberTypes = emptySet())` | Convenience predicate for "is this submittable" |
+| `errorMessage(value, treatIncompleteAsError = false, allowedNumberTypes = emptySet())` | The `UiText` to show under the field, or `null` for `Empty`, `Valid` and `Incomplete`. Pass `treatIncompleteAsError = true` when validating on submit |
 | `helperText(country)` | *"Formats live for Kenya · e.g. +254 712 345 678"*, from the region's metadata |
+
+## Restricting the line type
+
+A number can be perfectly valid and still useless for what you are about to do with it. Send an SMS
+code to a landline and the user waits for a message that will never arrive — with no error anywhere,
+because the number *was* valid.
+
+`allowedNumberTypes` turns that into a field error the user sees while they are still on the screen:
+
+```kotlin
+val state = rememberPhoneNumberFieldState(
+    initialCountry = kenya,
+    allowedNumberTypes = PhoneNumberType.SmsCapable,   // setOf(Mobile)
+)
+
+PhoneNumberField(state = state, onValueChange = { phone = it })
+```
+
+A landline now reports `validity = WrongNumberType`, `isValid = false`, and the field shows
+*"Enter a mobile number"*. Two ready-made sets are provided, and any `Set<PhoneNumberType>` works:
+
+| Set | Contents | Use for |
+|---|---|---|
+| `PhoneNumberType.SmsCapable` | `Mobile` | One-time codes, WhatsApp, anything sent by SMS |
+| `PhoneNumberType.Voice` | `Mobile`, `FixedLine` | "A number we can call you on" |
+| `emptySet()` *(default)* | — | Storing a number without acting on it |
+
+### `FixedLineOrMobile` — read this before comparing types
+
+Many numbering plans do not separate landline from mobile, so libphonenumber reports
+`FixedLineOrMobile` and genuinely cannot say which it is. This is not a rare edge case: it is what
+**every** valid US, Canadian and Indian number reports.
+
+A restriction implemented as `numberType == Mobile` therefore rejects every US number. The library
+compares with `PhoneNumberType.satisfies` instead, which treats `FixedLineOrMobile` as satisfying
+both `Mobile` and `FixedLine`. If you branch on `PhoneNumberValue.numberType` yourself, use the same
+function:
+
+```kotlin
+// Wrong — rejects every US number.
+if (value.numberType == PhoneNumberType.Mobile) { … }
+
+// Right.
+if (value.numberType?.satisfies(PhoneNumberType.Mobile) == true) { … }
+```
+
+Two further behaviours worth knowing:
+
+- **The restriction only applies to otherwise-valid numbers.** A half-typed number still reports
+  `Incomplete`, never `WrongNumberType` — libphonenumber has to guess the type from an incomplete
+  prefix and frequently gets it wrong, and telling a user mid-entry that their number is the wrong
+  kind is worse than saying nothing.
+- **`e164Number` is still produced** for a valid number of a rejected type. The number is real; it
+  is only unusable for *this* flow, and a caller that wants to store it anyway is not handed a
+  `null`.
 
 ## `PhoneNumberFormatter`
 

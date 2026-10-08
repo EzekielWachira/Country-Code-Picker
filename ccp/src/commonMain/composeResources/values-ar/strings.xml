@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Arabic. Also the library's right-to-left reference locale: the phone field puts a dial code and
+  Latin digits inside an RTL paragraph, which is the layout most likely to break, so previews and
+  UI tests exercise this locale specifically.
+
+  Arabic takes all six CLDR plural categories (zero/one/two/few/many/other); leaving any of them out
+  makes the platform fall back to "other" and read wrongly for 2, 3-10 and 11-99.
+-->
+<resources>
+
+    <!-- ── Sheet chrome ─────────────────────────────────────────────────────── -->
+    <string name="ccp_select_country">اختر الدولة</string>
+    <string name="ccp_select_country_subtitle">اختر دولة إقامتك</string>
+    <string name="ccp_country_code_title">رمز الدولة</string>
+    <string name="ccp_country_code_subtitle">ابحث بالدولة أو رمز الاتصال</string>
+    <string name="ccp_title_with_count">%1$s · %2$d</string>
+    <string name="ccp_close">إغلاق</string>
+    <string name="ccp_back">رجوع</string>
+    <string name="ccp_drag_handle">اسحب لتغيير الحجم أو للإغلاق</string>
+
+    <!-- ── Legacy PhoneNumberInput / CountriesBottomSheet ───────────────────── -->
+    <string name="ccp_layout_list">عرض القائمة</string>
+    <string name="ccp_layout_grid">عرض الشبكة</string>
+    <string name="ccp_change_country_a11y">%1$s %2$s، انقر لتغيير الدولة</string>
+
+    <!-- ── Search ───────────────────────────────────────────────────────────── -->
+    <string name="ccp_search_hint">ابحث عن دولة أو رمز أو رمز اتصال</string>
+    <string name="ccp_search_label">البحث في الدول</string>
+    <string name="ccp_clear_search">مسح البحث</string>
+    <plurals name="ccp_result_count">
+        <item quantity="zero">لا نتائج</item>
+        <item quantity="one">نتيجة واحدة</item>
+        <item quantity="two">نتيجتان</item>
+        <item quantity="few">%1$d نتائج</item>
+        <item quantity="many">%1$d نتيجة</item>
+        <item quantity="other">%1$d نتيجة</item>
+    </plurals>
+    <string name="ccp_result_count_in_region">%1$s في %2$s</string>
+    <plurals name="ccp_countries_found">
+        <item quantity="zero">لم يتم العثور على دول</item>
+        <item quantity="one">تم العثور على دولة واحدة</item>
+        <item quantity="two">تم العثور على دولتين</item>
+        <item quantity="few">تم العثور على %1$d دول</item>
+        <item quantity="many">تم العثور على %1$d دولة</item>
+        <item quantity="other">تم العثور على %1$d دولة</item>
+    </plurals>
+
+    <!-- ── Sections ─────────────────────────────────────────────────────────── -->
+    <string name="ccp_section_selected">المحددة</string>
+    <string name="ccp_section_selected_count">المحددة · %1$d</string>
+    <string name="ccp_section_recent">المختارة مؤخرًا</string>
+    <string name="ccp_section_suggested">المقترحة</string>
+    <string name="ccp_section_all">جميع الدول</string>
+    <string name="ccp_current_selection">الاختيار الحالي</string>
+
+    <!-- ── Region filters ───────────────────────────────────────────────────── -->
+    <string name="ccp_region_all">الكل</string>
+    <string name="ccp_region_africa">أفريقيا</string>
+    <string name="ccp_region_americas">الأمريكتان</string>
+    <string name="ccp_region_asia">آسيا</string>
+    <string name="ccp_region_europe">أوروبا</string>
+    <string name="ccp_region_oceania">أوقيانوسيا</string>
+    <string name="ccp_region_filter_label">تصفية حسب المنطقة</string>
+
+    <!-- ── Actions ──────────────────────────────────────────────────────────── -->
+    <string name="ccp_reset">إعادة تعيين</string>
+    <string name="ccp_cancel">إلغاء</string>
+    <string name="ccp_confirm">تأكيد</string>
+    <string name="ccp_confirm_count">تأكيد (%1$d)</string>
+    <string name="ccp_retry">حاول مرة أخرى</string>
+    <string name="ccp_use">استخدام</string>
+
+    <!-- ── Selector ─────────────────────────────────────────────────────────── -->
+    <string name="ccp_country_of_residence">دولة الإقامة</string>
+    <string name="ccp_select_country_placeholder">اختر الدولة</string>
+    <string name="ccp_optional_label">%1$s (اختياري)</string>
+    <string name="ccp_required_label">%1$s *</string>
+    <string name="ccp_selector_a11y_selected">%1$s. تم اختيار %2$s. انقر مرتين للتغيير.</string>
+    <string name="ccp_selector_a11y_empty">%1$s. %2$s. انقر مرتين لاختيار دولة.</string>
+    <string name="ccp_multi_selector_a11y">%1$s. %2$s. انقر مرتين للتغيير.</string>
+    <string name="ccp_flag_only_a11y">الدولة المحددة: %1$s. انقر مرتين للتغيير.</string>
+    <string name="ccp_flag_only_a11y_empty">لم يتم اختيار دولة. انقر مرتين لاختيار دولة.</string>
+    <string name="ccp_dial_code_a11y">رمز الاتصال الدولي %1$s، %2$s. انقر مرتين للتغيير.</string>
+    <string name="ccp_phone_prefix_a11y">%1$s، رمز الاتصال %2$s. انقر مرتين لتغيير الدولة.</string>
+    <string name="ccp_phone_prefix_plus">زائد</string>
+    <string name="ccp_loading_countries">جارٍ تحميل الدول</string>
+
+    <!-- ── Detection ────────────────────────────────────────────────────────── -->
+    <string name="ccp_detecting">جارٍ تحديد دولتك…</string>
+    <string name="ccp_detected_badge">تم التحديد</string>
+    <string name="ccp_detected_from_sim">من شريحة SIM · انقر للتغيير</string>
+    <string name="ccp_detected_from_network">من شبكتك · انقر للتغيير</string>
+    <string name="ccp_detected_from_locale">بناءً على لغة جهازك · انقر للتغيير</string>
+    <string name="ccp_detected_from_profile">من ملفك الشخصي · انقر للتغيير</string>
+    <string name="ccp_detected_from_saved">اختيارك الأخير · انقر للتغيير</string>
+    <string name="ccp_detected_generic">تم التحديد تلقائيًا · انقر للتغيير</string>
+    <string name="ccp_detected_suggestion">يبدو أنك في %1$s، حسب %2$s.</string>
+    <string name="ccp_detect_source_sim">شريحة SIM</string>
+    <string name="ccp_detect_source_network">شبكتك</string>
+    <string name="ccp_detect_source_locale">لغة جهازك</string>
+
+    <!-- ── Empty / error states ─────────────────────────────────────────────── -->
+    <string name="ccp_empty_title">لم يتم العثور على دول</string>
+    <string name="ccp_empty_body">تحقق من الإملاء، أو ابحث برمز ISO أو رمز الاتصال.</string>
+    <string name="ccp_empty_title_query">لا توجد دول تطابق ”%1$s“</string>
+    <string name="ccp_error_title">تعذّر تحميل الدول</string>
+    <string name="ccp_error_body">حدث خطأ ما لدينا. اختيارك لم يتأثر.</string>
+    <string name="ccp_offline_title">أنت غير متصل</string>
+    <string name="ccp_offline_body">يتم عرض آخر قائمة دول محفوظة. أعد الاتصال للتحديث.</string>
+    <string name="ccp_none_available_title">لا توجد دول متاحة</string>
+    <string name="ccp_none_available_body">الإعدادات الحالية تستبعد جميع الدول.</string>
+    <string name="ccp_row_unavailable">غير متاح</string>
+    <plurals name="ccp_max_selection_reached">
+        <item quantity="zero">لا يمكنك اختيار أي دولة</item>
+        <item quantity="one">يمكنك اختيار دولة واحدة على الأكثر</item>
+        <item quantity="two">يمكنك اختيار دولتين على الأكثر</item>
+        <item quantity="few">يمكنك اختيار %1$d دول على الأكثر</item>
+        <item quantity="many">يمكنك اختيار %1$d دولة على الأكثر</item>
+        <item quantity="other">يمكنك اختيار %1$d دولة على الأكثر</item>
+    </plurals>
+    <plurals name="ccp_min_selection_required">
+        <item quantity="zero">لا حاجة لاختيار أي دولة</item>
+        <item quantity="one">اختر دولة واحدة على الأقل</item>
+        <item quantity="two">اختر دولتين على الأقل</item>
+        <item quantity="few">اختر %1$d دول على الأقل</item>
+        <item quantity="many">اختر %1$d دولة على الأقل</item>
+        <item quantity="other">اختر %1$d دولة على الأقل</item>
+    </plurals>
+    <plurals name="ccp_countries_selected">
+        <item quantity="zero">لم يتم اختيار أي دولة</item>
+        <item quantity="one">تم اختيار دولة واحدة</item>
+        <item quantity="two">تم اختيار دولتين</item>
+        <item quantity="few">تم اختيار %1$d دول</item>
+        <item quantity="many">تم اختيار %1$d دولة</item>
+        <item quantity="other">تم اختيار %1$d دولة</item>
+    </plurals>
+
+    <!-- ── Accessibility state announcements ────────────────────────────────── -->
+    <string name="ccp_a11y_selected">محددة</string>
+    <string name="ccp_a11y_not_selected">غير محددة</string>
+    <string name="ccp_a11y_country_selected_announce">تم اختيار %1$s</string>
+    <string name="ccp_a11y_country_deselected_announce">تم إلغاء اختيار %1$s</string>
+    <string name="ccp_a11y_row">%1$s، %2$s</string>
+
+    <!-- ── Phone number ─────────────────────────────────────────────────────── -->
+    <string name="ccp_phone_number">رقم الهاتف</string>
+    <string name="ccp_phone_hint">أدخل رقم الهاتف</string>
+    <string name="ccp_phone_input_label">رقم الهاتف</string>
+    <!-- Spoken by TalkBack on the legacy PhoneNumberInput editor. Distinct from
+         ccp_phone_input_label, which is a visible label: this one describes the control
+         itself, and its wording is the legacy component's existing accessibility
+         contract. -->
+    <string name="ccp_phone_input_a11y">حقل إدخال رقم الهاتف</string>
+    <string name="ccp_clear_phone">مسح رقم الهاتف</string>
+    <string name="ccp_phone_helper">تنسيق مباشر لـ %1$s · مثال %2$s %3$s</string>
+    <string name="ccp_phone_helper_no_example">تنسيق مباشر لـ %1$s</string>
+    <string name="ccp_phone_error_empty">أدخل رقم هاتف</string>
+    <plurals name="ccp_phone_error_incomplete">
+        <item quantity="zero">أدخل رقم %1$s صالحًا بعد %3$s</item>
+        <item quantity="one">أدخل رقم %1$s صالحًا — رقم واحد بعد %3$s</item>
+        <item quantity="two">أدخل رقم %1$s صالحًا — رقمان بعد %3$s</item>
+        <item quantity="few">أدخل رقم %1$s صالحًا — %2$d أرقام بعد %3$s</item>
+        <item quantity="many">أدخل رقم %1$s صالحًا — %2$d رقمًا بعد %3$s</item>
+        <item quantity="other">أدخل رقم %1$s صالحًا — %2$d رقم بعد %3$s</item>
+    </plurals>
+    <string name="ccp_phone_error_too_short">هذا الرقم قصير جدًا بالنسبة لـ %1$s</string>
+    <string name="ccp_phone_error_too_long">هذا الرقم طويل جدًا بالنسبة لـ %1$s</string>
+    <string name="ccp_phone_error_invalid">أدخل رقم هاتف صالحًا لـ %1$s</string>
+    <string name="ccp_phone_error_invalid_generic">أدخل رقم هاتف صالحًا</string>
+    <string name="ccp_phone_error_unsupported_country">أرقام الهاتف غير مدعومة لـ %1$s</string>
+    <string name="ccp_phone_error_invalid_country_code">رمز الاتصال الدولي هذا غير معروف</string>
+    <!-- Shown when the number is real but the wrong kind of line for this flow -->
+    <string name="ccp_phone_error_requires_mobile">أدخل رقم هاتف محمول</string>
+    <string name="ccp_phone_error_requires_landline">أدخل رقم هاتف أرضي</string>
+    <string name="ccp_phone_error_wrong_type">هذا النوع من الأرقام غير مقبول هنا</string>
+
+    <!-- ── Phone verification ───────────────────────────────────────────────── -->
+    <string name="ccp_verify_send_code">إرسال الرمز</string>
+    <string name="ccp_verify_sending">جارٍ إرسال الرمز…</string>
+    <string name="ccp_verify_code_sent">أرسلنا رمزًا إلى %1$s</string>
+    <string name="ccp_verify_code_label">رمز التحقق</string>
+    <string name="ccp_verify_submit">تحقق</string>
+    <string name="ccp_verify_verifying">جارٍ التحقق…</string>
+    <string name="ccp_verify_verified">تم التحقق من الرقم</string>
+    <string name="ccp_verify_resend">إعادة إرسال الرمز</string>
+    <string name="ccp_verify_resend_in">إعادة الإرسال خلال %1$d ثانية</string>
+    <string name="ccp_verify_expired">انتهت صلاحية الرمز. اطلب رمزًا جديدًا.</string>
+    <string name="ccp_verify_failed">الرمز غير صحيح. حاول مرة أخرى.</string>
+    <string name="ccp_verify_request_failed">تعذّر إرسال الرمز. حاول مرة أخرى.</string>
+    <string name="ccp_verify_requires_valid_number">أدخل رقم هاتف صالحًا أولاً</string>
+
+    <!-- ── Digit words ──────────────────────────────────────────────────────── -->
+    <string-array name="ccp_digit_words">
+        <item>صفر</item>
+        <item>واحد</item>
+        <item>اثنان</item>
+        <item>ثلاثة</item>
+        <item>أربعة</item>
+        <item>خمسة</item>
+        <item>ستة</item>
+        <item>سبعة</item>
+        <item>ثمانية</item>
+        <item>تسعة</item>
+    </string-array>
+
+</resources>

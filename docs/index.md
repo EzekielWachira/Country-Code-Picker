@@ -8,9 +8,11 @@ hide:
 [![JitPack](https://jitpack.io/v/EzekielWachira/Country-Code-Picker.svg)](https://jitpack.io/#EzekielWachira/Country-Code-Picker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-teal.svg)](https://github.com/EzekielWachira/Country-Code-Picker/blob/main/LICENSE.md)
 [![API 24+](https://img.shields.io/badge/API-24%2B-teal.svg)](https://developer.android.com/about/versions/nougat)
+[![Platforms: Android | iOS](https://img.shields.io/badge/platforms-Android%20%7C%20iOS-teal.svg)](getting-started.md)
 
-A lightweight, fully customizable **Jetpack Compose** library for country selection, country-code
-selection, phone number validation, and real-time formatting based on country-specific rules.
+A lightweight, fully customizable **Compose Multiplatform** library for **Android and iOS**: country
+selection, country-code selection, phone number validation, and real-time formatting based on
+country-specific rules — written once in common code.
 
 Everything is plain Compose state: no ViewModels, no navigation coupling, and every component is a
 *controlled* component whose value you own.
@@ -68,7 +70,7 @@ Everything is plain Compose state: no ViewModels, no navigation coupling, and ev
     ---
 
     Colors, shapes, dimensions, typography and motion all flow from `CountryPickerDefaults` and
-    follow your Material 3 theme. 48dp touch targets, TalkBack-friendly, no color-only signalling.
+    follow your Material 3 theme. 48dp touch targets, screen-reader friendly, no color-only signalling.
 
     [:octicons-arrow-right-24: Theming](theming.md) ·
     [:octicons-arrow-right-24: Accessibility](accessibility.md)
@@ -86,12 +88,17 @@ Everything is plain Compose state: no ViewModels, no navigation coupling, and ev
 
 ## Install
 
-Add JitPack to your repositories and the dependency to your module. Full details in
+Add the dependency from Maven Central — to `commonMain` in a Kotlin Multiplatform module, or to
+`dependencies` in an Android-only one. Nothing else is needed on iOS. Full details in
 [Getting started](getting-started.md).
 
 ```kotlin title="build.gradle.kts"
-dependencies {
-    implementation("com.github.EzekielWachira:Country-Code-Picker:v0.2.0")
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("io.github.ezekielwachira:ccp:<LATEST_VERSION>")
+        }
+    }
 }
 ```
 
@@ -124,9 +131,9 @@ PhoneNumberField(
 A short recording of the sample app is on the
 [repository README](https://github.com/EzekielWachira/Country-Code-Picker#demo). The sample screen
 that reproduces the flow lives in
-[`YourDetailsSampleScreen.kt`](https://github.com/EzekielWachira/Country-Code-Picker/blob/main/ccp/src/main/java/com/ezzy/ccp/countrypicker/sample/YourDetailsSampleScreen.kt),
+[`YourDetailsSampleScreen.kt`](https://github.com/EzekielWachira/Country-Code-Picker/blob/main/ccp/src/commonMain/kotlin/com/ezzy/ccp/countrypicker/sample/YourDetailsSampleScreen.kt),
 and every state described in these docs has a matching `@Preview` in
-[`CountryPickerPreviews.kt`](https://github.com/EzekielWachira/Country-Code-Picker/blob/main/ccp/src/main/java/com/ezzy/ccp/countrypicker/sample/CountryPickerPreviews.kt).
+[`CountryPickerPreviews.kt`](https://github.com/EzekielWachira/Country-Code-Picker/blob/main/ccp/src/commonMain/kotlin/com/ezzy/ccp/countrypicker/sample/CountryPickerPreviews.kt).
 
 ## License
 

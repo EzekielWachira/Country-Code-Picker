@@ -51,7 +51,7 @@ so the value is directly usable for display and prefix matching.
 The library ships no translation table. To show localized names, wrap the dataset in a data source:
 
 ```kotlin
-val localized = CountryDataSource { DefaultCountryDataSource.localizedNames(Locale.getDefault()) }
+val localized = CountryDataSource { DefaultCountryDataSource.localizedNames(Locale.current) }
 val repository = remember { CountryRepository(localized) }
 
 CountrySelector(
@@ -123,11 +123,11 @@ interface RecentCountryStore {
 | Implementation | Use |
 |---|---|
 | `NoOpRecentCountryStore` | The default. Remembers nothing, so the library never writes to disk unless you opt in |
-| `DefaultRecentCountryStore(context, maxEntries = 5, fileName)` | `SharedPreferences`-backed with an in-memory mirror. All disk work is on `Dispatchers.IO`; reads after construction are served from memory so the Recent section renders on the first frame |
+| `rememberDefaultRecentCountryStore(maxEntries = 5, fileName)` | Persistent, with an in-memory mirror: `SharedPreferences` on Android, `NSUserDefaults` on iOS. All disk work is on `Dispatchers.IO`; reads after construction are served from memory so the Recent section renders on the first frame. Outside composition: `DefaultRecentCountryStore(context)` on Android, `DefaultRecentCountryStore()` on iOS |
 | `InMemoryRecentCountryStore(initial)` | Survives recomposition but not process death. For previews, tests, and hosts that want the section without persisting |
 
 ```kotlin
-val recents = remember { DefaultRecentCountryStore(context) }
+val recents = rememberDefaultRecentCountryStore()
 
 CountrySelector(
     selectedCountry = country,
@@ -136,8 +136,8 @@ CountrySelector(
 )
 ```
 
-`SharedPreferences` rather than DataStore is deliberate: adding `androidx.datastore` and its transitive
-graph to every consumer's APK to store five two-letter strings is not a good trade. An app that already
+The platform stores rather than DataStore is deliberate: adding `androidx.datastore` and its transitive
+graph to every consumer's app to store five two-letter strings is not a good trade. An app that already
 uses DataStore can implement the interface over its own store in a dozen lines.
 
 Hosts that must not persist anything (kiosk, guest, incognito modes) keep the default no-op store or

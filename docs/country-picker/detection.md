@@ -6,7 +6,7 @@ Detection pre-fills a likely country from device signals so most users never ope
 CountrySelector(
     selectedCountry = country,
     onCountrySelected = { country = it },
-    detector = DefaultCountryDetector(context),
+    detector = rememberDefaultCountryDetector(),
     detectionBehavior = CountryDetectionBehavior.ShowBadge,
 )
 ```
@@ -14,8 +14,8 @@ CountrySelector(
 Three rules the library relies on:
 
 1. **No location permission.** Country-level detection never justifies a runtime permission prompt.
-   `DefaultCountryDetector` reads only the SIM and network country codes and the locale, all of which
-   are permission-free.
+   `DefaultCountryDetector` reads only the SIM and network country codes and the locale on Android,
+   and the Region setting on iOS — all permission-free.
 2. **Never called from composition.** `CountryDetector.detectCountry()` is `suspend` and runs from a
    `LaunchedEffect`, so a network-backed detector can take as long as it needs.
 3. **Detection is a suggestion, not a command.** An explicit user selection always outranks a detected
@@ -25,14 +25,21 @@ Three rules the library relies on:
 ## `DefaultCountryDetector`
 
 ```kotlin
-DefaultCountryDetector(
-    context: Context,              // any context; the application context is fine
-    fallbackIso2Code: String? = "US",
-)
+// Common code — builds the right one for the platform.
+val detector = rememberDefaultCountryDetector(fallbackIso2Code = "US")
+
+// Android, outside composition (any context; the application context is fine)
+DefaultCountryDetector(context, fallbackIso2Code = "US")
+
+// iOS, outside composition
+DefaultCountryDetector(fallbackIso2Code = "US")
 ```
 
-Tries, in order of confidence: **SIM country → network country → configuration locale → default
-locale → fallback**. Pass `fallbackIso2Code = null` to report `Unavailable` instead of guessing, which
+On Android it tries, in order of confidence: **SIM country → network country → configuration locale →
+default locale → fallback**. iOS has no usable SIM or network country API (CoreTelephony's carrier
+properties have returned placeholder values since iOS 16), so it reads the **Region setting →
+fallback** — an explicit user choice in Settings › General › Language & Region, which makes it a
+better signal than a locale derived from a language. Pass `fallbackIso2Code = null` to report `Unavailable` instead of guessing, which
 is the right choice when a wrong default is worse than no default. Malformed codes some devices report
 (`""`, `"--"`, three-letter codes) are validated against the dataset and dropped.
 
@@ -85,7 +92,7 @@ backend or IP lookup without giving up the device signals is `withFallback`:
 val detector = CountryDetector {
     api.geoCountry()?.let { CountryDetectionResult.detected(it, CountryDetectionSource.Network) }
         ?: CountryDetectionResult.Unavailable
-}.withFallback(DefaultCountryDetector(context))
+}.withFallback(DefaultCountryDetector(context)) // or DefaultCountryDetector() on iOS
 ```
 
 For previews and tests, `staticCountryDetector("KE")` always reports the given code.
