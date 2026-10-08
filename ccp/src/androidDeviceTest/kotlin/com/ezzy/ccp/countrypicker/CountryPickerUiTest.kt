@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -47,6 +48,8 @@ import com.ezzy.ccp.countrypicker.model.Country
 import com.ezzy.ccp.countrypicker.model.UiText
 import com.ezzy.ccp.countrypicker.state.CountryPickerConfig
 import com.ezzy.ccp.countrypicker.theme.CountryPickerDefaults
+import com.ezzy.ccp.countrypicker.theme.CountryPickerLayout
+import com.ezzy.ccp.countrypicker.theme.CountryPickerTheme
 import com.ezzy.ccp.countrypicker.ui.CountrySelector
 import com.ezzy.ccp.countrypicker.ui.CountrySelectorState
 import com.ezzy.ccp.countrypicker.ui.CountrySelectorVariant
@@ -83,6 +86,10 @@ class CountryPickerUiTest {
     private val kenya = requireNotNull(DefaultCountryDataSource.findByIso2("KE"))
     private val france = requireNotNull(DefaultCountryDataSource.findByIso2("FR"))
     private val japan = requireNotNull(DefaultCountryDataSource.findByIso2("JP"))
+    private val unitedKingdom = requireNotNull(DefaultCountryDataSource.findByIso2("GB"))
+    private val algeria = requireNotNull(DefaultCountryDataSource.findByIso2("DZ"))
+    private val albania = requireNotNull(DefaultCountryDataSource.findByIso2("AL"))
+    private val afghanistan = requireNotNull(DefaultCountryDataSource.findByIso2("AF"))
 
     /** Wraps content in a Material theme, which the picker's defaults read their colors from. */
     private fun setContent(content: @Composable () -> Unit) {
@@ -97,36 +104,31 @@ class CountryPickerUiTest {
     }
 
     /**
-     * Clicks the list row for [countryName], found by its exact (merged) content description.
+     * A list row's spoken description with the default layout: the name, then the dial code the row
+     * shows — `"Kenya, +254"`.
+     */
+    private fun rowDescription(country: Country) = "${country.displayName}, ${country.dialCode}"
+
+    /**
+     * Clicks the list row for [country], found by its exact (merged) content description.
      *
      * Exact, not substring: the ModalBottomSheet is an overlay, so the selector field underneath it
      * stays composed while the sheet is open, and its own description ("Country of residence. Kenya
-     * selected. Double tap to change.") *contains* the country name too. A row with no metadata
-     * configured has a description exactly equal to the plain name, so exact match is what
-     * disambiguates the row from the selector sitting behind it.
+     * selected. Double tap to change.") *contains* the country name too. Exact match on the row's own
+     * description is what disambiguates the row from the selector sitting behind it.
      */
-    private fun clickRow(countryName: String) {
-        rule.onNodeWithContentDescription(countryName).performClick()
+    private fun clickRow(country: Country) {
+        rule.onNodeWithContentDescription(rowDescription(country)).performClick()
     }
 
-    /** Asserts a list row for [countryName] is on screen. See [clickRow] for why this is an exact match. */
-    private fun assertRowDisplayed(countryName: String) {
-        rule.onNodeWithContentDescription(countryName).assertIsDisplayed()
+    /** Asserts a list row for [country] is on screen. See [clickRow] for why this is an exact match. */
+    private fun assertRowDisplayed(country: Country) {
+        rule.onNodeWithContentDescription(rowDescription(country)).assertIsDisplayed()
     }
 
-    /** Asserts no row for [countryName] exists. See [clickRow] for why this is an exact match. */
-    private fun assertRowAbsent(countryName: String) {
-        rule.onNodeWithContentDescription(countryName).assertDoesNotExist()
-    }
-
-    /**
-     * Clicks the row for [country] in a sheet configured with `showIsoCode`/`showDialCode` on — the
-     * multi-select default. There, a row's description is `"Name, ISO · +dial"`, not the bare name, so
-     * [clickRow]'s exact match on the plain name would find nothing.
-     */
-    private fun clickMultiRow(country: Country) {
-        rule.onNodeWithContentDescription("${country.displayName}, ${country.iso2Code} · ${country.dialCode}")
-            .performClick()
+    /** Asserts no row for [country] exists. See [clickRow] for why this is an exact match. */
+    private fun assertRowAbsent(country: Country) {
+        rule.onNodeWithContentDescription(rowDescription(country)).assertDoesNotExist()
     }
 
     /** A single-select host that records the selection, as a real caller would. */
@@ -221,7 +223,7 @@ class CountryPickerUiTest {
         openSelector()
         // Search first, so the target row is on screen without scrolling a 236-row list.
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextInput("Kenya")
-        clickRow("Kenya")
+        clickRow(kenya)
         rule.waitForIdle()
 
         assertEquals("KE", received?.iso2Code)
@@ -238,7 +240,7 @@ class CountryPickerUiTest {
 
         openSelector()
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextInput("Kenya")
-        clickRow("Kenya")
+        clickRow(kenya)
         rule.waitForIdle()
 
         rule.onNodeWithText(SHEET_TITLE).assertDoesNotExist()
@@ -252,25 +254,21 @@ class CountryPickerUiTest {
 
         openSelector()
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextInput("Kenya")
-        clickRow("Kenya")
+        clickRow(kenya)
         rule.waitForIdle()
 
         rule.onNodeWithText(SHEET_TITLE).assertIsDisplayed()
     }
 
     @Test
-    fun theCurrentSelectionIsShownWhenTheSheetOpens() {
+    fun theCurrentSelectionLeadsTheListWhenTheSheetOpens() {
         singleSelectHost(initial = germany)
 
         openSelector()
 
-        rule.onNodeWithText(CURRENT_SELECTION).assertIsDisplayed()
-        // The current-selection card renders its country name as plain text — it is a standalone
-        // label, not part of a merged row — so it is independently checkable here...
-        rule.onNodeWithText("Germany").assertIsDisplayed()
-        // ...and Germany separately appears as the Selected section's row, found by its merged
-        // content description like any other row.
-        assertRowDisplayed("Germany")
+        // The selection is the first group, so it is on screen without scrolling the list.
+        rule.onNodeWithText(SELECTED_SECTION).assertIsDisplayed()
+        assertRowDisplayed(germany)
     }
 
     @Test
@@ -280,7 +278,7 @@ class CountryPickerUiTest {
 
         // Selection is announced through state semantics, not only through the tinted background —
         // colour alone would be invisible to a screen reader and to anyone in greyscale.
-        rule.onNodeWithText(SELECTED_SECTION).assertIsDisplayed()
+        rule.onNodeWithContentDescription(rowDescription(germany)).assertIsSelected()
     }
 
     // ── Search ──────────────────────────────────────────────────────────────────────────────────
@@ -293,8 +291,8 @@ class CountryPickerUiTest {
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextInput("Kenya")
         rule.waitForIdle()
 
-        assertRowDisplayed("Kenya")
-        assertRowAbsent("Germany")
+        assertRowDisplayed(kenya)
+        assertRowAbsent(germany)
     }
 
     @Test
@@ -305,7 +303,7 @@ class CountryPickerUiTest {
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextInput("+254")
         rule.waitForIdle()
 
-        assertRowDisplayed("Kenya")
+        assertRowDisplayed(kenya)
     }
 
     @Test
@@ -316,25 +314,26 @@ class CountryPickerUiTest {
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextInput("GBR")
         rule.waitForIdle()
 
-        assertRowDisplayed("United Kingdom")
+        assertRowDisplayed(unitedKingdom)
     }
 
     @Test
-    fun clearingTheSearchRestoresTheGroupedContent() {
+    fun clearingTheSearchRestoresTheQuickPicks() {
+        // Suggested countries are quick picks: tiles above the list, set aside while a search runs.
         singleSelectHost(
             config = CountryPickerDefaults.config(suggestedCountryCodes = listOf("US", "GB")),
         )
         openSelector()
-        rule.onNodeWithText(SUGGESTED_SECTION).assertIsDisplayed()
+        rule.onNodeWithText(QUICK_PICKS).assertIsDisplayed()
 
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextInput("Kenya")
         rule.waitForIdle()
-        rule.onNodeWithText(SUGGESTED_SECTION).assertDoesNotExist()
+        rule.onNodeWithText(QUICK_PICKS).assertDoesNotExist()
 
         rule.onNodeWithContentDescription(CLEAR_SEARCH).performClick()
         rule.waitForIdle()
 
-        rule.onNodeWithText(SUGGESTED_SECTION).assertIsDisplayed()
+        rule.onNodeWithText(QUICK_PICKS).assertIsDisplayed()
     }
 
     @Test
@@ -363,7 +362,7 @@ class CountryPickerUiTest {
         rule.waitForIdle()
 
         // First alphabetically, so it is on screen with no scrolling once the search clears.
-        assertRowDisplayed("Afghanistan")
+        assertRowDisplayed(afghanistan)
     }
 
     @Test
@@ -378,7 +377,7 @@ class CountryPickerUiTest {
         rule.waitForIdle()
 
         rule.onNodeWithText(SHEET_TITLE).assertIsDisplayed()
-        assertRowDisplayed("Kenya")
+        assertRowDisplayed(kenya)
     }
 
     @Test
@@ -389,7 +388,8 @@ class CountryPickerUiTest {
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextInput("Kenya")
         rule.waitForIdle()
 
-        rule.onNode(hasText("result", substring = true)).assertIsDisplayed()
+        // Drawn in capitals, but spoken in sentence case — a screen reader must not spell "RESULT".
+        rule.onNodeWithContentDescription("1 result").assertIsDisplayed()
     }
 
     // ── Region filters ──────────────────────────────────────────────────────────────────────────
@@ -402,8 +402,8 @@ class CountryPickerUiTest {
         rule.onNodeWithText("Africa").performClick()
         rule.waitForIdle()
 
-        assertRowDisplayed("Algeria")
-        assertRowAbsent("Germany")
+        assertRowDisplayed(algeria)
+        assertRowAbsent(germany)
     }
 
     @Test
@@ -414,12 +414,12 @@ class CountryPickerUiTest {
         openSelector()
         rule.onNodeWithText("Africa").performClick()
         rule.waitForIdle()
-        assertRowAbsent("Albania")
+        assertRowAbsent(albania)
 
         rule.onNodeWithText("All").performClick()
         rule.waitForIdle()
 
-        assertRowDisplayed("Albania")
+        assertRowDisplayed(albania)
     }
 
     @Test
@@ -503,12 +503,15 @@ class CountryPickerUiTest {
     private fun multiSelectHost(
         initial: Set<Country> = emptySet(),
         config: CountryPickerConfig = CountryPickerDefaults.multiSelectConfig(),
+        layout: (CountryPickerLayout) -> CountryPickerLayout = { it },
         onConfirmed: (Set<Country>) -> Unit = {},
     ) {
         setContent {
             var selected by remember { mutableStateOf(initial) }
+            val style = CountryPickerTheme.style
             Column {
                 MultiCountrySelector(
+                    style = style.copy(layout = layout(style.layout)),
                     selectedCountries = selected,
                     onSelectionConfirmed = {
                         selected = it
@@ -527,9 +530,9 @@ class CountryPickerUiTest {
         openSelector()
 
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextReplacement("France")
-        clickMultiRow(france)
+        clickRow(france)
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextReplacement("Japan")
-        clickMultiRow(japan)
+        clickRow(japan)
         rule.waitForIdle()
 
         rule.onNodeWithText("Confirm (2)").assertIsDisplayed()
@@ -542,7 +545,7 @@ class CountryPickerUiTest {
         openSelector()
 
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextReplacement("France")
-        clickMultiRow(france)
+        clickRow(france)
         rule.onNodeWithText("Confirm (1)").performClick()
         rule.waitForIdle()
 
@@ -556,7 +559,7 @@ class CountryPickerUiTest {
         openSelector()
 
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextReplacement("Japan")
-        clickMultiRow(japan)
+        clickRow(japan)
         rule.onNodeWithText(CANCEL).performClick()
         rule.waitForIdle()
 
@@ -592,7 +595,7 @@ class CountryPickerUiTest {
         openSelector()
 
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextReplacement("France")
-        clickMultiRow(france)
+        clickRow(france)
         rule.waitForIdle()
 
         rule.onNodeWithText("Confirm (1)").assertIsNotEnabled()
@@ -606,9 +609,9 @@ class CountryPickerUiTest {
         openSelector()
 
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextReplacement("France")
-        clickMultiRow(france)
+        clickRow(france)
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextReplacement("Japan")
-        clickMultiRow(japan)
+        clickRow(japan)
         rule.waitForIdle()
 
         // A checkbox that just refuses to tick reads as a bug.
@@ -618,14 +621,9 @@ class CountryPickerUiTest {
 
     @Test
     fun rowMetadataIsShownWhenConfigured() {
-        // The design's expanded multi-select row: "France" over "FR · +33". Metadata is folded into
+        // With ISO codes switched on, a row reads "France" over "FR · +33". Metadata is folded into
         // the row's own merged content description, alongside the name.
-        multiSelectHost(
-            config = CountryPickerDefaults.multiSelectConfig(
-                showIsoCode = true,
-                showDialCode = true,
-            ),
-        )
+        multiSelectHost(layout = { it.copy(showIsoCode = true, showDialCode = true) })
         openSelector()
         rule.onNodeWithContentDescription(SEARCH_LABEL).performTextReplacement("France")
         rule.waitForIdle()
@@ -656,7 +654,7 @@ class CountryPickerUiTest {
         // count, not silently announce only the first country while the visible text says otherwise.
         multiSelectHost(initial = setOf(france, japan))
         rule.onNodeWithContentDescription(
-            "Country of residence. 2 countries selected. Double tap to change.",
+            "Country of residence. 2 countries selected. France, Japan. Double tap to change.",
         ).assertIsDisplayed()
     }
 
@@ -666,9 +664,8 @@ class CountryPickerUiTest {
         const val CLOSE = "Close"
         const val SEARCH_LABEL = "Search countries"
         const val CLEAR_SEARCH = "Clear search"
-        const val CURRENT_SELECTION = "Current selection"
         const val SELECTED_SECTION = "SELECTED"
-        const val SUGGESTED_SECTION = "SUGGESTED"
+        const val QUICK_PICKS = "QUICK PICKS"
         const val RESET = "Reset"
         const val CANCEL = "Cancel"
     }

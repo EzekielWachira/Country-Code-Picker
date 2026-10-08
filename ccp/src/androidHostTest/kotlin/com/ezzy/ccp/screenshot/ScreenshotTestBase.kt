@@ -1,5 +1,6 @@
 package com.ezzy.ccp.screenshot
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -9,12 +10,16 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import coil3.ImageLoader
+import com.ezzy.ccp.countrypicker.ui.LocalFlagImageLoader
 import com.github.takahirom.roborazzi.captureRoboImage
 import org.junit.Rule
 
@@ -42,17 +47,23 @@ abstract class ScreenshotTestBase {
      *   switches theme.
      * @param rtl Renders under a right-to-left layout direction. The bug this catches (dial codes
      *   and numbers reordering) reproduces with English text, so it does not need Arabic strings.
+     * @param flagImages Serves flag images: offline by default, so flags show their emoji fallback
+     *   and no golden depends on the network. See [FakeFlagImages].
      */
     protected fun snapshot(
         name: String,
         dark: Boolean = false,
         rtl: Boolean = false,
+        flagImages: (Context) -> ImageLoader = FakeFlagImages::offline,
         content: @Composable () -> Unit,
     ) {
         compose.setContent {
+            val context = LocalContext.current
+            val loader = remember { flagImages(context) }
             MaterialTheme(colorScheme = if (dark) darkColorScheme() else lightColorScheme()) {
                 CompositionLocalProvider(
                     LocalLayoutDirection provides if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr,
+                    LocalFlagImageLoader provides loader,
                 ) {
                     Surface {
                         Column(

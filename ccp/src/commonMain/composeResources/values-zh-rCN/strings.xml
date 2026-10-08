@@ -10,7 +10,6 @@
     <string name="ccp_select_country_subtitle">选择你的居住国家/地区</string>
     <string name="ccp_country_code_title">国家/地区代码</string>
     <string name="ccp_country_code_subtitle">按国家/地区或区号搜索</string>
-    <string name="ccp_title_with_count">%1$s · %2$d</string>
     <string name="ccp_close">关闭</string>
     <string name="ccp_back">返回</string>
     <string name="ccp_drag_handle">拖动以调整大小或关闭</string>
@@ -28,6 +27,7 @@
         <item quantity="other">%1$d 个结果</item>
     </plurals>
     <string name="ccp_result_count_in_region">%2$s中有%1$s</string>
+    <string name="ccp_did_you_mean">您是不是要找：</string>
     <plurals name="ccp_countries_found">
         <item quantity="other">找到 %1$d 个国家/地区</item>
     </plurals>
@@ -38,7 +38,7 @@
     <string name="ccp_section_recent">最近选择</string>
     <string name="ccp_section_suggested">推荐</string>
     <string name="ccp_section_all">所有国家/地区</string>
-    <string name="ccp_current_selection">当前选择</string>
+    <string name="ccp_section_quick_picks">快速选择</string>
 
     <!-- ── Region filters ───────────────────────────────────────────────────── -->
     <string name="ccp_region_all">全部</string>
@@ -56,6 +56,8 @@
     <string name="ccp_confirm_count">确认 (%1$d)</string>
     <string name="ccp_retry">重试</string>
     <string name="ccp_use">使用</string>
+    <string name="ccp_change">更改</string>
+    <string name="ccp_remove_country_a11y">移除%1$s</string>
 
     <!-- ── Selector ─────────────────────────────────────────────────────────── -->
     <string name="ccp_country_of_residence">居住国家/地区</string>
@@ -136,6 +138,13 @@
     <string name="ccp_phone_error_invalid_generic">请输入有效的电话号码</string>
     <string name="ccp_phone_error_unsupported_country">%1$s不支持电话号码</string>
     <string name="ccp_phone_error_invalid_country_code">无法识别该国家/地区区号</string>
+    <string name="ccp_number_type_mobile">手机</string>
+    <string name="ccp_number_type_landline">固话</string>
+    <string name="ccp_number_type_mobile_or_landline">手机或固话</string>
+    <string name="ccp_number_type_toll_free">免费电话</string>
+    <string name="ccp_number_type_voip">网络电话</string>
+    <string name="ccp_phone_state_valid">号码有效</string>
+    <string name="ccp_phone_state_valid_type">号码有效，%1$s</string>
     <!-- Shown when the number is real but the wrong kind of line for this flow -->
     <string name="ccp_phone_error_requires_mobile">请输入手机号码</string>
     <string name="ccp_phone_error_requires_landline">请输入固定电话号码</string>

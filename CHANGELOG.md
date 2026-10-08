@@ -13,6 +13,68 @@ The public ABI is recorded in [`ccp/api/`](ccp/api) — `android/ccp.api` for th
 
 ## [Unreleased]
 
+A complete visual redesign, with a design system behind it. **Breaking:** every component's styling
+parameters are replaced by a single `style`; see **Removed** for the migration.
+
+### Added
+
+- **`CountryPickerStyle`, one value for everything visual** — colors, shapes, dimensions,
+  typography, motion, elevation, layout and haptics — set once with `CountryPickerTheme(style)` or
+  per component with `style =`.
+- **Presets:** `CountryPickerStyles.signature()` (the new default: inset grouped lists, flag tiles,
+  layered soft shadows), `material()`, `cupertino()` and `minimal()`. Each takes a brand accent,
+  follows the host theme's light or dark mode, and comes in three densities (`CountryPickerDensity`).
+- **Flags from [flagcdn.com](https://flagcdn.com)**, the new default (`CountryFlagSource.FlagCdn`):
+  the same artwork on every platform, Kosovo included, in flagcdn's three shapes
+  (`FlagImageShape.Waving`, `OriginalSameWidth`, `OriginalSameHeight`) and four formats
+  (`FlagImageFormat.Png`, `WebP`, `Jpeg`, `Svg`), sized to the screen's density and cached in memory
+  and on disk. The emoji stands in while a flag loads and when offline. `CountryFlagSource.Emoji`
+  keeps everything offline. Loaded with Coil 3; no Coil type is part of the public API.
+- **Flag frames** — `CountryFlagStyle.Tile`, `Circle`, `Rounded`, `Plain`, `Hidden` — independent of
+  the artwork's shape.
+- **Quick picks:** recent, suggested and detected countries as a carousel of tiles above the list
+  (`QuickPicksStyle.Carousel`), as sections, or hidden. `CountryPickerState.quickPicks`.
+- **"Did you mean"** suggestions when a search finds nothing, tolerant of typos and transpositions
+  (`CountryPickerState.searchSuggestions`, `CountrySearchEngine.suggest`).
+- **Adaptive presentation** (`PickerPresentation`): a bottom sheet on phones and a centered dialog on
+  wide windows, or always one or the other, or a full-screen sheet. `CountryPickerPanel` is the
+  picker with no container, for a route or a pane.
+- **A sliding region filter** with per-region counts, an A–Z rail with a magnified letter bubble, an
+  animated check that draws itself in, staggered list entrance, and a floating confirmation bar with
+  stacked flags in multiple selection.
+- **Phone field:** a floating label, ghost digits showing what is left to type, a progress hairline
+  that turns green on a valid number, a `✓ Mobile` / `✓ Landline` badge, a `variant` parameter, and a
+  clear button shown while editing. Screen readers hear the field's validity as its state.
+- **New selector variants:** `Elevated` (the default) and `Card`, with a soft focus ring, a shake on
+  error and press feedback on every field.
+- **Haptics** for selection, toggles, the A–Z rail, region changes, the selection limit and errors
+  (`CountryPickerHaptics`).
+- The sample app's **Showcase** tab: every option of the design system as a live control.
+
+### Changed
+
+- The library's Android manifest now declares `INTERNET`, for flag images. Apps using
+  `CountryFlagSource.Emoji` everywhere can remove it with `tools:node="remove"`.
+- `CountrySelectorVariant.Minimal` is now `Underlined`; the default variant is `Elevated`.
+- Rows show dial codes by default (`CountryPickerLayout.showDialCode`), and the A–Z rail is on by
+  default (`showAlphabetIndex`).
+- `CountryFlag` takes a `source`, and its `style` is now the frame (`CountryFlagStyle`).
+
+### Removed
+
+- `CountryPickerDefaults.colors()`, `shapes()`, `dimensions()`, `typography()` and `motion()`, and the
+  `colors` / `shapes` / `dimensions` / `typography` / `motion` parameters on every component: pass a
+  `CountryPickerStyle` instead — `CountryPickerStyles.signature()` and `copy()` for overrides.
+- `CountryPickerTokens`: success colors are roles of `CountryPickerColors`.
+- `CountryFlagConfig` and `CountryFlagShape`: use `CountryPickerLayout.flagStyle` and `flagSource`.
+- `CountrySelectorContentConfig`, `CountrySelectorDefaults` and the `contentConfig` parameter: use
+  `labelMode` and `supportingContent` on `CountrySelector`.
+- Presentation flags on `CountryPickerConfig` — `showIsoCode`, `showDialCode`, `showFlag`,
+  `flagShape`, `rowFlagStyle`, `showRegionFilters`, `showAlphabetIndex`, `highlightSearchMatches`,
+  `showResultCount`, `showCurrentSelection` — moved to `CountryPickerLayout`, which now owns
+  everything about how the picker looks. The "Current selection" card is replaced by the selected
+  group at the top of the list.
+
 ## [0.3.0] - 2026-10-08
 
 ### Added

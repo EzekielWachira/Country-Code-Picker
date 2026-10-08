@@ -31,30 +31,23 @@ import com.ezzy.ccp.countrypicker.persistence.NoOpRecentCountryStore
 import com.ezzy.ccp.countrypicker.persistence.RecentCountryStore
 import com.ezzy.ccp.countrypicker.state.CountryPickerConfig
 import com.ezzy.ccp.countrypicker.state.rememberCountryPickerState
-import com.ezzy.ccp.countrypicker.theme.CountryFlagShape
-import com.ezzy.ccp.countrypicker.theme.CountryPickerColors
 import com.ezzy.ccp.countrypicker.theme.CountryPickerDefaults
-import com.ezzy.ccp.countrypicker.theme.CountryPickerDimensions
-import com.ezzy.ccp.countrypicker.theme.CountryPickerMotion
-import com.ezzy.ccp.countrypicker.theme.CountryPickerShapes
-import com.ezzy.ccp.countrypicker.theme.CountryPickerTypography
+import com.ezzy.ccp.countrypicker.theme.CountryPickerStyle
+import com.ezzy.ccp.countrypicker.theme.CountryPickerTheme
 import com.ezzy.ccp.resources.Res
 import com.ezzy.ccp.resources.ccp_country_code_subtitle
 import com.ezzy.ccp.resources.ccp_country_code_title
 
 /**
- * The phone prefix selector: `🇰🇪 +254 ˅`.
+ * A standalone dial-code pill — `🇰🇪 +254 ˅` — that opens the country-code picker.
  *
- * A thin, purpose-built wrapper over the same sheet every other selector opens — with the dial code
- * shown on rows, dial-code search enabled, and the "Current selection" card suppressed because the
- * field right next to it already shows the choice.
- *
- * Designed to sit inside [PhoneNumberField] rather than stand alone, but public so a host composing its
- * own phone row gets the identical picker instead of reimplementing one.
+ * [PhoneNumberField] already has a prefix built in; this is for a host composing its own phone row
+ * that wants the identical picker rather than reimplementing one. It opens the same sheet as every
+ * other selector, with dial codes on the rows and dial-code search enabled.
  *
  * @param selectedCountry The country whose dial code is shown.
- * @param onCountrySelected Called with the newly chosen country. The caller is responsible for
- *   re-formatting and re-validating the number — [PhoneNumberField] does that for you.
+ * @param onCountrySelected Called with the chosen country. The caller re-formats and re-validates
+ *   its number — [PhoneNumberField] does that itself.
  */
 @Composable
 public fun PhoneCountryCodeSelector(
@@ -67,11 +60,7 @@ public fun PhoneCountryCodeSelector(
     sheetSubtitle: UiText? = UiText.resource(Res.string.ccp_country_code_subtitle),
     recentCountryStore: RecentCountryStore = NoOpRecentCountryStore,
     repository: CountryRepository = CountryRepository.Default,
-    colors: CountryPickerColors = CountryPickerDefaults.colors(),
-    shapes: CountryPickerShapes = CountryPickerDefaults.shapes(),
-    dimensions: CountryPickerDimensions = CountryPickerDefaults.dimensions(),
-    typography: CountryPickerTypography = CountryPickerDefaults.typography(),
-    motion: CountryPickerMotion = CountryPickerDefaults.motion(),
+    style: CountryPickerStyle = CountryPickerTheme.style,
     flagContent: (@Composable (Country) -> Unit)? = null,
 ) {
     val pickerState = rememberCountryPickerState(
@@ -81,42 +70,35 @@ public fun PhoneCountryCodeSelector(
         recentCountryStore = recentCountryStore,
     )
 
-    CountrySelectorField(
-        country = selectedCountry,
-        onClick = pickerState::open,
-        modifier = modifier,
-        isOpen = pickerState.isSheetOpen,
-        state = if (enabled) CountrySelectorState.Default else CountrySelectorState.Disabled,
-        variant = CountrySelectorVariant.DialCode,
-        // No label: the parent field owns "Phone number", and repeating a label on the prefix pill
-        // would have TalkBack announce it twice for one logical control.
-        label = null,
-        flagShape = if (config.flagsVisible) config.flagShape else CountryFlagShape.Hidden,
-        colors = colors,
-        shapes = shapes,
-        dimensions = dimensions,
-        typography = typography,
-        motion = motion,
-        flagContent = flagContent,
-    )
-
-    if (pickerState.isSheetOpen) {
-        CountryPickerSheet(
-            state = pickerState,
-            onCountrySelected = { country ->
-                onCountrySelected(country)
-                pickerState.markExplicitSelection()
-            },
-            onDismiss = pickerState::dismiss,
-            recentCountryStore = recentCountryStore,
-            title = sheetTitle,
-            subtitle = sheetSubtitle,
-            colors = colors,
-            shapes = shapes,
-            dimensions = dimensions,
-            typography = typography,
-            motion = motion,
+    CountryPickerTheme(style) {
+        CountrySelectorField(
+            country = selectedCountry,
+            onClick = pickerState::open,
+            modifier = modifier,
+            isOpen = pickerState.isSheetOpen,
+            state = if (enabled) CountrySelectorState.Default else CountrySelectorState.Disabled,
+            variant = CountrySelectorVariant.DialCode,
+            // No label: the surrounding phone row owns "Phone number", and a second label on the
+            // prefix would have a screen reader announce it twice for one logical control.
+            label = null,
+            style = style,
             flagContent = flagContent,
         )
+
+        if (pickerState.isSheetOpen) {
+            CountryPickerSheet(
+                state = pickerState,
+                onCountrySelected = { country ->
+                    onCountrySelected(country)
+                    pickerState.markExplicitSelection()
+                },
+                onDismiss = pickerState::dismiss,
+                recentCountryStore = recentCountryStore,
+                title = sheetTitle,
+                subtitle = sheetSubtitle,
+                style = style.withDialCodes(),
+                flagContent = flagContent,
+            )
+        }
     }
 }

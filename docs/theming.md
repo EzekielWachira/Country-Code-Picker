@@ -1,159 +1,204 @@
 # Theming
 
-Every UI entry point takes its colors, shapes, dimensions, typography and motion from
-`CountryPickerDefaults`. Every default reads from `MaterialTheme.colorScheme` and
-`MaterialTheme.typography`, so the picker follows your app's light and dark theme, including dynamic
-color, with no configuration at all. Override only what actually needs to differ.
+Everything about how the picker looks lives in one value, `CountryPickerStyle`: colors, shapes,
+dimensions, typography, motion, elevation, layout and haptics. Start from a preset, refine it with
+`copy`, and set it once for a screen or the whole app:
 
 ```kotlin
-CountrySelector(
-    selectedCountry = country,
-    onCountrySelected = { country = it },
-    colors = CountryPickerDefaults.colors(selectorContainer = MyBrand.fieldBackground),
-    shapes = CountryPickerDefaults.shapes(selectorOutlined = RoundedCornerShape(4.dp)),
-)
+val brand = CountryPickerStyles.signature(accent = Color(0xFF0F766E))
+
+CountryPickerTheme(style = brand) {
+    // Every selector, sheet and phone field in here uses `brand`.
+    CountrySelector(selectedCountry = country, onCountrySelected = { country = it })
+    PhoneNumberField(onValueChange = { phone = it })
+}
 ```
 
-Each of `colors`, `shapes`, `dimensions`, `typography` and `motion` is an `@Immutable` data class, so
-you can also build one once, `copy()` it, and pass the same value to every selector in the app.
+Every component also takes a `style` parameter, which wins over the theme for that component alone.
+With no `CountryPickerTheme` at all, components use `CountryPickerStyles.signature()`.
+
+## Presets
+
+| Preset | Look |
+|---|---|
+| `CountryPickerStyles.signature()` | The default. Inset grouped lists on a cool grey canvas, flags on soft tiles, layered shadows, a sliding region filter and a quick-pick carousel. |
+| `CountryPickerStyles.material()` | Material 3: every color from the enclosing `MaterialTheme`, tonal surfaces instead of shadows, edge-to-edge rows, circular flags. |
+| `CountryPickerStyles.cupertino()` | iOS: system blue, San Francisco–style type, grouped lists, bare flags, recents as sections. |
+| `CountryPickerStyles.minimal()` | Monochrome, hairlines instead of shadows, plain rows, flat flags all cropped to one size. |
+
+Every preset follows the light or dark mode of the enclosing `MaterialTheme` (judged from its surface
+color, so an app-level override is respected, not just the system setting), takes the host's
+primary color as its accent unless given one, and turns motion off when the system asks for reduced
+motion. Each also takes a `density` — `Compact`, `Comfortable` (default) or `Spacious` — which swaps
+the whole `CountryPickerDimensions` set at once; `style.withDensity(…)` does the same for any style.
 
 ## Colors
 
-`CountryPickerDefaults.colors(…)` returns a `CountryPickerColors`. The names are **roles**, not raw
-values: `selectedRowContainer` rather than "light purple", so retheming changes meaning instead of
-guessing which of twelve purples to override. No composable in the library reads `colorScheme`
-directly; they all go through this class.
+`CountryPickerColors` names **roles**, not values, so retheming changes meaning rather than guessing
+which of twelve purples to override. `CountryPickerColors.signature(accent, dark)` derives the full
+set from one accent color.
 
-| Group | Roles | Default source |
-|---|---|---|
-| Selector | `selectorContainer`, `selectorContent`, `selectorLabel`, `selectorSecondaryContent`, `selectorBorder`, `selectorFocusedBorder`, `selectorDisabledContainer`, `selectorDisabledContent`, `chevron` | `surfaceContainerHighest`, `onSurface`, `onSurfaceVariant`, `outline`, `primary`, … |
-| Validation | `error`, `success` | `error`; `success` is the library's own token, see below |
-| Sheet | `sheetContainer`, `sheetContent`, `sheetSecondaryContent`, `dragHandle`, `scrim` | `surfaceContainerLow`, `onSurface`, `onSurfaceVariant`, `outlineVariant`, `scrim` at 32% |
-| Search | `searchContainer`, `searchFocusedBorder`, `searchContent`, `searchPlaceholder`, `searchHighlight` | `surfaceContainerHigh`, `primary`, `onSurface`, `onSurfaceVariant`, `primary` at 28% |
-| Rows | `sectionLabel`, `rowContainer`, `rowContent`, `rowSecondaryContent`, `rowDisabledContent`, `selectedRowContainer`, `selectedRowContent`, `checkIcon`, `checkboxChecked`, `checkboxUnchecked` | `primary`, transparent, `onSurface`, `secondaryContainer`, `onSecondaryContainer`, … |
-| Cards and chips | `currentSelectionContainer`, `detectedBadgeContainer`, `detectedBadgeContent`, `regionChipContainer`, `regionChipSelectedContainer`, `regionChipContent`, `regionChipSelectedContent`, `regionChipBorder` | `surfaceContainerHigh`, `secondaryContainer`, `onSecondaryContainer`, transparent, `outlineVariant` |
-| Flag fallback | `flagPlaceholderContainer`, `flagPlaceholderContent` | `surfaceContainerHigh`, `onSurfaceVariant` |
+| Group | Roles |
+|---|---|
+| Accent | `accent`, `onAccent`, `accentSoft`, `onAccentSoft`, `focusRing`, `highlight` |
+| Surfaces | `background` (the sheet's canvas), `surface` (fields, cards, groups), `surfaceRaised`, `surfaceSunken` (tracks, chips, wells), `scrim` |
+| Lines | `hairline`, `outline` |
+| Text | `textPrimary`, `textSecondary`, `textTertiary`, `textDisabled` |
+| Status | `error`/`errorSoft`, `success`/`successSoft`, `warning`/`warningSoft` |
+| Effects | `shadow`, `skeleton`, `skeletonShine` |
 
-### The success color
+`isDark` tells components which way to tune effects such as shadow density.
 
-Material 3 has no success role, and reusing `tertiary` for "residency confirmed" would break for any
-host whose tertiary is red-ish. So the library defines exactly one raw color pair,
-`CountryPickerTokens.SuccessLight` and `SuccessDark`, both with ≥ 4.5:1 contrast on the M3 baseline
-surfaces, picked automatically by `isSystemInDarkTheme()`. If your design system has a real success
-color, pass it: `CountryPickerDefaults.colors(success = MyBrand.success)`.
+## Layout
 
-## Shapes
+`CountryPickerLayout` holds the structural choices — the parts of the design that are about
+arrangement rather than color or size.
 
-```kotlin
-CountryPickerDefaults.shapes(
-    selectorFilled = null,     // rounded top, near-square bottom (M3 filled text field)
-    selectorOutlined = null,   // RoundedCornerShape(12.dp)
-    sheet = null,              // top corners 28.dp
-    searchField = null,        // fully rounded, M3 search-bar style
-    row = null,                // square: rows are edge-to-edge
-)
-```
+| Property | Options |
+|---|---|
+| `presentation` | `Adaptive` (sheet on phones, dialog from `wideScreenBreakpoint`), `BottomSheet`, `FullScreenSheet`, `Dialog` |
+| `listStyle` | `InsetGrouped` (rounded groups), `Plain` (edge to edge, pinned headers), `Cards` (each row a card) |
+| `flagStyle` | `Tile`, `Circle`, `Rounded`, `Plain`, `Hidden` — see [Flags](#flags) |
+| `flagSource` | `CountryFlagSource.FlagCdn(…)` or `CountryFlagSource.Emoji` — see [Flags](#flags) |
+| `selectionIndicator` | `Check` (draws itself in), `Radio`, `None` |
+| `headerStyle` | `Large` title and subtitle, or `Compact` |
+| `quickPicks` | Recent, suggested and detected countries as a `Carousel` of tiles, as `Sections`, or `Hidden` |
+| Toggles | `showRegionFilters`, `showRegionCounts`, `showDialCode`, `showIsoCode`, `showRegionName`, `showDividers`, `showAlphabetIndex`, `showResultCount`, `highlightSearchMatches`, `showSearchSuggestions` |
+| Sizes | `sheetHeightFraction`, `dialogMaxWidth`, `dialogMaxHeight`, `wideScreenBreakpoint` |
 
-The factory takes nullable overrides so you can change one corner without restating the rest; the
-full `CountryPickerShapes` also has `selectorMinimal`, `selectorPill`, `currentSelectionCard`,
-`regionChip`, `detectedBadge`, `flagCircle`, `flagRounded`, `flagSquare` and `button`, reachable via
-`copy()`. Shapes are not decorative: every clickable component clips its ripple to the shape declared
-here, so a wrong shape shows up immediately as a ripple bleeding past a corner.
-
-## Dimensions
-
-`CountryPickerDefaults.dimensions()` returns a `CountryPickerDimensions` with every size and spacing
-the picker uses: selector heights per variant, paddings, flag sizes, chevron and check sizes, row and
-search field heights, chip sizes, and `minimumTouchTarget = 48.dp`.
-
-The 48dp touch target is a **hard floor**, not a default. The compact variants reach it through
-padding around smaller visuals rather than by shrinking the target. Focus and error thicken the
-selector border (`selectorBorderWidth` 1dp → `selectorFocusedBorderWidth` 2dp) so state is never
-conveyed by color alone.
-
-## Typography
-
-`CountryPickerDefaults.typography()` derives every style from `MaterialTheme.typography`, so the
-picker inherits your type scale, font family and the user's font-size preference. The one style built
-by hand is `sectionHeader`: an uppercase, wide-tracked `labelMedium` for the SELECTED / SUGGESTED / ALL
-COUNTRIES headers, which Material has no role for.
-
-Styles: `sheetTitle`, `sheetSubtitle`, `fieldLabel`, `selectorValue`, `selectorSecondary`,
-`compactValue`, `dialCodeValue`, `countryName`, `countryMetadata`, `sectionHeader`, `resultCount`,
-`buttonLabel`, `helperText`, `badgeLabel`, `regionChipLabel`, `searchInput`.
-
-## Motion
-
-`CountryPickerDefaults.motion()` returns a `CountryPickerMotion` with the picker's animation specs in
-one place, grouped by what the motion communicates:
-
-| Group | Duration | Used for |
-|---|---|---|
-| `micro` | 140 ms | State flips the user expects: chevron rotation, checkbox, color and border changes |
-| `content` | 240 ms | Something changed on screen: list swaps, count changes, section resizes |
-| `selectionSpring` | low-bounce spring | Selection feedback |
-
-Sheet motion is deliberately absent: `ModalBottomSheet` owns its own entrance and exit.
-
-**Reduced motion is respected by default.** `motion()` reads the platform animator duration scale and
-collapses every duration to near zero when the user has turned animations off in Developer options or
-accessibility settings. Nothing in the library conveys information *only* through movement. Pass
-`motion(respectSystemAnimationScale = false)` only if your app already applies its own reduction, or
-call `motion.withMotionEnabled(false)` to disable animation on a particular screen.
+Behaviour — which countries, single or multiple selection, limits — stays in `CountryPickerConfig`.
+The two never overlap: the config says what the picker does, the style how it looks.
 
 ## Flags
 
-Flags are the platform's emoji glyphs, so the library ships no bitmaps — ~250 flag PNGs at four
-densities is about a megabyte of APK for something the device can already draw, and it goes stale
-whenever a flag changes.
+Two independent choices shape every flag.
 
-Two independent axes describe how a flag is drawn:
+**Where the artwork comes from** — `flagSource`:
 
-| `CountryFlagShape` (the mask) | `CountryFlagStyle` (the fill) |
+- `CountryFlagSource.FlagCdn(shape, format, fallbackToEmoji, baseUrl)`, the default: images from
+  [flagcdn.com](https://flagcdn.com), identical on every platform and covering every country in the
+  dataset, Kosovo included.
+- `CountryFlagSource.Emoji`: the platform's emoji. Entirely offline, but drawn differently on Android
+  and iOS and missing on some Android builds and for some territories.
+
+flagcdn offers three shapes, `FlagImageShape`:
+
+| Shape | What it does |
 |---|---|
-| `Circle` (default in the sheet), `Rounded`, `Square`, `Original` (true 4:3, no crop), `Hidden` | `Plain` (no background, natural aspect ratio), `FilledContainer` (flag scaled edge-to-edge inside the mask), `TonalContainer` (flag on a soft theme-derived background) |
+| `Waving` | Every flag waving on the same 4:3 canvas. Uniform, and the closest to the emoji look. |
+| `OriginalSameWidth` | True proportions at a common width; heights vary. |
+| `OriginalSameHeight` | True proportions at a common height; widths vary. In lists they line up on their leading edge, and none is wider than its slot. |
 
-`CountryFlagConfig(style, shape, size, containerSize, contentPadding)` bundles them for the
-components that accept a `flagConfig`, such as `CountrySelectorContentConfig` and
-`PhoneNumberInputStyle`. The sheet's rows use `CountryPickerConfig.flagShape` and `rowFlagStyle`.
+The original shapes keep each flag's real proportions, so by design they are not all one size. For
+flags that are identical in size, use `Waving`, or the `Circle` or `Rounded` frames below.
 
-To draw flags yourself — from your own drawable resources or a remote image — pass `flagContent` to
-any selector, sheet or list:
+and four formats, `FlagImageFormat`: `Png` (default), `WebP`, `Jpeg` and `Svg`. Waving flags are PNG
+or WebP only — `Jpeg` and `Svg` fall back to PNG for them — and the original shapes come in all four.
+
+```kotlin
+val style = CountryPickerStyles.signature()
+CountryPickerTheme(
+    style.copy(
+        layout = style.layout.copy(
+            flagSource = CountryFlagSource.FlagCdn(
+                shape = FlagImageShape.OriginalSameHeight,
+                format = FlagImageFormat.Svg,
+            ),
+        ),
+    ),
+) { … }
+```
+
+Images are requested at the smallest size flagcdn serves that is sharp at the screen's density, and
+cached in memory and on disk, so each flag downloads once. While an image loads — and whenever it
+cannot, offline for instance — the emoji flag stands in (`fallbackToEmoji = false` shows a quiet
+placeholder instead). `FlagCdn.urlFor(iso2Code, widthPx, heightPx)` returns the same address the
+picker uses, for drawing the artwork elsewhere.
+
+!!! note "Network and privacy"
+    `FlagCdn` fetches from a third-party CDN, which sees the device's IP address, and the library's
+    manifest declares the `INTERNET` permission for it. Apps that must not make that request should
+    use `CountryFlagSource.Emoji` — and may then remove the permission with `tools:node="remove"` —
+    or point `baseUrl` at a mirror they host with flagcdn's layout.
+
+**How the flag is framed** — `flagStyle`:
+
+| Style | Frame |
+|---|---|
+| `Tile` | The flag on a softly shaded rounded square — the Signature look. |
+| `Circle` | Cropped to a circle. |
+| `Rounded` | Flat, cropped to a 4:3 rounded rectangle — the same size for every flag. |
+| `Plain` | The bare flag in a 4:3 slot. |
+| `Hidden` | No flag. |
+
+`Circle` and `Rounded` crop every flag to one size. A crop of a waving flag would show its fold and
+transparent corners, so those frames always use the flat artwork, whichever shape is set.
+
+### When the emoji cannot be drawn
+
+The emoji path has two failure modes. Kosovo (`XK`) has no emoji flag at all; and many Android builds
+— most Chinese OEM ROMs, Android TV, low-end and Wear devices — ship fonts with the flag glyphs
+stripped, so `🇰🇪` draws as two boxed letters. The library probes the font once with
+`Paint.hasGlyph` and, in both cases, draws the ISO code in the flag's frame instead. With `FlagCdn`,
+neither case arises once the image has loaded.
+
+### Your own artwork
+
+`flagContent` on any component replaces the artwork entirely, and is still framed by `flagStyle`:
 
 ```kotlin
 CountrySelector(
     selectedCountry = country,
     onCountrySelected = { country = it },
-    flagContent = { c -> AsyncImage(model = "https://flags.example/${c.iso2Code}.png", contentDescription = null) },
+    flagContent = { c -> Image(painterResource(myFlags.getValue(c.iso2Code)), contentDescription = null) },
 )
 ```
 
-The `CountryFlag` composable is public too, for use in your own rows or summaries.
+## Shapes, dimensions and typography
 
-### When the emoji cannot be drawn
+- **`CountryPickerShapes`** — `sheet`, `dialog`, `field`, `searchField`, `groupCornerRadius`, `row`,
+  `chip`, `flagTile`, `flagRounded`, `badge`, `button`, `tile`, `floatingBar` and `pill`.
+- **`CountryPickerDimensions`** — field, row, tile, chip and rail sizes and spacing, and
+  `minimumTouchTarget = 48.dp`. The 48dp target is a floor, not a default: compact visuals reach it
+  through padding rather than by shrinking the target.
+- **`CountryPickerTypography`** — twenty roles from `title` to `indexBubble`.
+  `CountryPickerTypography.signature(fontFamily)` builds the set in any typeface; dial codes, numbers
+  and counts use tabular figures so they line up in columns and do not jitter as they change.
 
-Two different things can go wrong, and only one of them is obvious.
+## Elevation
 
-**The country has no emoji flag.** Kosovo (`XK`) is the real case: no regional-indicator sequence
-was ever assigned to it.
+`CountryPickerElevation` gives each surface level a `CountryPickerShadow` — a stack of soft
+`ShadowLayer`s, because real depth is a tight contact shadow under a wide ambient one. Levels:
+`field`, `fieldFocused`, `searchField`, `card`, `tile`, `floatingBar`, `dialog`.
+`CountryPickerElevation.signature(dark)` tunes them per mode (dark surfaces need much denser shadows
+to read at all); `CountryPickerElevation.Flat` turns them all off for designs built on hairlines.
 
-**The device's font cannot render the one it has.** A flag emoji is a *pair* of regional-indicator
-code points that the font is supposed to compose into a single glyph — and plenty of shipping
-devices do not. Most Chinese OEM ROMs strip flag glyphs, and Android TV and many low-end and Wear
-builds ship a reduced emoji font. There, `🇰🇪` draws as two boxed letters or as tofu.
+## Motion
 
-The second case used to go undetected, because the string is perfectly present and only the
-*rendering* fails — a `flag != null` check cannot see it. The library now probes the font once with
-`Paint.hasGlyph` and takes the fallback path when flags are unrenderable, so those devices get a
-clean ISO-code badge instead of a column of boxes.
+`CountryPickerMotion` holds the springs and tweens: `press`, `selection`, `layout`, `offset`, `size`,
+`dp`, `color`, `fadeIn` and `fadeOut`, plus `pressedScale`, `shakeDistance` (the error shake),
+`selectionDismissDelayMillis` (the pause that lets a check mark land before the sheet closes) and the
+list entrance stagger.
 
-In both cases the ISO alpha-2 code is drawn in a tinted badge instead. That is always available and
-references no assets, so an app that never hits the fallback pays nothing for it.
+**Reduced motion is respected by default.** The presets call `respectingSystemAnimationScale()`, which
+reads the platform's animation setting and turns motion off when the user has disabled animations.
+`motion.withMotionEnabled(false)` does the same for one screen. Nothing in the library conveys
+information only through movement.
 
-If you want real artwork on those devices, supply it yourself through `flagContent` — a drawable
-resource per country, or a remote image. The library used to bundle a partial set of vector flags
-for this, but they covered barely half the dataset and every component drew the emoji glyph anyway,
-so they were removed rather than kept as a half-answer.
+## Haptics
+
+`CountryPickerHaptics` maps the picker's key moments — a selection, a tick and an untick, the A–Z rail
+crossing a letter, a region change, a refused tick at the selection limit, a field entering its
+error state — to platform haptics. Set any moment to `null` to silence it, or use
+`CountryPickerHaptics.Off`.
+
+## The phone field
+
+`PhoneNumberField` takes a `variant` (`Elevated`, `Outlined`, `Filled`, `Underlined`, `Card`) and a
+`PhoneNumberInputStyle` for the options only a phone field has: a floating or hidden label, what the
+country prefix shows, the prefix divider, an overall `PhoneFieldSize` (`Regular`, `Compact`,
+`ExtraCompact`), and the premium details — ghost digits, the progress hairline, the number-type badge
+and the valid check — each of which can be switched off. See [the phone field](phone/field.md).
 
 ## Custom rows
 
@@ -177,17 +222,16 @@ CountrySelector(
 )
 ```
 
-The default row, `CountryListItem`, is also public if you only want to wrap or decorate it. It has a
-single click target (the checkbox is drawn but not independently clickable, which avoids
-double-toggling and duplicate TalkBack nodes), clips its ripple to the row shape, and marks selection
-with a tinted background **and** a check mark or ticked box so the state survives greyscale and
-high-contrast modes.
+The default row, `CountryListItem`, is public too. It has a single click target, and marks selection
+with a tint **and** a check mark or ticked box, so the state survives greyscale and high-contrast
+modes.
 
 ## Building blocks
 
-All of the sheet's parts are public composables that take the same `colors` / `shapes` /
-`dimensions` / `typography` / `motion` parameters, for hosts assembling their own picker layout:
-`CountryPickerSheet`, `CountryList`, `CountryListItem`, `CountrySectionHeader`, `CountrySearchField`,
-`CountryRegionFilters`, `CountryFlag`, `DetectedCountryBadge`, `DetectedCountrySuggestion`, and the
-sheet states `CountrySearchEmptyState`, `CountryErrorState`, `CountryNoneAvailableState` and
-`CountryLoadingState`.
+All of the picker's parts are public composables that take the same `style`, for hosts assembling
+their own layout: `CountryPickerPanel` (the complete picker with no container — for a full-screen
+route or one pane of a two-pane layout), `CountryPickerSheet`, `MultiCountryPickerSheet`,
+`CountryList`, `CountryListItem`, `CountrySectionHeader`, `CountrySearchField`, `CountryRegionFilters`,
+`CountryQuickPicks`, `CountryIndexRail`, `CountryFlag`, `CountrySelectorField`, `DetectedCountryBadge`,
+`DetectedCountrySuggestion`, and the sheet states `CountrySearchEmptyState`, `CountryErrorState`,
+`CountryNoneAvailableState` and `CountryLoadingState`.

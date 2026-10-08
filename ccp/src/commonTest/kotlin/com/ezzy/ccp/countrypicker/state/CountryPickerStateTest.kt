@@ -580,7 +580,7 @@ class CountryPickerStateTest {
     fun `a config change does not discard an in-progress search`() {
         val state = loadedState()
         state.updateSearchQuery("ken")
-        state.config = state.config.copy(showIsoCode = true)
+        state.config = state.config.copy(recentCountryLimit = 3)
         assertEquals("ken", state.searchQuery)
     }
 

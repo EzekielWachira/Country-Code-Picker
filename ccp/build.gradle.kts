@@ -128,9 +128,18 @@ kotlin {
             implementation(libs.compose.components.resources)
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.kotlinx.coroutines.core)
+            // Flag images (CountryFlagSource.FlagCdn). Implementation, not api: no Coil type
+            // appears in the library's public surface.
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor3)
+            implementation(libs.coil.svg)
         }
         androidMain.dependencies {
             implementation(libs.lib.phone)
+            implementation(libs.ktor.client.okhttp)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

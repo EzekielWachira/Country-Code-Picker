@@ -23,6 +23,7 @@
 package com.ezzy.ccp.sample
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -71,8 +72,8 @@ import com.ezzy.ccp.utils.CCPDefaults
 import com.ezzy.ccp.utils.countryToFlagEmoji
 
 /**
- * The whole demo: a tour of the modern API, and the original kitchen-sink demo of the legacy
- * widgets — the same UI on Android (:app's MainActivity) and iOS (iosApp, via MainViewController).
+ * The whole demo: a live showcase of the picker's design system, and the original kitchen-sink
+ * demo of the legacy widgets — the same UI on Android (:app's MainActivity) and iOS (iosApp, via MainViewController).
  *
  * @param onDone Invoked when the legacy phone input's keyboard action fires on a valid number. Each
  *   platform shows its own confirmation (a Toast on Android).
@@ -145,12 +146,15 @@ fun SampleApp(onDone: () -> Unit = {}) {
     val phoneState = rememberPhoneNumberFieldState(
         initialCountry = kenya,
     )
-    // The sample is split in two: a tour of the modern API, and the original kitchen-sink
+    // The sample is split in two: a showcase of the modern API, and the original kitchen-sink
     // demo of the legacy widgets that is kept so the legacy path stays exercised by a real
     // app build rather than only by tests.
     var tab by rememberSaveable { mutableIntStateOf(0) }
+    val systemDark = isSystemInDarkTheme()
+    var dark by rememberSaveable { mutableStateOf(systemDark) }
 
-    CCPTheme {
+    // The legacy demo hardcodes a light palette, so only the showcase follows dark mode.
+    CCPTheme(darkTheme = tab == 0 && dark) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
@@ -163,7 +167,7 @@ fun SampleApp(onDone: () -> Unit = {}) {
                     Tab(
                         selected = tab == 0,
                         onClick = { tab = 0 },
-                        text = { Text("Modern API") },
+                        text = { Text("Showcase") },
                     )
                     Tab(
                         selected = tab == 1,
@@ -174,7 +178,11 @@ fun SampleApp(onDone: () -> Unit = {}) {
             },
         ) { innerPadding ->
             if (tab == 0) {
-                ModernFeaturesScreen(modifier = Modifier.padding(innerPadding))
+                ShowcaseScreen(
+                    dark = dark,
+                    onDarkChange = { dark = it },
+                    modifier = Modifier.padding(innerPadding),
+                )
                 return@Scaffold
             }
             Box(

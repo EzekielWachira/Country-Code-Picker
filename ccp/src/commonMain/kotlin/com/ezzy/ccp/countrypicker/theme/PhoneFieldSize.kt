@@ -23,26 +23,16 @@
 package com.ezzy.ccp.countrypicker.theme
 
 /**
- * A named overall size for the unified phone field, shared by
- * [com.ezzy.ccp.countrypicker.ui.PhoneNumberField] and the legacy
- * `com.ezzy.ccp.components.PhoneNumberInput`.
+ * A named overall size for the phone field, shared by [com.ezzy.ccp.countrypicker.ui.PhoneNumberField]
+ * and the legacy `com.ezzy.ccp.components.PhoneNumberInput`.
  *
- * Neither field can simply be told a smaller height: both are built on Material's real outlined
- * text field decoration ([androidx.compose.material3.OutlinedTextFieldDefaults]), whose minimum
- * height comes from its own internal content padding plus the flag/chevron/icon sizes it lays out —
- * a smaller `defaultMinSize` floor is silently ignored once it's below that natural minimum, and
- * forcing a hard-clipped height on top of unscaled content would just crop the flag or chevron.
+ * [Compact] and [ExtraCompact] scale the field's padding, flag, icons and text *together* via
+ * [contentScale] and [fontScale], so a shorter field stays proportioned instead of clipping its
+ * content. [Regular] is unscaled.
  *
- * [Compact] and [ExtraCompact] instead scale the field's content padding, flag size, chevron size,
- * trailing icon-button size, and value/label font size *together* via [contentScale] and
- * [fontScale], so a shorter field actually looks proportioned rather than clipped. [Regular] is the
- * field's original, unscaled look — both scales are `1f`, a guaranteed no-op.
- *
- * @property contentScale Multiplier for the field's vertical content padding, flag size, chevron
- *   size, and trailing icon-button size.
- * @property fontScale Multiplier for the field's value, label, and dial-code font size. Kept apart
- *   from [contentScale] because text tends to need a gentler reduction than icons/padding do before
- *   it becomes hard to read.
+ * @property contentScale Multiplier for padding, flag, chevron and icon-button sizes.
+ * @property fontScale Multiplier for the number, label and dial-code text. Gentler than
+ *   [contentScale], because text becomes hard to read sooner than icons do.
  */
 public enum class PhoneFieldSize(
     public val contentScale: Float,

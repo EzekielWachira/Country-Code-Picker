@@ -7,7 +7,6 @@
     <string name="ccp_select_country_subtitle">Chagua nchi unayoishi</string>
     <string name="ccp_country_code_title">Msimbo wa nchi</string>
     <string name="ccp_country_code_subtitle">Tafuta kwa nchi au msimbo wa simu</string>
-    <string name="ccp_title_with_count">%1$s · %2$d</string>
     <string name="ccp_close">Funga</string>
     <string name="ccp_back">Rudi</string>
     <string name="ccp_drag_handle">Buruta kubadilisha ukubwa au kufunga</string>
@@ -26,6 +25,7 @@
         <item quantity="other">Matokeo %1$d</item>
     </plurals>
     <string name="ccp_result_count_in_region">%1$s katika %2$s</string>
+    <string name="ccp_did_you_mean">Je, ulimaanisha?</string>
     <plurals name="ccp_countries_found">
         <item quantity="one">Nchi %1$d imepatikana</item>
         <item quantity="other">Nchi %1$d zimepatikana</item>
@@ -37,7 +37,7 @@
     <string name="ccp_section_recent">Zilizochaguliwa hivi karibuni</string>
     <string name="ccp_section_suggested">Zinazopendekezwa</string>
     <string name="ccp_section_all">Nchi zote</string>
-    <string name="ccp_current_selection">Chaguo la sasa</string>
+    <string name="ccp_section_quick_picks">Chaguo za haraka</string>
 
     <!-- ── Region filters ───────────────────────────────────────────────────── -->
     <string name="ccp_region_all">Zote</string>
@@ -55,6 +55,8 @@
     <string name="ccp_confirm_count">Thibitisha (%1$d)</string>
     <string name="ccp_retry">Jaribu tena</string>
     <string name="ccp_use">Tumia</string>
+    <string name="ccp_change">Badilisha</string>
+    <string name="ccp_remove_country_a11y">Ondoa %1$s</string>
 
     <!-- ── Selector ─────────────────────────────────────────────────────────── -->
     <string name="ccp_country_of_residence">Nchi unayoishi</string>
@@ -139,6 +141,13 @@
     <string name="ccp_phone_error_invalid_generic">Weka nambari sahihi ya simu</string>
     <string name="ccp_phone_error_unsupported_country">Nambari za simu hazitumiki kwa %1$s</string>
     <string name="ccp_phone_error_invalid_country_code">Msimbo huo wa simu wa nchi hautambuliki</string>
+    <string name="ccp_number_type_mobile">Simu ya mkononi</string>
+    <string name="ccp_number_type_landline">Simu ya mezani</string>
+    <string name="ccp_number_type_mobile_or_landline">Mkononi au mezani</string>
+    <string name="ccp_number_type_toll_free">Bila malipo</string>
+    <string name="ccp_number_type_voip">VoIP</string>
+    <string name="ccp_phone_state_valid">Nambari sahihi</string>
+    <string name="ccp_phone_state_valid_type">Nambari sahihi, %1$s</string>
     <!-- Shown when the number is real but the wrong kind of line for this flow -->
     <string name="ccp_phone_error_requires_mobile">Weka nambari ya simu ya mkononi</string>
     <string name="ccp_phone_error_requires_landline">Weka nambari ya simu ya mezani</string>

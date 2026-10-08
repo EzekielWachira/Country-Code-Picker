@@ -22,81 +22,50 @@
 
 package com.ezzy.ccp.countrypicker.theme
 
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Corner shapes for the picker's surfaces.
+ * Corner shapes for every surface the picker draws.
  *
- * These are not decorative — every clickable component clips its ripple to the shape declared here,
- * so a wrong shape shows up immediately as a ripple bleeding past a rounded corner. The
- * `Modifier.clip(shape)` and the `indication` always take the same value from this class.
+ * Every clickable surface clips its press feedback to the shape declared here, so a shape that does
+ * not match its container shows up immediately as a highlight bleeding past a corner.
  *
- * @property selectorFilled Filled selector: rounded top, near-square bottom, matching an M3 filled
- *   text field so a country selector sits correctly in a form beside real text fields.
- * @property selectorOutlined Outlined selector — uniformly rounded.
- * @property selectorMinimal Minimal (underlined) selector.
- * @property selectorPill Compact, flag-only and dial selectors.
- * @property sheet Bottom sheet top corners.
- * @property searchField Search field — fully rounded, M3 search-bar style.
- * @property row List row. Square by default: rows are edge-to-edge and rounding them would break the
- *   continuous tinted band the design uses for the selected section.
- * @property currentSelectionCard "Current selection" card.
- * @property regionChip Region filter chip.
- * @property detectedBadge "✓ Detected" chip.
- * @property flagCircle Circular flag mask.
- * @property flagRounded Rounded-rectangle flag mask.
- * @property flagSquare Square flag mask.
- * @property button Footer buttons.
+ * @property sheet Bottom-sheet top corners.
+ * @property dialog The dialog used on wide screens.
+ * @property field Selector and phone fields.
+ * @property searchField The search field.
+ * @property groupCornerRadius Corner radius of a grouped (inset) list section. A radius rather than a
+ *   [Shape] because the list is drawn row by row, and each row needs the top, bottom or no corners of
+ *   it depending on its position in the group.
+ * @property row Row highlight in the plain and card list styles.
+ * @property chip Region filters and the segment pill that slides between them.
+ * @property flagTile The rounded tile behind a flag in [CountryFlagStyle.Tile].
+ * @property flagRounded The rounded crop of [CountryFlagStyle.Rounded].
+ * @property badge Small labels: "Detected", "Mobile", "Not available".
+ * @property button Primary and secondary buttons.
+ * @property tile Quick-pick tiles.
+ * @property floatingBar The multi-select confirmation bar.
+ * @property pill Pill-shaped selectors (compact, flag-only, dial code).
  */
 @Immutable
 public data class CountryPickerShapes(
-    val selectorFilled: Shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 4.dp, bottomEnd = 4.dp),
-    val selectorOutlined: Shape = RoundedCornerShape(12.dp),
-    val selectorMinimal: Shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp),
-    val selectorPill: Shape = RoundedCornerShape(percent = 50),
-    val sheet: Shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-    val searchField: Shape = RoundedCornerShape(28.dp),
-    val row: Shape = RoundedCornerShape(0.dp),
-    val currentSelectionCard: Shape = RoundedCornerShape(16.dp),
-    val regionChip: Shape = RoundedCornerShape(8.dp),
-    val detectedBadge: Shape = RoundedCornerShape(6.dp),
-    val flagCircle: Shape = RoundedCornerShape(percent = 50),
-    val flagRounded: Shape = RoundedCornerShape(6.dp),
-    val flagSquare: Shape = RoundedCornerShape(0.dp),
-    val button: Shape = RoundedCornerShape(20.dp),
+    val sheet: Shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+    val dialog: Shape = RoundedCornerShape(32.dp),
+    val field: Shape = RoundedCornerShape(16.dp),
+    val searchField: Shape = RoundedCornerShape(14.dp),
+    val groupCornerRadius: Dp = 20.dp,
+    val row: Shape = RoundedCornerShape(14.dp),
+    val chip: Shape = CircleShape,
+    val flagTile: Shape = RoundedCornerShape(percent = 28),
+    val flagRounded: Shape = RoundedCornerShape(percent = 22),
+    val badge: Shape = RoundedCornerShape(6.dp),
+    val button: Shape = RoundedCornerShape(14.dp),
+    val tile: Shape = RoundedCornerShape(18.dp),
+    val floatingBar: Shape = RoundedCornerShape(22.dp),
+    val pill: Shape = CircleShape,
 )
-
-/**
- * How a flag is masked.
- *
- * [Original] is the only shape that preserves a flag's real proportions; the others crop to a mask,
- * which looks tidier in a dense list but distorts flags with distinctive geometry. Both are legitimate
- * choices, so the library exposes them rather than picking for the host.
- */
-public enum class CountryFlagShape {
-    /** Circular mask. The design's default. */
-    Circle,
-
-    /** Rounded-rectangle mask. */
-    Rounded,
-
-    /** Square mask. */
-    Square,
-
-    /** No mask — the flag keeps its natural 4:3 aspect ratio. */
-    Original,
-
-    /** No flag at all. Selectors fall back to text; rows drop the leading visual. */
-    Hidden,
-    ;
-
-    /** Resolves the matching [Shape] from [shapes]. */
-    public fun shape(shapes: CountryPickerShapes): Shape = when (this) {
-        Circle -> shapes.flagCircle
-        Rounded -> shapes.flagRounded
-        Square, Original, Hidden -> shapes.flagSquare
-    }
-}

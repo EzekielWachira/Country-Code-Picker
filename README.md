@@ -18,13 +18,22 @@ The library ships two layers:
 
 ## Features
 
+- **A complete design system** – One `CountryPickerStyle` (colors, shapes, type, motion, elevation,
+  layout, haptics) with Signature, Material, Cupertino and Minimal presets, three densities, light and
+  dark, and a brand accent in one line
+- **Real flag artwork** – Flags from [flagcdn.com](https://flagcdn.com) in its three shapes — waving
+  4:3, original at a common width, original at a common height — as PNG, WebP, JPEG or SVG, cached,
+  with the emoji as an offline fallback
 - **Country Picker** – Searchable list of 236 countries and territories with flags and dial codes
 - **Single and multi-selection** – One country, or several with Cancel / Reset / Confirm
 - **Full, compact, flag-only and phone-prefix selectors** – Same sheet, different footprints
 - **Region filters** – Africa, Americas, Asia, Europe, Oceania, plus an "All" view
-- **Selected / Recent / Suggested grouping** – No duplicates across sections
-- **Ranked search** – By name, ISO alpha-2/3, dial code, or alias — accent-insensitive
-- **A–Z index rail** – Optional scrubbable alphabet index for browsing the full list
+- **Quick picks** – Recent, suggested and detected countries as a carousel of tiles, or as sections
+- **Ranked search with "Did you mean"** – By name, ISO alpha-2/3, dial code, or alias —
+  accent-insensitive, and a misspelling ("Germny") offers the country it nearly matched
+- **A–Z index rail** – Scrub the full list with a magnified letter bubble and haptic ticks
+- **Adaptive presentation** – A bottom sheet on phones, a centered dialog on tablets and desktops, or
+  `CountryPickerPanel` inline
 - **Android and iOS** – Every component works in shared `commonMain` code via Compose Multiplatform
 - **Phone Number Validation** – Country-aware validation powered by Google libphonenumber on Android
   and its Objective-C port, libPhoneNumber-iOS, on iOS — generated from the same metadata, so a
@@ -38,13 +47,12 @@ The library ships two layers:
   on iOS, with fallback; never overrides an explicit user choice
 - **State Hoisting** – Expose `CountryPickerState` / `PhoneState` to the caller for external control
 - **Error / disabled / loading / success states** – On every selector variant
-- **Themeable** – Colors, shapes, dimensions and typography all flow from `CountryPickerDefaults`
+- **A premium phone field** – Floating label, ghost digits showing what is left to type, a progress
+  hairline, and a `✓ Mobile` badge once the number is valid
 - **Localized** – Ships Arabic, German, Spanish, French, Portuguese, Swahili and Simplified Chinese;
   country names come from the platform in every language it has data for
 - **Right-to-left** – Mirrors correctly, and pins dial codes and phone numbers LTR so `+254` never
   renders as `254+`
-- **Graceful flags** – Detects devices whose font cannot draw flag emoji and falls back cleanly
-  instead of showing boxes
 - **Accessibility** – Full content description support (TalkBack; VoiceOver through Compose
   Multiplatform's accessibility bridge), 48dp touch targets, no color-only signaling
 - **Compose-First API** – No ViewModels, no navigation coupling, pure Compose state
@@ -350,20 +358,35 @@ Detection never overrides a selection the user already made. `ShowBadge` applies
 it ("From your SIM card · tap to change"); `AskFirst` surfaces it as a suggestion the user must accept;
 `Silent` applies it with no explanation.
 
-### Customizing colors, shapes, typography and rows
+### Styling: presets, accent, flags and layout
+
+Everything visual is one `CountryPickerStyle`. Pick a preset, give it your brand color, refine it with
+`copy`, and set it once:
 
 ```kotlin
-CountrySelector(
-    selectedCountry = country,
-    onCountrySelected = { country = it },
-    colors = CountryPickerDefaults.colors(selectorContainer = MyBrand.fieldBackground),
-    shapes = CountryPickerDefaults.shapes(selectorOutlined = RoundedCornerShape(4.dp)),
-    listItemContent = { scope -> MyCustomRow(scope.country, scope.selected, scope.onClick) },
-)
+val style = CountryPickerStyles.signature(accent = Color(0xFF0F766E))  // or material(), cupertino(), minimal()
+
+CountryPickerTheme(
+    style.copy(
+        layout = style.layout.copy(
+            flagStyle = CountryFlagStyle.Circle,                    // Tile, Circle, Rounded, Plain, Hidden
+            flagSource = CountryFlagSource.FlagCdn(
+                shape = FlagImageShape.OriginalSameHeight,          // Waving, OriginalSameWidth, OriginalSameHeight
+                format = FlagImageFormat.Svg,                       // Png, WebP, Jpeg, Svg
+            ),
+            listStyle = CountryListStyle.Cards,                     // InsetGrouped, Plain, Cards
+            presentation = PickerPresentation.Adaptive,             // sheet on phones, dialog on tablets
+        ),
+    ),
+) {
+    CountrySelector(selectedCountry = country, onCountrySelected = { country = it })
+    PhoneNumberField(onValueChange = { phone = it })
+}
 ```
 
-Every default reads from `MaterialTheme.colorScheme`/`.typography`, so the picker follows your app's
-light/dark theme with no configuration at all; override only what actually needs to differ.
+Presets follow your `MaterialTheme`'s light or dark mode and the system's reduced-motion setting.
+`CountryFlagSource.Emoji` keeps everything offline. The sample app's **Showcase** tab lets you try
+every option live. See [Theming](https://ezekielwachira.github.io/Country-Code-Picker/theming/).
 
 ## Legacy `PhoneNumberInput` API
 

@@ -50,13 +50,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import com.ezzy.ccp.countrypicker.data.DefaultCountryDataSource
 import com.ezzy.ccp.countrypicker.model.CountrySupportingContent
+import com.ezzy.ccp.countrypicker.model.InputLabelMode
 import com.ezzy.ccp.countrypicker.model.PhoneNumberValue
 import com.ezzy.ccp.countrypicker.model.PhonePrefixContentMode
 import com.ezzy.ccp.countrypicker.model.UiText
 import com.ezzy.ccp.countrypicker.state.rememberPhoneNumberFieldState
-import com.ezzy.ccp.countrypicker.theme.CountryFlagConfig
 import com.ezzy.ccp.countrypicker.theme.CountryFlagStyle
-import com.ezzy.ccp.countrypicker.theme.CountrySelectorDefaults
 import com.ezzy.ccp.countrypicker.theme.PhoneFieldSize
 import com.ezzy.ccp.countrypicker.theme.PhoneNumberInputDefaults
 import com.ezzy.ccp.countrypicker.ui.CountrySelector
@@ -305,7 +304,7 @@ class PhoneNumberFieldUiTest {
                 selectedCountry = country,
                 onCountrySelected = { country = it },
                 label = UiText.of("Country of residence"),
-                contentConfig = CountrySelectorDefaults.rowOnlyContentConfig(),
+                labelMode = InputLabelMode.Hidden,
             )
         }
 
@@ -322,9 +321,7 @@ class PhoneNumberFieldUiTest {
             CountrySelector(
                 selectedCountry = country,
                 onCountrySelected = { country = it },
-                contentConfig = CountrySelectorDefaults.contentConfig(
-                    supportingContent = CountrySupportingContent.None,
-                ),
+                supportingContent = CountrySupportingContent.None,
             )
         }
 
@@ -345,14 +342,15 @@ class PhoneNumberFieldUiTest {
                     country = it
                     received = it
                 },
-                contentConfig = CountrySelectorDefaults.rowOnlyContentConfig(),
+                labelMode = InputLabelMode.Hidden,
             )
         }
 
         rule.onNode(hasContentDescription("Germany", substring = true)).performClick()
         rule.onNodeWithContentDescription("Search countries").performTextInput("Kenya")
         rule.waitForIdle()
-        rule.onNodeWithContentDescription("Kenya").performClick()
+        // A row reads its name and dial code: "Kenya, +254".
+        rule.onNodeWithContentDescription("Kenya, +254").performClick()
         rule.waitForIdle()
 
         assertEquals("KE", received?.iso2Code)

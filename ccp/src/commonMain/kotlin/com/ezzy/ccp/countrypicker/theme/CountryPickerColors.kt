@@ -24,143 +24,169 @@ package com.ezzy.ccp.countrypicker.theme
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.luminance
 
 /**
- * Semantic colors for every surface the country picker draws.
+ * The picker's color roles.
  *
- * These are *roles*, not raw values — `selectedRowContainer` rather than "light purple" — so a host
- * retheming the picker changes meaning rather than guessing which of twelve purples to override. The
- * names mirror the design's own CSS custom properties (`--selector-container`, `--row-selected-container`,
- * `--sheet-container`, …) one-for-one, which is what keeps the Compose implementation and the design
- * source verifiably in sync.
+ * A deliberately small set of *semantic* roles — surfaces, lines, content and status — that every
+ * component derives its colors from, rather than one property per pixel. Retheming is therefore a
+ * matter of meaning ("my cards are this white, my accent is this teal") instead of hunting for the
+ * one property out of forty that paints a particular border.
  *
- * Defaults come from [androidx.compose.material3.MaterialTheme.colorScheme] via
- * [CountryPickerDefaults.colors], so the picker inherits the host's theme — including dark mode —
- * without the host configuring anything. No composable in this library reads `colorScheme` directly;
- * they all go through an instance of this class.
+ * Build one from a preset in [CountryPickerStyles] and adjust with `copy`, or construct it outright
+ * for a fully custom palette.
  *
- * @property selectorContainer Filled selector background (`--selector-container`).
- * @property selectorContent Selected country name and primary selector text.
- * @property selectorLabel Floating/inline field label above the value.
- * @property selectorSecondaryContent ISO code and dial code shown under the country name.
- * @property selectorBorder Outlined selector stroke in its resting state.
- * @property selectorFocusedBorder Outlined selector stroke while focused. Drawn thicker too — see
- *   [CountryPickerDimensions.selectorFocusedBorderWidth].
- * @property selectorDisabledContainer Disabled selector background.
- * @property selectorDisabledContent Disabled text and icons. Must stay legible: a disabled field the
- *   user cannot read is worse than one they cannot edit.
- * @property chevron Trailing dropdown chevron.
- * @property error Error stroke, error text and error icon (`--selector-error`).
- * @property success Success stroke and confirmation text. Material 3 has no success role, so this is
- *   the library's own token — see [CountryPickerTokens].
- * @property sheetContainer Bottom-sheet background (`--sheet-container`).
- * @property sheetContent Sheet title and body text.
- * @property sheetSecondaryContent Sheet subtitle and metadata.
- * @property dragHandle Sheet drag handle.
- * @property scrim Behind-sheet scrim.
- * @property searchContainer Search field background in its resting, filled state.
- * @property searchFocusedBorder Search field stroke once focused — the morph from filled to outlined.
- * @property searchContent Query text.
- * @property searchPlaceholder Placeholder and leading search icon.
- * @property sectionLabel Uppercase section headers (SELECTED, SUGGESTED, …). Accent-colored.
- * @property rowContainer Unselected row background.
- * @property selectedRowContainer Selected row tint (`--row-selected-container`).
- * @property selectedRowContent Text on a selected row (`--row-selected-content`).
- * @property rowContent Country name on an unselected row.
- * @property rowSecondaryContent ISO/dial metadata under the country name.
- * @property rowDisabledContent Rows for countries the configuration disallows.
- * @property checkIcon Single-select check mark.
- * @property checkboxChecked Multi-select checkbox fill when checked.
- * @property checkboxUnchecked Multi-select checkbox outline when unchecked.
- * @property searchHighlight Background behind the matched substring in a country name.
- * @property currentSelectionContainer "Current selection" card background.
- * @property detectedBadgeContainer "✓ Detected" chip background.
- * @property detectedBadgeContent "✓ Detected" chip text and tick.
- * @property regionChipContainer Unselected region chip background.
- * @property regionChipSelectedContainer Selected region chip fill.
- * @property regionChipContent Unselected region chip text.
- * @property regionChipSelectedContent Selected region chip text.
- * @property regionChipBorder Unselected region chip outline.
- * @property flagPlaceholderContainer Backing for the ISO-code badge shown when a country has no flag.
- * @property flagPlaceholderContent The ISO code drawn in that badge.
+ * ### Surfaces
+ * The picker composes four surface levels so depth reads without relying on shadows alone:
+ * [background] is the canvas of a sheet or dialog; [surface] is a card, a field or a grouped list
+ * sitting on it; [surfaceRaised] floats above that (the multi-select bar, quick-pick tiles); and
+ * [surfaceSunken] is recessed into it (the search field, the segment track behind region filters,
+ * the tile behind a flag).
+ *
+ * @property accent The brand color: focus, selection, primary actions.
+ * @property onAccent Content drawn on [accent].
+ * @property accentSoft A quiet tint of the accent, for selected rows and active filters.
+ * @property onAccentSoft Content drawn on [accentSoft].
+ * @property background Sheet and dialog canvas.
+ * @property surface Cards, fields and grouped lists.
+ * @property surfaceRaised Elements floating above cards.
+ * @property surfaceSunken Elements recessed into cards.
+ * @property scrim Dim layer behind a sheet or dialog.
+ * @property hairline Dividers and resting card borders.
+ * @property outline Field borders at rest — a step stronger than [hairline].
+ * @property focusRing The soft glow drawn around a focused or open field.
+ * @property textPrimary Country names and field values.
+ * @property textSecondary Labels, subtitles and metadata.
+ * @property textTertiary Placeholders, ghost digits and the index rail.
+ * @property textDisabled Disabled content. Still legible: a field nobody can read is worse than one
+ *   nobody can edit.
+ * @property error Error borders, text and icons.
+ * @property errorSoft Error-tinted containers.
+ * @property success Valid and verified states.
+ * @property successSoft Success-tinted containers, such as the number-type badge.
+ * @property warning Limits and soft warnings, such as the maximum-selection notice.
+ * @property warningSoft Warning-tinted containers.
+ * @property highlight Background behind the part of a country name that matched a search.
+ * @property shadow Tint of every shadow layer.
+ * @property skeleton Loading-placeholder fill.
+ * @property skeletonShine The moving highlight swept across [skeleton].
  */
 @Immutable
 public data class CountryPickerColors(
-    // Selector
-    val selectorContainer: Color,
-    val selectorContent: Color,
-    val selectorLabel: Color,
-    val selectorSecondaryContent: Color,
-    val selectorBorder: Color,
-    val selectorFocusedBorder: Color,
-    val selectorDisabledContainer: Color,
-    val selectorDisabledContent: Color,
-    val chevron: Color,
-    val error: Color,
-    val success: Color,
-    // Sheet
-    val sheetContainer: Color,
-    val sheetContent: Color,
-    val sheetSecondaryContent: Color,
-    val dragHandle: Color,
+    val accent: Color,
+    val onAccent: Color,
+    val accentSoft: Color,
+    val onAccentSoft: Color,
+    val background: Color,
+    val surface: Color,
+    val surfaceRaised: Color,
+    val surfaceSunken: Color,
     val scrim: Color,
-    // Search
-    val searchContainer: Color,
-    val searchFocusedBorder: Color,
-    val searchContent: Color,
-    val searchPlaceholder: Color,
-    val searchHighlight: Color,
-    // List
-    val sectionLabel: Color,
-    val rowContainer: Color,
-    val rowContent: Color,
-    val rowSecondaryContent: Color,
-    val rowDisabledContent: Color,
-    val selectedRowContainer: Color,
-    val selectedRowContent: Color,
-    val checkIcon: Color,
-    val checkboxChecked: Color,
-    val checkboxUnchecked: Color,
-    // Accents
-    val currentSelectionContainer: Color,
-    val detectedBadgeContainer: Color,
-    val detectedBadgeContent: Color,
-    val regionChipContainer: Color,
-    val regionChipSelectedContainer: Color,
-    val regionChipContent: Color,
-    val regionChipSelectedContent: Color,
-    val regionChipBorder: Color,
-    val flagPlaceholderContainer: Color,
-    val flagPlaceholderContent: Color,
+    val hairline: Color,
+    val outline: Color,
+    val focusRing: Color,
+    val textPrimary: Color,
+    val textSecondary: Color,
+    val textTertiary: Color,
+    val textDisabled: Color,
+    val error: Color,
+    val errorSoft: Color,
+    val success: Color,
+    val successSoft: Color,
+    val warning: Color,
+    val warningSoft: Color,
+    val highlight: Color,
+    val shadow: Color,
+    val skeleton: Color,
+    val skeletonShine: Color,
 ) {
-    /** The container color for a row, given whether it is selected. */
-    public fun rowContainer(selected: Boolean): Color =
-        if (selected) selectedRowContainer else rowContainer
+    /** True when this palette is a dark one, judged from its [background]. */
+    val isDark: Boolean get() = background.luminance() < DARK_LUMINANCE_THRESHOLD
 
-    /** The content color for a row, given selection and enablement. */
-    public fun rowContent(selected: Boolean, enabled: Boolean): Color = when {
-        !enabled -> rowDisabledContent
-        selected -> selectedRowContent
-        else -> rowContent
+    public companion object {
+        /**
+         * The Signature neutrals around an [accent]: a cool grey canvas with white cards in light
+         * mode, near-black layers in dark mode.
+         *
+         * Status colors are tuned for at least 4.5:1 contrast on [surface] in both modes.
+         */
+        public fun signature(
+            accent: Color,
+            onAccent: Color = if (accent.luminance() > ON_ACCENT_LUMINANCE_THRESHOLD) Color.Black else Color.White,
+            dark: Boolean = false,
+        ): CountryPickerColors = if (dark) {
+            val surface = Color(0xFF17181C)
+            CountryPickerColors(
+                accent = accent,
+                onAccent = onAccent,
+                accentSoft = accent.copy(alpha = 0.18f).compositeOver(surface),
+                onAccentSoft = accent.blendTowards(Color.White, 0.35f),
+                background = Color(0xFF0C0D10),
+                surface = surface,
+                surfaceRaised = Color(0xFF1F2025),
+                surfaceSunken = Color(0xFF111215),
+                scrim = Color.Black.copy(alpha = 0.6f),
+                hairline = Color.White.copy(alpha = 0.08f),
+                outline = Color.White.copy(alpha = 0.16f),
+                focusRing = accent.copy(alpha = 0.32f),
+                textPrimary = Color(0xFFF4F4F6),
+                textSecondary = Color(0xFFF4F4F6).copy(alpha = 0.64f),
+                textTertiary = Color(0xFFF4F4F6).copy(alpha = 0.40f),
+                textDisabled = Color(0xFFF4F4F6).copy(alpha = 0.32f),
+                error = Color(0xFFFF6369),
+                errorSoft = Color(0xFFFF6369).copy(alpha = 0.16f),
+                success = Color(0xFF4CC38A),
+                successSoft = Color(0xFF4CC38A).copy(alpha = 0.16f),
+                warning = Color(0xFFFFB224),
+                warningSoft = Color(0xFFFFB224).copy(alpha = 0.16f),
+                highlight = accent.copy(alpha = 0.30f),
+                shadow = Color.Black,
+                skeleton = Color.White.copy(alpha = 0.06f),
+                skeletonShine = Color.White.copy(alpha = 0.12f),
+            )
+        } else {
+            val surface = Color.White
+            CountryPickerColors(
+                accent = accent,
+                onAccent = onAccent,
+                accentSoft = accent.copy(alpha = 0.10f).compositeOver(surface),
+                onAccentSoft = accent.blendTowards(Color.Black, 0.25f),
+                background = Color(0xFFF4F5F7),
+                surface = surface,
+                surfaceRaised = surface,
+                surfaceSunken = Color(0xFFEFF0F3),
+                scrim = Color(0xFF0B0C10).copy(alpha = 0.42f),
+                hairline = Color(0xFF0B0C10).copy(alpha = 0.07f),
+                outline = Color(0xFF0B0C10).copy(alpha = 0.14f),
+                focusRing = accent.copy(alpha = 0.20f),
+                textPrimary = Color(0xFF0B0C10),
+                textSecondary = Color(0xFF0B0C10).copy(alpha = 0.60f),
+                textTertiary = Color(0xFF0B0C10).copy(alpha = 0.38f),
+                textDisabled = Color(0xFF0B0C10).copy(alpha = 0.30f),
+                error = Color(0xFFDC3E42),
+                errorSoft = Color(0xFFDC3E42).copy(alpha = 0.10f),
+                success = Color(0xFF218358),
+                successSoft = Color(0xFF218358).copy(alpha = 0.10f),
+                warning = Color(0xFFAB6400),
+                warningSoft = Color(0xFFFFB224).copy(alpha = 0.18f),
+                highlight = accent.copy(alpha = 0.18f),
+                shadow = Color(0xFF0B0C10),
+                skeleton = Color(0xFF0B0C10).copy(alpha = 0.06f),
+                skeletonShine = Color.White.copy(alpha = 0.7f),
+            )
+        }
     }
 }
 
-/**
- * The library's own color values — the *only* raw colors it defines.
- *
- * Everything else in [CountryPickerColors] maps to a Material 3 role. Success is the exception:
- * Material 3 has no success/positive role, and reusing `tertiary` for "residency confirmed" would be
- * semantically wrong and would break for any host whose tertiary is red-ish. So the picker defines
- * one, tuned to sit alongside the M3 baseline palette at the same tonal steps the design used
- * (`--ok` / `--ok-container`).
- *
- * Hosts with a real success color in their own design system should pass it to
- * [CountryPickerDefaults.colors] rather than accepting these.
- */
-public object CountryPickerTokens {
-    /** Success content on a light background. Contrast ≥ 4.5:1 on M3 light surfaces. */
-    public val SuccessLight: Color = Color(0xFF2E6B4F)
+/** Linear blend of this color towards [other] by [fraction], keeping this color's alpha. */
+internal fun Color.blendTowards(other: Color, fraction: Float): Color = Color(
+    red = red + (other.red - red) * fraction,
+    green = green + (other.green - green) * fraction,
+    blue = blue + (other.blue - blue) * fraction,
+    alpha = alpha,
+)
 
-    /** Success content on a dark background. Contrast ≥ 4.5:1 on M3 dark surfaces. */
-    public val SuccessDark: Color = Color(0xFF8FD8AE)
-}
+private const val DARK_LUMINANCE_THRESHOLD = 0.4f
+private const val ON_ACCENT_LUMINANCE_THRESHOLD = 0.6f

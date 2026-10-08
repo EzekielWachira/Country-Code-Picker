@@ -22,28 +22,34 @@
 
 package com.ezzy.ccp.countrypicker.ui
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,23 +60,46 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.lerp
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isUnspecified
+import androidx.compose.ui.util.lerp
 import com.ezzy.ccp.countrypicker.data.CountryRepository
 import com.ezzy.ccp.countrypicker.data.DefaultCountryDataSource
 import com.ezzy.ccp.countrypicker.data.compositionLocale
 import com.ezzy.ccp.countrypicker.model.Country
 import com.ezzy.ccp.countrypicker.model.CountryPickerBidi
+import com.ezzy.ccp.countrypicker.model.PhoneNumberType
 import com.ezzy.ccp.countrypicker.model.PhoneNumberValue
 import com.ezzy.ccp.countrypicker.model.UiText
 import com.ezzy.ccp.countrypicker.model.resolve
@@ -83,76 +112,77 @@ import com.ezzy.ccp.countrypicker.phone.PhoneVerificationState
 import com.ezzy.ccp.countrypicker.state.CountryPickerConfig
 import com.ezzy.ccp.countrypicker.state.PhoneNumberFieldState
 import com.ezzy.ccp.countrypicker.state.rememberPhoneNumberFieldState
-import com.ezzy.ccp.countrypicker.theme.CountryFlagConfig
-import com.ezzy.ccp.countrypicker.theme.CountryPickerColors
 import com.ezzy.ccp.countrypicker.theme.CountryPickerDefaults
-import com.ezzy.ccp.countrypicker.theme.CountryPickerDimensions
-import com.ezzy.ccp.countrypicker.theme.CountryPickerMotion
-import com.ezzy.ccp.countrypicker.theme.CountryPickerShapes
-import com.ezzy.ccp.countrypicker.theme.CountryPickerTypography
-import com.ezzy.ccp.countrypicker.theme.PhoneFieldSize
+import com.ezzy.ccp.countrypicker.theme.CountryPickerStyle
+import com.ezzy.ccp.countrypicker.theme.CountryPickerTheme
 import com.ezzy.ccp.countrypicker.theme.PhoneNumberInputDefaults
 import com.ezzy.ccp.countrypicker.theme.PhoneNumberInputStyle
-import com.ezzy.ccp.icons.Close
-import com.ezzy.ccp.icons.EzzyIcons
 import com.ezzy.ccp.resources.Res
 import com.ezzy.ccp.resources.ccp_clear_phone
+import com.ezzy.ccp.resources.ccp_number_type_landline
+import com.ezzy.ccp.resources.ccp_number_type_mobile
+import com.ezzy.ccp.resources.ccp_number_type_mobile_or_landline
+import com.ezzy.ccp.resources.ccp_number_type_toll_free
+import com.ezzy.ccp.resources.ccp_number_type_voip
 import com.ezzy.ccp.resources.ccp_phone_input_label
 import com.ezzy.ccp.resources.ccp_phone_number
+import com.ezzy.ccp.resources.ccp_phone_state_valid
+import com.ezzy.ccp.resources.ccp_phone_state_valid_type
 import com.ezzy.ccp.resources.ccp_verify_verified
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * An international phone number field: country prefix and national number input inside **one**
- * unified outlined container.
+ * An international phone number field: the country prefix and the number in one field.
  *
- * ### One outline, not two
- * The prefix (flag, dial code, chevron) is not a separate bordered pill glued to the number field —
- * it is a bare clickable region ([EmbeddedPhonePrefix]) rendered as the leading content of a real
- * Material outlined text field ([OutlinedTextFieldDefaults]), separated from the number editor only
- * by a subtle [PhonePrefixDivider]. Building on the actual outlined-field decoration (rather than a
- * hand-rolled bordered [androidx.compose.material3.Surface]) is what gives the field a transparent
- * container and a label that sits *in* the border itself — animating between resting in the value's
- * position and floating in a notch cut into the top border — instead of a filled box with the label
- * drawn as a separate line of text above it. A standalone dial-code pill is still available and
- * correct on its own via `CountrySelector(variant = CountrySelectorVariant.DialCode)` /
- * [PhoneCountryCodeSelector] — the distinction is embedded-in-a-field vs. standalone-control, not a
- * visual inconsistency to paper over.
+ * ### Built to be filled in correctly
+ * - **Floating label.** The label rests where the number goes and lifts to the top of the field as
+ *   soon as it has focus or a value.
+ * - **Ghost digits.** The country's example number shows faintly where the number goes, and the
+ *   user's typing fills it in from the left — so the expected length and grouping are visible before
+ *   the first digit, and how many digits remain is visible throughout.
+ * - **Progress.** A hairline along the bottom of the field fills as digits arrive and turns to the
+ *   success color once the number is valid.
+ * - **Confirmation.** A valid number earns a check mark and a badge naming its kind — Mobile,
+ *   Landline — so a user entering a landline where a mobile is wanted sees it before submitting.
+ * - **Gentle validation.** Errors wait until the field has been left (or [validateWhileTyping] is
+ *   set): flagging an incomplete number on its third digit is accurate and hostile.
+ *
+ * Each of these can be switched off through [inputStyle].
  *
  * ### What the caller gets
- * [onValueChange] delivers a complete [PhoneNumberValue] — formatted forms, `e164Number`, and validity —
- * so submission code never concatenates a dial code onto digits. That concatenation is wrong for every
- * country with a national trunk prefix, and it is the bug this API exists to prevent.
+ * [onValueChange] delivers a complete [PhoneNumberValue] — formatted forms, `e164Number` and validity
+ * — so submission code never concatenates a dial code onto digits. That concatenation is wrong for
+ * every country with a national trunk prefix, and it is the bug this API exists to prevent.
  *
- * ### Country changes preserve the number
- * Switching country keeps the typed digits, re-formats them for the new region, and re-runs validation.
- * A number valid in one region is never carried over as still-valid in another — see
- * [PhoneNumberFieldState.selectCountry].
+ * ### Country changes keep the number
+ * Switching country keeps the typed digits, re-formats them for the new region and re-validates
+ * them. A number valid in one region is never carried over as still valid in another — see
+ * [PhoneNumberFieldState.selectCountry]. A pasted or autofilled international number (`+44…`)
+ * switches the country itself.
  *
  * ### Verification
- * Optional and fully decoupled. Pass a [verificationController] and the field reports verification
- * status and invalidates it whenever the number changes; pass nothing and none of that machinery exists.
- * The library ships no verification backend — see
- * [com.ezzy.ccp.countrypicker.phone.PhoneNumberVerificationHandler].
+ * Optional and decoupled. Pass a [verificationController] and the field shows progress and a verified
+ * mark, and drops verification as soon as the number changes. The library ships no verification
+ * backend — see [com.ezzy.ccp.countrypicker.phone.PhoneNumberVerificationHandler].
  *
  * @param state Field state. Hoist it to read the number or clear the field from outside.
  * @param onValueChange Called whenever the number or country changes.
- * @param label Visible floating label. Rendered only when [PhoneNumberInputStyle.labelMode] is
- *   [com.ezzy.ccp.countrypicker.model.InputLabelMode.Floating]; ignored (but still used for
- *   accessibility, via [accessibilityLabel]'s fallback) when `Hidden`.
- * @param accessibilityLabel The label exposed to accessibility services, independent of whether the
- *   visible label renders. Defaults to [label] — hiding the visible label never leaves the number
- *   editor unlabeled to a screen reader; pass a different value only if the accessible name should
- *   read differently from the visible text.
- * @param inputStyle Label mode, flag presentation, prefix content and divider visibility — see
- *   [PhoneNumberInputStyle].
- * @param showHelperText Show the live "Formats live for Kenya · e.g. +254 712 345 678" helper.
- * @param isError Forces the error treatment. Combined with the field's own validation, so a host can
- *   surface a server-side rejection without suppressing local validation.
+ * @param variant The field's container — [CountrySelectorVariant.Elevated], `Outlined`, `Filled`,
+ *   `Underlined` or `Card`. The pill variants are drawn as `Elevated`.
+ * @param label The floating label. Hidden by [PhoneNumberInputStyle.labelMode] = `Hidden`, but still
+ *   announced, through [accessibilityLabel].
+ * @param accessibilityLabel The name announced for the number editor. Defaults to [label]; hiding the
+ *   visible label never leaves the editor unnamed.
+ * @param placeholder Shown in an empty field instead of the example number.
+ * @param inputStyle The phone field's own options — label, prefix, size, ghost digits, progress,
+ *   badges. See [PhoneNumberInputStyle].
+ * @param showHelperText A live helper line generated from the country's metadata: "Formats live for
+ *   Kenya · e.g. +254 712 345 678".
+ * @param isError Forces the error treatment — for a server-side rejection. Combined with the field's
+ *   own validation rather than replacing it.
  * @param errorMessage Overrides the derived validation message.
- * @param validateWhileTyping Show validation errors before the field loses focus. Off by default:
- *   flagging an incomplete number as invalid on the third digit is accurate and hostile.
- * @param onDone Invoked when the keyboard action fires and the number is valid.
+ * @param onDone Called when the keyboard action fires on a valid number.
  */
 @Composable
 public fun PhoneNumberField(
@@ -163,6 +193,7 @@ public fun PhoneNumberField(
     ),
     enabled: Boolean = true,
     readOnly: Boolean = false,
+    variant: CountrySelectorVariant = CountrySelectorVariant.Elevated,
     label: UiText? = UiText.resource(Res.string.ccp_phone_number),
     accessibilityLabel: UiText? = label,
     placeholder: UiText? = null,
@@ -177,322 +208,445 @@ public fun PhoneNumberField(
     verificationController: PhoneVerificationController? = null,
     recentCountryStore: RecentCountryStore = NoOpRecentCountryStore,
     repository: CountryRepository = CountryRepository.Default,
-    colors: CountryPickerColors = CountryPickerDefaults.colors(),
-    shapes: CountryPickerShapes = CountryPickerDefaults.shapes(),
-    dimensions: CountryPickerDimensions = CountryPickerDefaults.dimensions(),
-    typography: CountryPickerTypography = CountryPickerDefaults.typography(),
-    motion: CountryPickerMotion = CountryPickerDefaults.motion(),
+    style: CountryPickerStyle = CountryPickerTheme.style,
     flagContent: (@Composable (Country) -> Unit)? = null,
     onDone: () -> Unit = {},
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val interactionSource = remember { MutableInteractionSource() }
-    val isFocused by interactionSource.collectIsFocusedAsState()
+    val keyboard = LocalSoftwareKeyboardController.current
+    val interaction = remember { MutableInteractionSource() }
+    val focused by interaction.collectIsFocusedAsState()
+    val focusRequester = remember { FocusRequester() }
+    var prefixOpen by remember { mutableStateOf(false) }
 
-    // The label falls back to a generic resource only when the caller passed neither label nor an
-    // explicit accessibilityLabel — a hidden visual label must never leave the editor unlabeled.
-    val effectiveAccessibilityLabel = (accessibilityLabel ?: label)?.resolve()
-        ?: stringResource(Res.string.ccp_phone_input_label)
-
-    // True while the embedded country sheet is open, so the outline reads as "focused" for either of
-    // the field's two interactive regions, not just the text editor. Fed into a synthetic interaction
-    // source (see rememberActiveInteractionSource) rather than the text field's own real one, so the
-    // border/label respond to it without the field's real focus state being touched by it.
-    var isPrefixOpen by remember { mutableStateOf(false) }
-    val borderInteractionSource = rememberActiveInteractionSource(isFocused || isPrefixOpen)
-
-    // Report every change upward, including country switches, so the caller's value is never stale.
     LaunchedEffect(state.value) {
         onValueChange(state.value)
-        // Editing the number invalidates any verification already obtained for the old one.
+        // Editing the number invalidates any verification obtained for the old one.
         verificationController?.onPhoneNumberChanged(state.value)
     }
 
-    // Errors appear once the field has been touched (or the host forces them), never mid-typing.
-    val showValidationError = (validateWhileTyping || state.hasBeenTouched) &&
-        state.value.validity.isError
+    val value = state.value
+    val showValidationError = (validateWhileTyping || state.hasBeenTouched) && value.validity.isError
     val hasError = isError || showValidationError
-    val derivedError = errorMessage
-        ?: PhoneNumberValidator.errorMessage(
-            value = state.value,
-            treatIncompleteAsError = state.hasBeenTouched,
-            // Passed through so a rejected landline reads "Enter a mobile number" rather than the
-            // generic wrong-type message.
-            allowedNumberTypes = state.allowedNumberTypes,
-        )
+    val message = errorMessage ?: PhoneNumberValidator.errorMessage(
+        value = value,
+        treatIncompleteAsError = state.hasBeenTouched,
+        // So a rejected landline reads "Enter a mobile number" rather than the generic message.
+        allowedNumberTypes = state.allowedNumberTypes,
+    )
+    val verified = verificationController?.isVerified(value) == true
+    val verifying = verificationController?.state?.isInProgress == true
 
-    val showVisibleLabel = label != null && inputStyle.hasVisibleLabel
-
-    // Compact/ExtraCompact scale the flag, chevron, icon buttons, content padding, and font size
-    // down together (see PhoneFieldSize) — a smaller field never clips or crowds its own content,
-    // because the content shrinks along with it rather than staying fixed inside a squeezed box.
-    val effectiveDimensions = dimensions.scaledForPhoneField(inputStyle.size)
-    val effectiveFlagConfig = inputStyle.flagConfig.scaledForPhoneField(inputStyle.size)
-    val effectiveTypography = typography.scaledForPhoneField(inputStyle.size.fontScale)
-    val contentPaddingScale = inputStyle.size.contentScale
-
-    // A floating label still needs a touch more reserved height than a hidden one even inside a real
-    // outlined field — these are floors via defaultMinSize below, not fixed sizes: the field is free
-    // to size itself larger from its own content and typography.
-    val fieldMinHeight = (
-        if (showVisibleLabel) dimensions.phoneFieldMinHeightWithLabel else dimensions.phoneFieldMinHeightNoLabel
-        ) * contentPaddingScale
-
-    val fieldColors = phoneFieldColors(colors)
-
-    Column(modifier = modifier) {
-        BasicTextField(
-            value = state.textFieldValue,
-            onValueChange = state::onTextChanged,
-            enabled = enabled,
-            readOnly = readOnly,
-            textStyle = effectiveTypography.selectorValue.copy(
-                color = colors.selectorContent,
-                // A grouped national number ("712 345 678") is weak-direction digits and spaces;
-                // in an RTL locale the groups reorder and the number reads wrong. The field stays
-                // where the layout direction puts it — only its content is pinned LTR.
-                textDirection = CountryPickerBidi.LTR,
-            ),
-            cursorBrush = SolidColor(colors.selectorFocusedBorder),
-            singleLine = true,
-            interactionSource = interactionSource,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Phone,
-                imeAction = ImeAction.Done,
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    state.markTouched()
-                    if (state.value.isValid) {
-                        keyboardController?.hide()
-                        onDone()
-                    }
-                },
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .defaultMinSize(minHeight = fieldMinHeight)
-                .semantics {
-                    contentDescription = effectiveAccessibilityLabel
-                    // Advertises the field to Android Autofill and password managers. Both content
-                    // types are declared because providers differ in what they store: some hold a
-                    // full E.164 number, others the national part with the country code separately.
-                    // Either shape is handled — a filled "+254712345678" is routed through
-                    // PhoneNumberFieldState.onTextChanged, which adopts the country it names rather
-                    // than treating the calling code as subscriber digits.
-                    if (autofillEnabled) {
-                        contentType = ContentType.PhoneNumber + ContentType.PhoneNumberNational
-                    }
-                },
-            decorationBox = { innerTextField ->
-                OutlinedTextFieldDefaults.DecorationBox(
-                    value = state.textFieldValue.text,
-                    innerTextField = innerTextField,
-                    enabled = enabled,
-                    singleLine = true,
-                    visualTransformation = VisualTransformation.None,
-                    interactionSource = borderInteractionSource,
-                    isError = hasError,
-                    // No explicit style: the label's font size must come from DecorationBox's own
-                    // ambient TextStyle so it animates between the resting and notched sizes — an
-                    // explicit, fully-specified style here would freeze it at one size instead. This
-                    // also means the label does not follow PhoneFieldSize.fontScale: it keeps
-                    // Material's own bodyLarge/bodySmall sizing regardless of the field's size.
-                    label = if (showVisibleLabel) {
-                        { Text(text = label!!.resolve()) }
-                    } else {
-                        null
-                    },
-                    placeholder = {
-                        Text(
-                            // The placeholder is the region's own example number, so it doubles as a
-                            // format hint rather than generic filler.
-                            text = placeholder?.resolve()
-                                ?: PhoneNumberFormatter.exampleNationalNumber(state.country).orEmpty(),
-                            // Matches the editor's own direction, so the example number and the
-                            // number that replaces it sit the same way round.
-                            style = effectiveTypography.selectorValue
-                                .copy(textDirection = CountryPickerBidi.LTR),
-                        )
-                    },
-                    leadingIcon = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            EmbeddedPhonePrefix(
-                                selectedCountry = state.country,
-                                onCountrySelected = state::selectCountry,
-                                enabled = enabled && !readOnly,
-                                contentMode = inputStyle.prefixContentMode,
-                                showDropdownIcon = inputStyle.showDropdownIcon,
-                                flagConfig = effectiveFlagConfig,
-                                config = config,
-                                recentCountryStore = recentCountryStore,
-                                repository = repository,
-                                colors = colors,
-                                shapes = shapes,
-                                dimensions = effectiveDimensions,
-                                typography = effectiveTypography,
-                                motion = motion,
-                                flagContent = flagContent,
-                                onOpenChanged = { isPrefixOpen = it },
-                            )
-
-                            PhonePrefixDivider(
-                                visible = inputStyle.showPrefixDivider,
-                                fieldHeight = effectiveDimensions.selectorDialMinHeight,
-                                colors = colors,
-                                motion = motion,
-                            )
-                        }
-                    },
-                    trailingIcon = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            VerificationStatusIcon(
-                                controller = verificationController,
-                                value = state.value,
-                                colors = colors,
-                                dimensions = effectiveDimensions,
-                                motion = motion,
-                            )
-
-                            AnimatedVisibility(
-                                visible = showClearButton && !readOnly && state.nationalDigits.isNotEmpty(),
-                                enter = scaleIn(motion.selectionSpring) + fadeIn(motion.fadeIn),
-                                exit = scaleOut(motion.fadeOut) + fadeOut(motion.fadeOut),
-                            ) {
-                                IconButton(
-                                    onClick = state::clear,
-                                    modifier = Modifier.size(effectiveDimensions.iconButtonSize),
-                                ) {
-                                    Icon(
-                                        imageVector = EzzyIcons.Close,
-                                        contentDescription = stringResource(Res.string.ccp_clear_phone),
-                                        tint = colors.chevron,
-                                        modifier = Modifier.size(CLEAR_ICON_SIZE * contentPaddingScale),
-                                    )
-                                }
-                            }
-                        }
-                    },
-                    colors = fieldColors,
-                    contentPadding = OutlinedTextFieldDefaults.contentPadding(
-                        top = DECORATION_VERTICAL_PADDING * contentPaddingScale,
-                        bottom = DECORATION_VERTICAL_PADDING * contentPaddingScale,
-                    ),
-                    container = {
-                        OutlinedTextFieldDefaults.Container(
-                            enabled = enabled,
-                            isError = hasError,
-                            interactionSource = borderInteractionSource,
-                            colors = fieldColors,
-                            shape = shapes.selectorOutlined,
-                            focusedBorderThickness = dimensions.selectorFocusedBorderWidth,
-                            unfocusedBorderThickness = dimensions.selectorBorderWidth,
-                        )
-                    },
-                )
-            },
-        )
-
-        PhoneFieldHelperText(
-            country = state.country,
-            showHelper = showHelperText,
-            hasError = hasError,
-            errorMessage = derivedError,
-            colors = colors,
-            typography = effectiveTypography,
-            motion = motion,
-        )
-    }
-}
-
-/**
- * The live helper line, or the validation error when there is one.
- *
- * The helper text is generated from the selected country's libphonenumber metadata, so it updates the
- * instant the country changes and contains no country-specific literal anywhere in the library.
- */
-@Composable
-private fun PhoneFieldHelperText(
-    country: Country,
-    showHelper: Boolean,
-    hasError: Boolean,
-    errorMessage: UiText?,
-    colors: CountryPickerColors,
-    typography: CountryPickerTypography,
-    motion: CountryPickerMotion,
-) {
-    val text: UiText? = when {
-        hasError && errorMessage != null -> errorMessage
-        showHelper -> PhoneNumberValidator.helperText(country)
+    val size = inputStyle.size
+    val fieldVariant = if (variant.isPill) CountrySelectorVariant.Elevated else variant
+    val typography = style.typography
+    val numberStyle = typography.phoneNumber.scaledForPhoneField(size.fontScale)
+    val showLabel = label != null && inputStyle.hasVisibleLabel
+    val active = focused || prefixOpen
+    val accessibleName = (accessibilityLabel ?: label)?.resolve() ?: stringResource(Res.string.ccp_phone_input_label)
+    val errorText = if (hasError) message?.resolve() else null
+    val trailingPadding by animateDpAsState(
+        targetValue = (if (focused && showClearButton) 4.dp else style.dimensions.fieldHorizontalPadding) * size.contentScale,
+        animationSpec = style.motion.dp,
+        label = "phoneTrailingPadding",
+    )
+    // The check, badge and verified mark are silent; the editor's state says the same in words.
+    val typeLabel = value.numberType?.labelRes()?.let { stringResource(it) }
+    val stateText = when {
+        verified -> stringResource(Res.string.ccp_verify_verified)
+        value.isValid && typeLabel != null -> stringResource(Res.string.ccp_phone_state_valid_type, typeLabel)
+        value.isValid -> stringResource(Res.string.ccp_phone_state_valid)
         else -> null
     }
 
-    AnimatedContent(
-        targetState = text,
-        transitionSpec = { fadeIn(motion.fadeIn) togetherWith fadeOut(motion.fadeOut) },
-        label = "phoneHelper",
-    ) { target ->
-        if (target == null) return@AnimatedContent
-        Row(
-            modifier = Modifier.padding(start = LABEL_START_PADDING, top = HELPER_TOP_PADDING),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(HELPER_ICON_SPACING),
-        ) {
-            if (hasError) {
-                Icon(
-                    imageVector = PickerIcons.Alert,
-                    contentDescription = null,
-                    tint = colors.error,
-                    modifier = Modifier.size(HELPER_ICON_SIZE),
+    CountryPickerTheme(style) {
+        Column(modifier = modifier) {
+            PickerFieldContainer(
+                variant = fieldVariant,
+                active = active,
+                tone = when {
+                    hasError -> FieldTone.Error
+                    verified -> FieldTone.Success
+                    else -> FieldTone.Default
+                },
+                enabled = enabled,
+                style = style,
+                minHeight = (if (showLabel) style.dimensions.fieldMinHeight else style.dimensions.fieldMinHeight - 6.dp) * size.contentScale,
+                contentPadding = PaddingValues(
+                    start = (style.dimensions.fieldHorizontalPadding - 6.dp) * size.contentScale,
+                    // Tight while editing, where the clear button's touch target supplies the margin.
+                    end = trailingPadding,
+                ),
+                horizontalArrangement = Arrangement.spacedBy(10.dp * size.contentScale),
+                overlay = if (inputStyle.showProgress) {
+                    { NumberProgress(value, hasError, fullWidth = fieldVariant == CountrySelectorVariant.Underlined, style = style) }
+                } else {
+                    null
+                },
+            ) {
+                EmbeddedPhonePrefix(
+                    selectedCountry = state.country,
+                    onCountrySelected = state::selectCountry,
+                    enabled = enabled && !readOnly,
+                    contentMode = inputStyle.prefixContentMode,
+                    showDropdownIcon = inputStyle.showDropdownIcon,
+                    flagSize = style.dimensions.flagSizeCompact * size.contentScale + 4.dp,
+                    textStyle = typography.dialCode.scaledForPhoneField(size.fontScale),
+                    config = config,
+                    recentCountryStore = recentCountryStore,
+                    repository = repository,
+                    style = style,
+                    minHeight = style.dimensions.minimumTouchTarget * size.contentScale,
+                    flagContent = flagContent,
+                    onOpenChanged = { prefixOpen = it },
                 )
+                PhonePrefixDivider(
+                    visible = inputStyle.showPrefixDivider,
+                    height = 24.dp * size.contentScale,
+                    style = style,
+                )
+                NumberEditor(
+                    state = state,
+                    enabled = enabled,
+                    readOnly = readOnly,
+                    label = label.takeIf { showLabel }?.resolve(),
+                    placeholder = placeholder?.resolve(),
+                    lifted = active || state.textFieldValue.text.isNotEmpty() || !showLabel,
+                    active = active,
+                    hasError = hasError,
+                    inputStyle = inputStyle,
+                    numberStyle = numberStyle,
+                    labelStyle = typography.fieldLabel.scaledForPhoneField(size.fontScale),
+                    style = style,
+                    interactionSource = interaction,
+                    focusRequester = focusRequester,
+                    modifier = Modifier.weight(1f),
+                    editorModifier = Modifier.semantics {
+                        contentDescription = accessibleName
+                        if (errorText != null) error(errorText)
+                        if (stateText != null) stateDescription = stateText
+                        // Advertises the field to autofill and password managers. Both content types
+                        // are declared because providers store either shape; a filled "+254712345678"
+                        // adopts its own country — see PhoneNumberFieldState.
+                        if (autofillEnabled) {
+                            contentType = ContentType.PhoneNumber + ContentType.PhoneNumberNational
+                        }
+                    },
+                    onDone = {
+                        state.markTouched()
+                        if (state.value.isValid) {
+                            keyboard?.hide()
+                            onDone()
+                        }
+                    },
+                )
+                TrailingStatus(
+                    value = value,
+                    typeLabel = typeLabel,
+                    verified = verified,
+                    verifying = verifying,
+                    inputStyle = inputStyle,
+                    style = style,
+                )
+                // Only while editing, as on iOS: at rest the field shows its result, not its tools,
+                // and the number keeps the room.
+                AnimatedVisibility(
+                    visible = showClearButton && focused && enabled && !readOnly && state.nationalDigits.isNotEmpty() && !verified,
+                    enter = scaleIn(style.motion.selection, initialScale = 0.6f) + fadeIn(style.motion.fadeIn),
+                    exit = scaleOut(style.motion.fadeOut, targetScale = 0.6f) + fadeOut(style.motion.fadeOut),
+                ) {
+                    PickerIconButton(
+                        icon = PickerIcons.Close,
+                        contentDescription = stringResource(Res.string.ccp_clear_phone),
+                        onClick = {
+                            state.clear()
+                            focusRequester.requestFocus()
+                        },
+                        visualSize = 22.dp * size.contentScale,
+                        iconSize = 12.dp * size.contentScale,
+                        modifier = Modifier.size(style.dimensions.minimumTouchTarget * size.contentScale.coerceAtLeast(0.85f)),
+                    )
+                }
             }
-            Text(
-                text = target.resolve(),
-                style = typography.helperText,
-                color = if (hasError) colors.error else colors.selectorSecondaryContent,
+
+            FieldHelperText(
+                text = when {
+                    hasError -> message
+                    showHelperText -> PhoneNumberValidator.helperText(state.country)
+                    else -> null
+                },
+                tone = if (hasError) FieldTone.Error else FieldTone.Default,
+                style = style,
             )
         }
     }
 }
 
 /**
- * A tick inside the field once the current number is verified.
+ * The floating label over the number editor with its ghost digits.
  *
- * Deliberately checks the controller against *this* number rather than trusting a `Verified` state:
- * the state alone would keep showing a tick after the user edited a digit.
+ * The editor never moves; only the label does. Resting, it is centered in the field at the number's
+ * size; lifted, it sits above the number at label size. Its size and position are interpolated
+ * together, so it travels rather than jumping between two states.
  */
 @Composable
-private fun VerificationStatusIcon(
-    controller: PhoneVerificationController?,
-    value: PhoneNumberValue,
-    colors: CountryPickerColors,
-    dimensions: CountryPickerDimensions,
-    motion: CountryPickerMotion,
+private fun NumberEditor(
+    state: PhoneNumberFieldState,
+    enabled: Boolean,
+    readOnly: Boolean,
+    label: String?,
+    placeholder: String?,
+    lifted: Boolean,
+    active: Boolean,
+    hasError: Boolean,
+    inputStyle: PhoneNumberInputStyle,
+    numberStyle: TextStyle,
+    labelStyle: TextStyle,
+    style: CountryPickerStyle,
+    interactionSource: MutableInteractionSource,
+    focusRequester: FocusRequester,
+    modifier: Modifier,
+    editorModifier: Modifier,
+    onDone: () -> Unit,
 ) {
-    if (controller == null) return
-    val verified = controller.isVerified(value)
-    val inProgress = controller.state.isInProgress
+    val colors = style.colors
+    val keyboard = LocalSoftwareKeyboardController.current
+    val lift by animateFloatAsState(if (lifted) 1f else 0f, style.motion.layout, label = "labelLift")
+    val labelColor by animateColorAsState(
+        targetValue = when {
+            !enabled -> colors.textDisabled
+            hasError -> colors.error
+            active -> colors.accent
+            else -> colors.textSecondary
+        },
+        animationSpec = style.motion.color,
+        label = "labelColor",
+    )
+    val text = state.textFieldValue.text
+    val example = remember(state.country) { PhoneNumberFormatter.exampleNationalNumber(state.country) }
+    // A grouped national number is weak-direction digits and spaces; in an RTL locale the groups
+    // would reorder. Only the content is pinned LTR — the field stays where the layout puts it.
+    val editorStyle = numberStyle.copy(color = if (enabled) colors.textPrimary else colors.textDisabled, textDirection = CountryPickerBidi.LTR)
+    // The hint fades in over the second half of the label's lift, so the two never overlap.
+    val hintAlpha = ((lift - 0.5f) * 2f).coerceIn(0f, 1f)
+    val hint: AnnotatedString? = when {
+        hintAlpha <= 0f -> null
+        text.isEmpty() && placeholder != null -> AnnotatedString(placeholder)
+        // Empty, the real example is the most useful hint; once typing starts, the rest of it is
+        // ghosted as zeros, so it shows how much is left without suggesting digits nobody entered.
+        text.isEmpty() && example != null -> AnnotatedString(example)
+        inputStyle.showGhostDigits && example != null -> ghostDigits(text, example, colors.textTertiary.copy(alpha = GHOST_ALPHA))
+        else -> null
+    }
 
-    AnimatedVisibility(
-        visible = verified || inProgress,
-        enter = scaleIn(motion.selectionSpring) + fadeIn(motion.fadeIn),
-        exit = scaleOut(motion.fadeOut) + fadeOut(motion.fadeOut),
-    ) {
-        if (inProgress) {
-            androidx.compose.material3.CircularProgressIndicator(
-                color = colors.selectorFocusedBorder,
-                strokeWidth = SPINNER_STROKE,
-                modifier = Modifier.size(SPINNER_SIZE),
+    Layout(
+        modifier = modifier.pointerInput(enabled) {
+            // A tap anywhere in the number area — the label included — focuses the editor. Not a
+            // semantics click: the editor itself is the accessible target.
+            if (enabled) {
+                detectTapGestures {
+                    focusRequester.requestFocus()
+                    keyboard?.show()
+                }
+            }
+        },
+        content = {
+            if (label != null) {
+                Text(
+                    text = label,
+                    style = lerp(numberStyle.copy(fontWeight = labelStyle.fontWeight), labelStyle, lift),
+                    color = if (lift < 0.02f && !active) colors.textTertiary else labelColor,
+                    maxLines = 1,
+                    // Hidden from screen readers, which hear the label as the editor's own name,
+                    // but still part of the tree for tests and tooling.
+                    modifier = Modifier.layoutId(LABEL_ID).semantics { hideFromAccessibility() },
+                )
+            }
+            BasicTextField(
+                value = state.textFieldValue,
+                onValueChange = state::onTextChanged,
+                enabled = enabled,
+                readOnly = readOnly,
+                textStyle = editorStyle,
+                cursorBrush = SolidColor(if (hasError) colors.error else colors.accent),
+                singleLine = true,
+                interactionSource = interactionSource,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { onDone() }),
+                modifier = editorModifier
+                    .layoutId(EDITOR_ID)
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
+                decorationBox = { inner ->
+                    Box(contentAlignment = Alignment.CenterStart) {
+                        if (hint != null) {
+                            Text(
+                                text = hint,
+                                style = editorStyle.copy(color = colors.textTertiary),
+                                maxLines = 1,
+                                softWrap = false,
+                                modifier = Modifier
+                                    .graphicsLayer { alpha = hintAlpha }
+                                    .clearAndSetSemantics {},
+                            )
+                        }
+                        inner()
+                    }
+                },
             )
-        } else {
-            Icon(
-                imageVector = PickerIcons.CheckCircle,
-                contentDescription = stringResource(Res.string.ccp_verify_verified),
-                tint = colors.success,
-                modifier = Modifier.size(dimensions.chevronSize),
-            )
+        },
+    ) { measurables, constraints ->
+        val loose = constraints.copy(minWidth = 0, minHeight = 0)
+        val editor = measurables.first { it.layoutId == EDITOR_ID }.measure(loose.copy(minWidth = constraints.minWidth))
+        val labelPlaceable = measurables.firstOrNull { it.layoutId == LABEL_ID }?.measure(loose)
+        val reserved = if (labelPlaceable != null) labelStyle.lineHeightPx(this) + LABEL_GAP.roundToPx() else 0
+        val width = maxOf(editor.width, constraints.minWidth)
+        val height = maxOf(reserved + editor.height, constraints.minHeight)
+        layout(width, height) {
+            val editorY = if (labelPlaceable != null) reserved + (height - reserved - editor.height) / 2 else (height - editor.height) / 2
+            editor.placeRelative(0, editorY)
+            if (labelPlaceable != null) {
+                // Resting, the label is centered on the whole field — level with the prefix beside
+                // it — not on the editor, which sits below the room reserved for the lifted label.
+                val resting = (height - labelPlaceable.height) / 2
+                val liftedY = editorY - reserved
+                labelPlaceable.placeRelative(0, lerp(resting.toFloat(), liftedY.toFloat(), lift).toInt())
+            }
         }
     }
+}
+
+/**
+ * What is left of the example number after the user's digits: the typed part transparent (the
+ * editor draws it), the rest faint, with its digits as zeros. Aligned by digit, not by character,
+ * so the grouping always continues from where the typed text ends; with tabular figures a zero is
+ * exactly a digit wide, so the ghost lines up with the number it completes.
+ */
+internal fun ghostDigits(typed: String, example: String, ghost: Color): AnnotatedString? {
+    val typedDigits = typed.count(Char::isDigit)
+    var seen = 0
+    var cut = -1
+    if (typedDigits == 0) cut = 0
+    else {
+        for ((index, char) in example.withIndex()) {
+            if (char.isDigit()) seen++
+            if (seen == typedDigits) {
+                cut = index + 1
+                break
+            }
+        }
+    }
+    if (cut < 0 || cut >= example.length) return null
+    return buildAnnotatedString {
+        withStyle(SpanStyle(color = Color.Transparent)) { append(typed) }
+        withStyle(SpanStyle(color = ghost)) {
+            append(example.substring(cut).map { if (it.isDigit()) GHOST_DIGIT else it }.joinToString(""))
+        }
+    }
+}
+
+/** The valid check and number-type badge, or verification progress and the verified mark. */
+@Composable
+private fun RowScope.TrailingStatus(
+    value: PhoneNumberValue,
+    typeLabel: String?,
+    verified: Boolean,
+    verifying: Boolean,
+    inputStyle: PhoneNumberInputStyle,
+    style: CountryPickerStyle,
+) {
+    val colors = style.colors
+    val showBadge = inputStyle.showNumberType && value.isValid && typeLabel != null && !verified && !verifying
+    // Emitted straight into the field's row: a hidden AnimatedVisibility emits nothing, so a hidden
+    // badge or check leaves no stray gap behind.
+    AnimatedVisibility(
+        visible = showBadge,
+        enter = fadeIn(style.motion.fadeIn) + expandHorizontally(style.motion.size, expandFrom = Alignment.End),
+        exit = fadeOut(style.motion.fadeOut) + shrinkHorizontally(style.motion.size, shrinkTowards = Alignment.End),
+    ) {
+        // The badge carries the check itself, so a valid number costs the field one element, not two.
+        PickerBadge(
+            text = typeLabel.orEmpty(),
+            container = colors.successSoft,
+            content = colors.success,
+            icon = PickerIcons.Check,
+            modifier = Modifier.clearAndSetSemantics {},
+        )
+    }
+    AnimatedVisibility(
+        visible = verifying || verified || (inputStyle.showValidIndicator && value.isValid && !showBadge),
+        enter = scaleIn(style.motion.selection, initialScale = 0.4f) + fadeIn(style.motion.fadeIn),
+        exit = scaleOut(style.motion.fadeOut, targetScale = 0.4f) + fadeOut(style.motion.fadeOut),
+    ) {
+        Box(Modifier.size(22.dp), contentAlignment = Alignment.Center) {
+            when {
+                verifying -> CircularProgressIndicator(color = colors.accent, strokeWidth = 2.dp, modifier = Modifier.size(18.dp))
+                verified -> Icon(
+                    PickerIcons.CheckCircle,
+                    contentDescription = null,
+                    tint = colors.success,
+                    modifier = Modifier.size(22.dp),
+                )
+                else -> {
+                    // Starts undrawn so the check draws itself in as it scales up.
+                    var drawn by remember { mutableStateOf(false) }
+                    LaunchedEffect(Unit) { drawn = true }
+                    AnimatedCheckMark(visible = drawn, color = colors.success, modifier = Modifier.size(20.dp))
+                }
+            }
+        }
+    }
+}
+
+/** The hairline along the bottom of the field that fills as digits arrive. */
+@Composable
+private fun BoxScope.NumberProgress(value: PhoneNumberValue, hasError: Boolean, fullWidth: Boolean, style: CountryPickerStyle) {
+    val colors = style.colors
+    val expected = remember(value.country) { PhoneNumberFormatter.expectedNationalDigits(value.country) }
+    val digits = value.nationalNumber.count(Char::isDigit)
+    val target = when {
+        value.isValid -> 1f
+        digits == 0 -> 0f
+        else -> (digits.toFloat() / expected).coerceIn(0f, 0.94f)
+    }
+    val fraction by animateFloatAsState(target, style.motion.layout, label = "phoneProgress")
+    val color by animateColorAsState(
+        targetValue = when {
+            hasError -> colors.error
+            value.isValid -> colors.success
+            else -> colors.accent
+        },
+        animationSpec = style.motion.color,
+        label = "phoneProgressColor",
+    )
+    Box(
+        modifier = Modifier
+            .align(Alignment.BottomStart)
+            // Inset clear of the corners so it reads as a gauge, not a border — except under an
+            // underlined field, where it fills the underline itself.
+            .padding(horizontal = if (fullWidth) 0.dp else PROGRESS_INSET)
+            .fillMaxWidth()
+            .height(PROGRESS_HEIGHT)
+            .drawBehind {
+                if (fraction <= 0f) return@drawBehind
+                val width = size.width * fraction
+                val x = if (layoutDirection == LayoutDirection.Rtl) size.width - width else 0f
+                drawRoundRect(
+                    color = color,
+                    topLeft = Offset(x, 0f),
+                    size = Size(width, size.height),
+                    cornerRadius = CornerRadius(size.height / 2),
+                )
+            },
+    )
+}
+
+private fun PhoneNumberType.labelRes(): StringResource? = when (this) {
+    PhoneNumberType.Mobile -> Res.string.ccp_number_type_mobile
+    PhoneNumberType.FixedLine -> Res.string.ccp_number_type_landline
+    PhoneNumberType.FixedLineOrMobile -> Res.string.ccp_number_type_mobile_or_landline
+    PhoneNumberType.TollFree -> Res.string.ccp_number_type_toll_free
+    PhoneNumberType.Voip -> Res.string.ccp_number_type_voip
+    else -> null
 }
 
 /** True when this verification state means the field should be treated as verified for [value]. */
@@ -500,92 +654,24 @@ internal fun PhoneVerificationState.isVerifiedFor(value: PhoneNumberValue): Bool
     this is PhoneVerificationState.Verified && e164Number == value.e164Number
 
 /**
- * Maps [colors] onto Material's [androidx.compose.material3.TextFieldColors], shared by
- * [PhoneNumberField] and the legacy `UnifiedLegacyPhoneField` (which bridges its own [com.ezzy.ccp.model.CCPColors]
- * into a [CountryPickerColors] first) so the "what the outline actually looks like" mapping exists
- * in exactly one place.
- *
- * The container colors are always transparent: this field reads as a Material outlined text field
- * (border plus a label notched into it), not a filled box, so nothing here should paint a background.
+ * Scales the font size by [scale] for a compact [com.ezzy.ccp.countrypicker.theme.PhoneFieldSize],
+ * leaving an unspecified size alone.
  */
-@Composable
-internal fun phoneFieldColors(colors: CountryPickerColors) = OutlinedTextFieldDefaults.colors(
-    focusedTextColor = colors.selectorContent,
-    unfocusedTextColor = colors.selectorContent,
-    disabledTextColor = colors.selectorContent,
-    errorTextColor = colors.selectorContent,
-    focusedContainerColor = Color.Transparent,
-    unfocusedContainerColor = Color.Transparent,
-    disabledContainerColor = Color.Transparent,
-    errorContainerColor = Color.Transparent,
-    cursorColor = colors.selectorFocusedBorder,
-    errorCursorColor = colors.error,
-    focusedBorderColor = colors.selectorFocusedBorder,
-    unfocusedBorderColor = colors.selectorBorder,
-    disabledBorderColor = colors.selectorBorder,
-    errorBorderColor = colors.error,
-    focusedLabelColor = colors.selectorFocusedBorder,
-    unfocusedLabelColor = colors.selectorLabel,
-    disabledLabelColor = colors.selectorLabel,
-    errorLabelColor = colors.error,
-    focusedPlaceholderColor = colors.selectorLabel,
-    unfocusedPlaceholderColor = colors.selectorLabel,
-)
+internal fun TextStyle.scaledForPhoneField(scale: Float): TextStyle =
+    if (scale == 1f || fontSize.isUnspecified) {
+        this
+    } else {
+        copy(fontSize = fontSize * scale, lineHeight = if (lineHeight.isUnspecified) lineHeight else lineHeight * scale)
+    }
 
-/**
- * Scales [CountryPickerDimensions.chevronSize], [CountryPickerDimensions.iconButtonSize],
- * [CountryPickerDimensions.selectorDialMinHeight] and [CountryPickerDimensions.minimumTouchTarget]
- * by [PhoneFieldSize.contentScale] — shared by [PhoneNumberField] and the legacy
- * `UnifiedLegacyPhoneField` so the "what actually gets smaller" list exists in one place. A no-op
- * for [PhoneFieldSize.Regular].
- *
- * Scaling [CountryPickerDimensions.minimumTouchTarget] down is a deliberate trade-off, not an
- * oversight: [PhoneFieldSize.Compact]/[PhoneFieldSize.ExtraCompact] exist specifically so a field can
- * be shorter than the usual 48dp accessibility floor, and leaving the prefix's own touch-target
- * floor at 48dp regardless would make it taller than the field containing it.
- */
-internal fun CountryPickerDimensions.scaledForPhoneField(size: PhoneFieldSize): CountryPickerDimensions {
-    if (size == PhoneFieldSize.Regular) return this
-    val scale = size.contentScale
-    return copy(
-        chevronSize = chevronSize * scale,
-        iconButtonSize = iconButtonSize * scale,
-        selectorDialMinHeight = selectorDialMinHeight * scale,
-        minimumTouchTarget = minimumTouchTarget * scale,
-    )
+private fun TextStyle.lineHeightPx(density: Density): Int = with(density) {
+    (if (lineHeight.isUnspecified) fontSize * 1.3f else lineHeight).roundToPx()
 }
 
-/** Scales [CountryFlagConfig.size] by [PhoneFieldSize.contentScale]. A no-op for [PhoneFieldSize.Regular]. */
-internal fun CountryFlagConfig.scaledForPhoneField(size: PhoneFieldSize): CountryFlagConfig =
-    if (size == PhoneFieldSize.Regular) this else copy(size = this.size * size.contentScale)
-
-/**
- * Scales the phone field's value/label/dial-code/helper font sizes by [fontScale]. A no-op for
- * `1f` ([PhoneFieldSize.Regular]'s scale).
- */
-internal fun CountryPickerTypography.scaledForPhoneField(fontScale: Float): CountryPickerTypography {
-    if (fontScale == 1f) return this
-    return copy(
-        selectorValue = selectorValue.scaledForPhoneField(fontScale),
-        dialCodeValue = dialCodeValue.scaledForPhoneField(fontScale),
-        helperText = helperText.scaledForPhoneField(fontScale),
-    )
-}
-
-/**
- * Scales this style's font size by [scale], leaving an unspecified size alone. Shared by
- * [PhoneNumberField] (via [CountryPickerTypography.scaledForPhoneField]) and the legacy
- * `UnifiedLegacyPhoneField`, which scales its own plain [TextStyle]s (not routed through
- * [CountryPickerTypography]) with this directly.
- */
-internal fun TextStyle.scaledForPhoneField(scale: Float) =
-    if (fontSize.isUnspecified) this else copy(fontSize = fontSize * scale)
-
-private val LABEL_START_PADDING = 4.dp
-private val HELPER_TOP_PADDING = 6.dp
-private val HELPER_ICON_SPACING = 6.dp
-private val HELPER_ICON_SIZE = 16.dp
-private val CLEAR_ICON_SIZE = 16.dp
-private val SPINNER_SIZE = 18.dp
-private val SPINNER_STROKE = 2.dp
-private val DECORATION_VERTICAL_PADDING = 16.dp
+private const val GHOST_DIGIT = '0'
+private const val GHOST_ALPHA = 0.5f
+private const val LABEL_ID = "label"
+private const val EDITOR_ID = "editor"
+private val LABEL_GAP: Dp = 1.dp
+private val PROGRESS_HEIGHT: Dp = 2.dp
+private val PROGRESS_INSET: Dp = 18.dp

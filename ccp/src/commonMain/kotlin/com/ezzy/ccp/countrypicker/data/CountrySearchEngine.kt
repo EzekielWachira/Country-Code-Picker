@@ -105,6 +105,81 @@ public object CountrySearchEngine {
     }
 
     /**
+     * Countries whose name nearly matches [query] — the "Did you mean …?" fallback when [search]
+     * finds nothing.
+     *
+     * Compares the normalized query against each country's name, the words of its name and its
+     * aliases, both whole and as a prefix of the same length (so a half-typed name with a typo,
+     * "austrai", still finds Australia). Distance is optimal-string-alignment Damerau–Levenshtein, so
+     * a transposition ("Germnay") costs one edit, like a substitution. The allowance grows with the
+     * query: one edit up to four letters, two up to eight, three beyond — loose enough to catch real
+     * typos without flooding a short query with unrelated names.
+     *
+     * Numeric queries return nothing: a dial code that matches no country has no near neighbour
+     * worth suggesting.
+     *
+     * @param limit Maximum suggestions, closest first.
+     */
+    public fun suggest(
+        countries: List<Country>,
+        query: String,
+        limit: Int = DEFAULT_SUGGESTION_LIMIT,
+    ): List<Country> {
+        val normalized = CountryTextNormalizer.normalize(query).trim()
+        if (normalized.length < MIN_SUGGESTION_QUERY_LENGTH || normalized.any { it.isDigit() }) return emptyList()
+        val allowance = when {
+            normalized.length <= SHORT_QUERY_LENGTH -> 1
+            normalized.length <= MEDIUM_QUERY_LENGTH -> 2
+            else -> 3
+        }
+
+        return countries.asSequence()
+            .mapNotNull { country ->
+                val targets = sequenceOf(country.normalizedName) +
+                    country.normalizedWords.asSequence() +
+                    country.normalizedAliases.asSequence()
+                val best = targets.minOf { target ->
+                    minOf(
+                        editDistance(normalized, target),
+                        if (target.length > normalized.length) {
+                            editDistance(normalized, target.take(normalized.length))
+                        } else {
+                            Int.MAX_VALUE
+                        },
+                    )
+                }
+                if (best <= allowance) country to best else null
+            }
+            .sortedWith(compareBy<Pair<Country, Int>> { it.second }.thenBy { it.first.normalizedName })
+            .take(limit)
+            .map { it.first }
+            .toList()
+    }
+
+    /** Optimal-string-alignment distance: insertions, deletions, substitutions and adjacent swaps. */
+    internal fun editDistance(a: String, b: String): Int {
+        if (a == b) return 0
+        if (a.isEmpty()) return b.length
+        if (b.isEmpty()) return a.length
+        val rows = a.length + 1
+        val cols = b.length + 1
+        val d = Array(rows) { IntArray(cols) }
+        for (i in 0 until rows) d[i][0] = i
+        for (j in 0 until cols) d[0][j] = j
+        for (i in 1 until rows) {
+            for (j in 1 until cols) {
+                val cost = if (a[i - 1] == b[j - 1]) 0 else 1
+                var value = minOf(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost)
+                if (i > 1 && j > 1 && a[i - 1] == b[j - 2] && a[i - 2] == b[j - 1]) {
+                    value = minOf(value, d[i - 2][j - 2] + 1)
+                }
+                d[i][j] = value
+            }
+        }
+        return d[a.length][b.length]
+    }
+
+    /**
      * Scores one country against an already-normalized query, returning `null` when nothing matched.
      *
      * Tiers are tested in rank order and the first hit wins, so a country is never counted twice
@@ -186,4 +261,9 @@ public object CountrySearchEngine {
 
         return null
     }
+
+    private const val DEFAULT_SUGGESTION_LIMIT = 3
+    private const val MIN_SUGGESTION_QUERY_LENGTH = 3
+    private const val SHORT_QUERY_LENGTH = 4
+    private const val MEDIUM_QUERY_LENGTH = 8
 }

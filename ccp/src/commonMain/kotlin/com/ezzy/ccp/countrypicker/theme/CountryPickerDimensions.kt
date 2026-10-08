@@ -26,97 +26,129 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+/** How much room the picker gives its rows and fields. */
+public enum class CountryPickerDensity {
+    /** Tighter rows for dense, data-heavy screens. Touch targets stay at 48dp. */
+    Compact,
+
+    /** The default. */
+    Comfortable,
+
+    /** Generous spacing for onboarding and other low-density screens. */
+    Spacious,
+}
+
 /**
- * Sizes and spacing for the picker, taken from the design's CSS measurements.
+ * Sizes and spacing.
  *
- * Every touch target here is at least 48dp, which is a hard floor rather than a default: values
- * below it fail Material's accessibility guidance and are unusable for anyone with reduced motor
- * precision. The compact variants get there through padding around smaller visuals rather than by
- * shrinking the target.
+ * Use [forDensity] rather than constructing one, then `copy` the values you want to change. Every
+ * interactive element keeps a [minimumTouchTarget] of at least 48dp at every density: the compact
+ * density gets its tighter look from smaller visuals and padding, never from smaller targets.
  *
- * @property selectorMinHeight Filled/minimal selector height (design: 56px).
- * @property selectorOutlinedMinHeight Outlined selector height — slightly taller for the stroke
- *   (design: 60px).
- * @property selectorCompactMinHeight Pill-shaped compact selector (design: 40px visual) padded out
- *   to a 48dp target.
- * @property selectorFlagOnlyMinHeight Flag-only selector (design: 48px).
- * @property selectorDialMinHeight Phone dial-code selector (design: 48px).
- * @property selectorHorizontalPadding Inner horizontal padding of the full-width selectors.
- * @property selectorVerticalPadding Inner vertical padding of the full-width selectors.
- * @property selectorContentSpacing Gap between flag, text block and chevron (design: 16px).
- * @property selectorBorderWidth Outlined selector stroke at rest.
- * @property selectorFocusedBorderWidth Outlined selector stroke when focused or errored — the
- *   thickening is a second, non-color cue so focus is not conveyed by hue alone.
- * @property flagSize Default flag diameter in selectors and rows.
- * @property flagSizeCompact Flag diameter in the compact pill.
- * @property flagSizeRow Flag diameter in list rows (design: 30px).
- * @property flagAspectRatioWidthMultiplier Width multiplier for the `orig` flag shape, which keeps a
- *   flag's real 4:3 proportions instead of cropping it into a circle.
- * @property chevronSize Chevron icon size.
- * @property rowMinHeight List row height (design: 56px).
- * @property rowHorizontalPadding Row horizontal padding (design: 24px).
- * @property rowVerticalPadding Row vertical padding.
- * @property rowContentSpacing Gap between row flag, text and trailing control.
- * @property checkIconSize Single-select check mark.
- * @property checkboxSize Multi-select checkbox.
- * @property searchFieldHeight Search field height (design: 56px).
- * @property searchHorizontalMargin Search field margin inside the sheet.
- * @property searchContentSpacing Gap between search icon, input and trailing button.
- * @property searchBorderWidth Search field stroke when focused.
- * @property sectionHeaderTopPadding Space above a section header.
- * @property sectionHeaderBottomPadding Space below a section header.
- * @property sheetHorizontalPadding Sheet content inset.
- * @property sheetHeaderStartPadding Sheet title inset (design: 24px).
- * @property currentSelectionPadding Inner padding of the "Current selection" card.
- * @property regionChipHeight Region filter chip height (design: 32px) — its 48dp target comes from
- *   the surrounding row padding.
- * @property regionChipHorizontalPadding Region chip inner padding.
- * @property regionChipSpacing Gap between region chips.
- * @property minimumTouchTarget Accessibility floor applied to every clickable element.
- * @property iconButtonSize Close/clear icon button size.
- * @property phoneFieldMinHeightWithLabel Unified phone field height with its floating label visible.
- * @property phoneFieldMinHeightNoLabel Unified phone field height with the label hidden — shorter,
- *   since no space needs to be reserved for it.
+ * @property fieldMinHeight Selector and phone field height.
+ * @property fieldCompactHeight Pill selectors (compact, flag-only, dial code).
+ * @property fieldHorizontalPadding Inner horizontal padding of fields.
+ * @property fieldContentSpacing Gap between a field's flag, text and trailing icon.
+ * @property fieldBorderWidth Field border at rest.
+ * @property fieldFocusedBorderWidth Field border when focused, open or in error.
+ * @property focusRingWidth Spread of the soft focus glow around a focused field.
+ * @property flagSizeField Flag in a field.
+ * @property flagSizeRow Flag in a list row.
+ * @property flagSizeCompact Flag in a pill selector or the phone prefix.
+ * @property flagSizeTile Flag in a quick-pick tile.
+ * @property rowMinHeight List row height.
+ * @property rowHorizontalPadding Row inner padding.
+ * @property rowVerticalPadding Row inner padding.
+ * @property rowContentSpacing Gap between a row's flag, text and trailing content.
+ * @property groupHorizontalMargin Inset of grouped list sections from the sheet edge.
+ * @property groupSpacing Space between list sections.
+ * @property sheetHorizontalPadding Header, search and filter inset.
+ * @property searchFieldHeight Search field height.
+ * @property chipHeight Region filter height.
+ * @property chipHorizontalPadding Region filter inner padding.
+ * @property chipSpacing Gap between region filters.
+ * @property tileWidth Quick-pick tile width.
+ * @property tileHeight Quick-pick tile height.
+ * @property indicatorSize Selection check and radio size.
+ * @property checkboxSize Multi-select checkbox size.
+ * @property iconButtonSize Visual size of the close and clear buttons; their touch target is
+ *   [minimumTouchTarget].
+ * @property indexRailWidth Width of the A–Z rail.
+ * @property indexBubbleSize Diameter of the letter bubble shown while scrubbing the rail.
+ * @property minimumTouchTarget Accessibility floor for every clickable element.
  */
 @Immutable
 public data class CountryPickerDimensions(
-    val selectorMinHeight: Dp = 56.dp,
-    val selectorOutlinedMinHeight: Dp = 60.dp,
-    val selectorCompactMinHeight: Dp = 48.dp,
-    val selectorFlagOnlyMinHeight: Dp = 48.dp,
-    val selectorDialMinHeight: Dp = 48.dp,
-    val selectorHorizontalPadding: Dp = 16.dp,
-    val selectorVerticalPadding: Dp = 8.dp,
-    val selectorContentSpacing: Dp = 16.dp,
-    val selectorBorderWidth: Dp = 1.dp,
-    val selectorFocusedBorderWidth: Dp = 2.dp,
-    val flagSize: Dp = 28.dp,
-    val flagSizeCompact: Dp = 22.dp,
-    val flagSizeRow: Dp = 30.dp,
-    val flagAspectRatioWidthMultiplier: Float = 4f / 3f,
-    val chevronSize: Dp = 24.dp,
-    val rowMinHeight: Dp = 56.dp,
-    val rowHorizontalPadding: Dp = 24.dp,
-    val rowVerticalPadding: Dp = 8.dp,
-    val rowContentSpacing: Dp = 16.dp,
-    val checkIconSize: Dp = 24.dp,
-    val checkboxSize: Dp = 20.dp,
-    val searchFieldHeight: Dp = 56.dp,
-    val searchHorizontalMargin: Dp = 16.dp,
-    val searchContentSpacing: Dp = 12.dp,
-    val searchBorderWidth: Dp = 2.dp,
-    val sectionHeaderTopPadding: Dp = 12.dp,
-    val sectionHeaderBottomPadding: Dp = 6.dp,
-    val sheetHorizontalPadding: Dp = 16.dp,
-    val sheetHeaderStartPadding: Dp = 24.dp,
-    val currentSelectionPadding: Dp = 14.dp,
-    val regionChipHeight: Dp = 32.dp,
-    val regionChipHorizontalPadding: Dp = 14.dp,
-    val regionChipSpacing: Dp = 8.dp,
+    val fieldMinHeight: Dp = 60.dp,
+    val fieldCompactHeight: Dp = 44.dp,
+    val fieldHorizontalPadding: Dp = 14.dp,
+    val fieldContentSpacing: Dp = 12.dp,
+    val fieldBorderWidth: Dp = 1.dp,
+    val fieldFocusedBorderWidth: Dp = 1.5.dp,
+    val focusRingWidth: Dp = 4.dp,
+    val flagSizeField: Dp = 34.dp,
+    val flagSizeRow: Dp = 36.dp,
+    val flagSizeCompact: Dp = 24.dp,
+    val flagSizeTile: Dp = 40.dp,
+    val rowMinHeight: Dp = 58.dp,
+    val rowHorizontalPadding: Dp = 14.dp,
+    val rowVerticalPadding: Dp = 10.dp,
+    val rowContentSpacing: Dp = 14.dp,
+    val groupHorizontalMargin: Dp = 16.dp,
+    val groupSpacing: Dp = 22.dp,
+    val sheetHorizontalPadding: Dp = 20.dp,
+    val searchFieldHeight: Dp = 48.dp,
+    val chipHeight: Dp = 34.dp,
+    val chipHorizontalPadding: Dp = 14.dp,
+    val chipSpacing: Dp = 4.dp,
+    val tileWidth: Dp = 84.dp,
+    val tileHeight: Dp = 104.dp,
+    val indicatorSize: Dp = 22.dp,
+    val checkboxSize: Dp = 22.dp,
+    val iconButtonSize: Dp = 32.dp,
+    val indexRailWidth: Dp = 22.dp,
+    val indexBubbleSize: Dp = 60.dp,
     val minimumTouchTarget: Dp = 48.dp,
-    val iconButtonSize: Dp = 48.dp,
-    /** Unified phone field height when its floating label is visible (target range 64–72dp). */
-    val phoneFieldMinHeightWithLabel: Dp = 68.dp,
-    /** Unified phone field height with the label hidden (target range 56–64dp). */
-    val phoneFieldMinHeightNoLabel: Dp = 60.dp,
-)
+) {
+    public companion object {
+        /** The dimensions for [density]. */
+        public fun forDensity(density: CountryPickerDensity): CountryPickerDimensions = when (density) {
+            CountryPickerDensity.Comfortable -> CountryPickerDimensions()
+            CountryPickerDensity.Compact -> CountryPickerDimensions(
+                fieldMinHeight = 52.dp,
+                fieldCompactHeight = 40.dp,
+                fieldHorizontalPadding = 12.dp,
+                fieldContentSpacing = 10.dp,
+                flagSizeField = 28.dp,
+                flagSizeRow = 30.dp,
+                flagSizeCompact = 22.dp,
+                flagSizeTile = 34.dp,
+                rowMinHeight = 48.dp,
+                rowVerticalPadding = 6.dp,
+                rowContentSpacing = 12.dp,
+                groupSpacing = 16.dp,
+                searchFieldHeight = 44.dp,
+                chipHeight = 32.dp,
+                tileWidth = 76.dp,
+                tileHeight = 96.dp,
+            )
+            CountryPickerDensity.Spacious -> CountryPickerDimensions(
+                fieldMinHeight = 68.dp,
+                fieldHorizontalPadding = 16.dp,
+                fieldContentSpacing = 14.dp,
+                flagSizeField = 38.dp,
+                flagSizeRow = 40.dp,
+                flagSizeTile = 44.dp,
+                rowMinHeight = 66.dp,
+                rowHorizontalPadding = 16.dp,
+                rowVerticalPadding = 12.dp,
+                rowContentSpacing = 16.dp,
+                groupSpacing = 28.dp,
+                searchFieldHeight = 52.dp,
+                chipHeight = 38.dp,
+                tileWidth = 92.dp,
+                tileHeight = 112.dp,
+            )
+        }
+    }
+}

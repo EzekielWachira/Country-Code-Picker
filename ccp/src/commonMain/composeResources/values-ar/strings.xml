@@ -14,7 +14,6 @@
     <string name="ccp_select_country_subtitle">اختر دولة إقامتك</string>
     <string name="ccp_country_code_title">رمز الدولة</string>
     <string name="ccp_country_code_subtitle">ابحث بالدولة أو رمز الاتصال</string>
-    <string name="ccp_title_with_count">%1$s · %2$d</string>
     <string name="ccp_close">إغلاق</string>
     <string name="ccp_back">رجوع</string>
     <string name="ccp_drag_handle">اسحب لتغيير الحجم أو للإغلاق</string>
@@ -37,6 +36,7 @@
         <item quantity="other">%1$d نتيجة</item>
     </plurals>
     <string name="ccp_result_count_in_region">%1$s في %2$s</string>
+    <string name="ccp_did_you_mean">هل تقصد؟</string>
     <plurals name="ccp_countries_found">
         <item quantity="zero">لم يتم العثور على دول</item>
         <item quantity="one">تم العثور على دولة واحدة</item>
@@ -52,7 +52,7 @@
     <string name="ccp_section_recent">المختارة مؤخرًا</string>
     <string name="ccp_section_suggested">المقترحة</string>
     <string name="ccp_section_all">جميع الدول</string>
-    <string name="ccp_current_selection">الاختيار الحالي</string>
+    <string name="ccp_section_quick_picks">اختيارات سريعة</string>
 
     <!-- ── Region filters ───────────────────────────────────────────────────── -->
     <string name="ccp_region_all">الكل</string>
@@ -70,6 +70,8 @@
     <string name="ccp_confirm_count">تأكيد (%1$d)</string>
     <string name="ccp_retry">حاول مرة أخرى</string>
     <string name="ccp_use">استخدام</string>
+    <string name="ccp_change">تغيير</string>
+    <string name="ccp_remove_country_a11y">إزالة %1$s</string>
 
     <!-- ── Selector ─────────────────────────────────────────────────────────── -->
     <string name="ccp_country_of_residence">دولة الإقامة</string>
@@ -170,6 +172,13 @@
     <string name="ccp_phone_error_invalid_generic">أدخل رقم هاتف صالحًا</string>
     <string name="ccp_phone_error_unsupported_country">أرقام الهاتف غير مدعومة لـ %1$s</string>
     <string name="ccp_phone_error_invalid_country_code">رمز الاتصال الدولي هذا غير معروف</string>
+    <string name="ccp_number_type_mobile">محمول</string>
+    <string name="ccp_number_type_landline">أرضي</string>
+    <string name="ccp_number_type_mobile_or_landline">محمول أو أرضي</string>
+    <string name="ccp_number_type_toll_free">مجاني</string>
+    <string name="ccp_number_type_voip">VoIP</string>
+    <string name="ccp_phone_state_valid">رقم صالح</string>
+    <string name="ccp_phone_state_valid_type">رقم صالح، %1$s</string>
     <!-- Shown when the number is real but the wrong kind of line for this flow -->
     <string name="ccp_phone_error_requires_mobile">أدخل رقم هاتف محمول</string>
     <string name="ccp_phone_error_requires_landline">أدخل رقم هاتف أرضي</string>

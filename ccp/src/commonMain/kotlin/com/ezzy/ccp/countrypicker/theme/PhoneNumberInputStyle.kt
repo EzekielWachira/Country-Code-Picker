@@ -23,67 +23,72 @@
 package com.ezzy.ccp.countrypicker.theme
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.unit.dp
 import com.ezzy.ccp.countrypicker.model.InputLabelMode
 import com.ezzy.ccp.countrypicker.model.PhonePrefixContentMode
 
 /**
- * Visual configuration for the unified phone number field — one typed model instead of the seven or
- * eight unrelated booleans (`showLabel`, `showFlag`, `showDialCode`, `showDivider`, `showChevron`, …)
- * that configuring a field this way would otherwise require.
+ * Options specific to [com.ezzy.ccp.countrypicker.ui.PhoneNumberField] — one typed value instead of a
+ * row of unrelated booleans on the composable.
  *
- * @property labelMode Whether the field shows a visible floating label. See [InputLabelMode] — hiding
- *   it never removes the label from accessibility.
- * @property flagConfig How the prefix's flag is presented. Defaults to [CountryFlagStyle.Plain] — a
- *   bare flag with no background — matching the compact phone-field reference; the fuller
- *   [CountryFlagStyle.TonalContainer] look most other selectors use would compete visually with the
- *   dial code and chevron packed into the same small prefix.
- * @property showDropdownIcon Whether the trailing chevron renders in the prefix.
- * @property showPrefixDivider Whether the vertical divider between the prefix and the number editor
- *   renders. Off removes it entirely rather than just making it transparent, so no dead space remains.
- * @property prefixContentMode What the prefix shows before the divider — see [PhonePrefixContentMode].
- * @property size Overall field size — see [PhoneFieldSize]. [PhoneFieldSize.Regular] (the default)
- *   changes nothing; [PhoneFieldSize.Compact]/[PhoneFieldSize.ExtraCompact] shrink the field's
- *   padding, flag, chevron, and icon-button sizes together with its font size, so a shorter field
- *   never clips or crowds its own content.
+ * Colors, shapes, flags and motion come from the [CountryPickerStyle] like every other component;
+ * these are the choices only a phone field has.
+ *
+ * @property labelMode A floating label, or none. Hiding it never removes the label from
+ *   accessibility.
+ * @property prefixContentMode What the country prefix shows — see [PhonePrefixContentMode].
+ * @property showDropdownIcon The small chevron in the prefix.
+ * @property showPrefixDivider The hairline between the prefix and the number.
+ * @property size Overall size — see [PhoneFieldSize].
+ * @property showGhostDigits Show the country's example number as faint digits that the user's typing
+ *   fills in, so the expected length and grouping are visible before a digit is typed.
+ * @property showProgress A thin bar along the bottom of the field that fills as digits are entered and
+ *   turns to the success color once the number is valid.
+ * @property showNumberType A badge naming the kind of number — Mobile, Landline — once it is valid.
+ * @property showValidIndicator A check mark once the number is valid.
  */
 @Immutable
 public data class PhoneNumberInputStyle(
     val labelMode: InputLabelMode = InputLabelMode.Floating,
-    val flagConfig: CountryFlagConfig = CountryFlagConfig(style = CountryFlagStyle.Plain, size = 24.dp),
+    val prefixContentMode: PhonePrefixContentMode = PhonePrefixContentMode.FlagAndDialCode,
     val showDropdownIcon: Boolean = true,
     val showPrefixDivider: Boolean = true,
-    val prefixContentMode: PhonePrefixContentMode = PhonePrefixContentMode.FlagAndDialCode,
     val size: PhoneFieldSize = PhoneFieldSize.Regular,
+    val showGhostDigits: Boolean = true,
+    val showProgress: Boolean = true,
+    val showNumberType: Boolean = true,
+    val showValidIndicator: Boolean = true,
 ) {
-    /** [labelMode] as a plain boolean, for call sites that don't need the enum's other meaning. */
+    /** [labelMode] as a plain boolean. */
     val hasVisibleLabel: Boolean get() = labelMode == InputLabelMode.Floating
 }
 
-/** Component defaults for [PhoneNumberInputStyle], mirroring the rest of the library's convention. */
+/** Builders for [PhoneNumberInputStyle]. */
 public object PhoneNumberInputDefaults {
 
-    /** The library's default unified phone field style: floating label, plain flag, flag + dial code. */
+    /** The default phone field: floating label, flag and dial code, ghost digits and progress. */
     public fun style(
         labelMode: InputLabelMode = InputLabelMode.Floating,
-        flagConfig: CountryFlagConfig = CountryFlagConfig(style = CountryFlagStyle.Plain, size = 24.dp),
+        prefixContentMode: PhonePrefixContentMode = PhonePrefixContentMode.FlagAndDialCode,
         showDropdownIcon: Boolean = true,
         showPrefixDivider: Boolean = true,
-        prefixContentMode: PhonePrefixContentMode = PhonePrefixContentMode.FlagAndDialCode,
         size: PhoneFieldSize = PhoneFieldSize.Regular,
+        showGhostDigits: Boolean = true,
+        showProgress: Boolean = true,
+        showNumberType: Boolean = true,
+        showValidIndicator: Boolean = true,
     ): PhoneNumberInputStyle = PhoneNumberInputStyle(
         labelMode = labelMode,
-        flagConfig = flagConfig,
+        prefixContentMode = prefixContentMode,
         showDropdownIcon = showDropdownIcon,
         showPrefixDivider = showPrefixDivider,
-        prefixContentMode = prefixContentMode,
         size = size,
+        showGhostDigits = showGhostDigits,
+        showProgress = showProgress,
+        showNumberType = showNumberType,
+        showValidIndicator = showValidIndicator,
     )
 
-    /** A style with no visible label, for a field embedded where the surrounding form already labels it. */
-    public fun hiddenLabelStyle(
-        flagConfig: CountryFlagConfig = CountryFlagConfig(style = CountryFlagStyle.Plain, size = 24.dp),
-        size: PhoneFieldSize = PhoneFieldSize.Regular,
-    ): PhoneNumberInputStyle =
-        PhoneNumberInputStyle(labelMode = InputLabelMode.Hidden, flagConfig = flagConfig, size = size)
+    /** No visible label, for a field the surrounding form already labels. */
+    public fun hiddenLabelStyle(size: PhoneFieldSize = PhoneFieldSize.Regular): PhoneNumberInputStyle =
+        PhoneNumberInputStyle(labelMode = InputLabelMode.Hidden, size = size)
 }

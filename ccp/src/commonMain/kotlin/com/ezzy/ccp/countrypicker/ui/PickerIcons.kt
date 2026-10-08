@@ -35,8 +35,7 @@ import androidx.compose.ui.unit.dp
  *
  * These are declared here rather than pulled from `material-icons-extended` on purpose: that artifact
  * is ~10 MB before shrinking, and depending on it to get five 24dp glyphs would be the single largest
- * cost this library imposes on a consumer. The existing [com.ezzy.ccp.icons.EzzyIcons] set is reused
- * where it already has the glyph (chevron, close, search); the rest are added here in the same style.
+ * cost this library imposes on a consumer.
  */
 internal object PickerIcons {
 
@@ -151,6 +150,117 @@ internal object PickerIcons {
                 moveTo(12f, 20f)
                 arcToRelative(2f, 2f, 0f, isMoreThanHalf = true, isPositiveArc = true, 0f, -4f)
                 arcToRelative(2f, 2f, 0f, isMoreThanHalf = true, isPositiveArc = true, 0f, 4f)
+                close()
+            }
+        }
+    }
+
+    /** Magnifying glass for the search field. */
+    val Search: ImageVector by lazy {
+        icon("Search") {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(18f, 10.5f)
+                arcToRelative(7.5f, 7.5f, 0f, isMoreThanHalf = true, isPositiveArc = true, -15f, 0f)
+                arcToRelative(7.5f, 7.5f, 0f, isMoreThanHalf = true, isPositiveArc = true, 15f, 0f)
+                close()
+                moveTo(16f, 16f)
+                lineTo(21f, 21f)
+            }
+        }
+    }
+
+    /** Close glyph. Drawn at the size it is used — unlike the 512dp legacy asset. */
+    val Close: ImageVector by lazy {
+        icon("Close") {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 2.2f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(6.5f, 6.5f)
+                lineTo(17.5f, 17.5f)
+                moveTo(17.5f, 6.5f)
+                lineTo(6.5f, 17.5f)
+            }
+        }
+    }
+
+    /** Downward chevron for fields and pills. */
+    val ChevronDown: ImageVector by lazy {
+        icon("ChevronDown") {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 2.2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                moveTo(6.5f, 9.5f)
+                lineTo(12f, 15f)
+                lineTo(17.5f, 9.5f)
+            }
+        }
+    }
+
+    /** Map pin for the detected-country banner. */
+    val LocationPin: ImageVector by lazy {
+        icon("LocationPin") {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                moveTo(12f, 21.5f)
+                curveTo(12f, 21.5f, 19f, 15.2f, 19f, 10f)
+                arcToRelative(7f, 7f, 0f, isMoreThanHalf = false, isPositiveArc = false, -14f, 0f)
+                curveTo(5f, 15.2f, 12f, 21.5f, 12f, 21.5f)
+                close()
+                moveTo(14.5f, 10f)
+                arcToRelative(2.5f, 2.5f, 0f, isMoreThanHalf = true, isPositiveArc = true, -5f, 0f)
+                arcToRelative(2.5f, 2.5f, 0f, isMoreThanHalf = true, isPositiveArc = true, 5f, 0f)
+                close()
+            }
+        }
+    }
+
+    /** Crossed-out wifi for the offline state. */
+    val Offline: ImageVector by lazy {
+        icon("Offline") {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(2.5f, 8.8f)
+                curveTo(5f, 6.6f, 8.3f, 5.3f, 12f, 5.3f)
+                curveTo(15.7f, 5.3f, 19f, 6.6f, 21.5f, 8.8f)
+                moveTo(5.6f, 12.3f)
+                curveTo(7.3f, 10.9f, 9.6f, 10f, 12f, 10f)
+                curveTo(14.4f, 10f, 16.7f, 10.9f, 18.4f, 12.3f)
+                moveTo(8.8f, 15.7f)
+                curveTo(9.7f, 15f, 10.8f, 14.6f, 12f, 14.6f)
+                curveTo(13.2f, 14.6f, 14.3f, 15f, 15.2f, 15.7f)
+                moveTo(12f, 19.2f)
+                verticalLineTo(19.3f)
+                moveTo(3.5f, 3.5f)
+                lineTo(20.5f, 20.5f)
+            }
+        }
+    }
+
+    /** Four-point sparkle for "did you mean" suggestions. */
+    val Sparkle: ImageVector by lazy {
+        icon("Sparkle") {
+            path(fill = SolidColor(Color.Black)) {
+                moveTo(12f, 2.5f)
+                curveTo(12.6f, 8.2f, 15.8f, 11.4f, 21.5f, 12f)
+                curveTo(15.8f, 12.6f, 12.6f, 15.8f, 12f, 21.5f)
+                curveTo(11.4f, 15.8f, 8.2f, 12.6f, 2.5f, 12f)
+                curveTo(8.2f, 11.4f, 11.4f, 8.2f, 12f, 2.5f)
                 close()
             }
         }

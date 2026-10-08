@@ -7,7 +7,6 @@
     <string name="ccp_select_country_subtitle">Wähle dein Wohnsitzland</string>
     <string name="ccp_country_code_title">Ländervorwahl</string>
     <string name="ccp_country_code_subtitle">Nach Land oder Vorwahl suchen</string>
-    <string name="ccp_title_with_count">%1$s · %2$d</string>
     <string name="ccp_close">Schließen</string>
     <string name="ccp_back">Zurück</string>
     <string name="ccp_drag_handle">Ziehen zum Ändern der Größe oder Schließen</string>
@@ -26,6 +25,7 @@
         <item quantity="other">%1$d Ergebnisse</item>
     </plurals>
     <string name="ccp_result_count_in_region">%1$s in %2$s</string>
+    <string name="ccp_did_you_mean">Meintest du?</string>
     <plurals name="ccp_countries_found">
         <item quantity="one">%1$d Land gefunden</item>
         <item quantity="other">%1$d Länder gefunden</item>
@@ -37,7 +37,7 @@
     <string name="ccp_section_recent">Zuletzt ausgewählt</string>
     <string name="ccp_section_suggested">Vorschläge</string>
     <string name="ccp_section_all">Alle Länder</string>
-    <string name="ccp_current_selection">Aktuelle Auswahl</string>
+    <string name="ccp_section_quick_picks">Schnellauswahl</string>
 
     <!-- ── Region filters ───────────────────────────────────────────────────── -->
     <string name="ccp_region_all">Alle</string>
@@ -55,6 +55,8 @@
     <string name="ccp_confirm_count">Bestätigen (%1$d)</string>
     <string name="ccp_retry">Erneut versuchen</string>
     <string name="ccp_use">Verwenden</string>
+    <string name="ccp_change">Ändern</string>
+    <string name="ccp_remove_country_a11y">%1$s entfernen</string>
 
     <!-- ── Selector ─────────────────────────────────────────────────────────── -->
     <string name="ccp_country_of_residence">Wohnsitzland</string>
@@ -139,6 +141,13 @@
     <string name="ccp_phone_error_invalid_generic">Gib eine gültige Telefonnummer ein</string>
     <string name="ccp_phone_error_unsupported_country">Telefonnummern werden für %1$s nicht unterstützt</string>
     <string name="ccp_phone_error_invalid_country_code">Diese Ländervorwahl ist unbekannt</string>
+    <string name="ccp_number_type_mobile">Mobil</string>
+    <string name="ccp_number_type_landline">Festnetz</string>
+    <string name="ccp_number_type_mobile_or_landline">Mobil oder Festnetz</string>
+    <string name="ccp_number_type_toll_free">Gebührenfrei</string>
+    <string name="ccp_number_type_voip">VoIP</string>
+    <string name="ccp_phone_state_valid">Gültige Nummer</string>
+    <string name="ccp_phone_state_valid_type">Gültige Nummer, %1$s</string>
     <!-- Shown when the number is real but the wrong kind of line for this flow -->
     <string name="ccp_phone_error_requires_mobile">Gib eine Mobilnummer ein</string>
     <string name="ccp_phone_error_requires_landline">Gib eine Festnetznummer ein</string>

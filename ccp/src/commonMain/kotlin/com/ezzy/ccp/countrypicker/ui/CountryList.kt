@@ -22,220 +22,219 @@
 
 package com.ezzy.ccp.countrypicker.ui
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.ezzy.ccp.countrypicker.model.Country
 import com.ezzy.ccp.countrypicker.model.CountrySelectionMode
-import com.ezzy.ccp.countrypicker.state.CountryPickerConfig
+import com.ezzy.ccp.countrypicker.state.CountryPickerState
 import com.ezzy.ccp.countrypicker.state.CountrySection
 import com.ezzy.ccp.countrypicker.state.CountrySectionKind
-import com.ezzy.ccp.countrypicker.theme.CountryFlagShape
 import com.ezzy.ccp.countrypicker.theme.CountryFlagStyle
-import com.ezzy.ccp.countrypicker.theme.CountryPickerColors
-import com.ezzy.ccp.countrypicker.theme.CountryPickerDefaults
-import com.ezzy.ccp.countrypicker.theme.CountryPickerDimensions
-import com.ezzy.ccp.countrypicker.theme.CountryPickerMotion
-import com.ezzy.ccp.countrypicker.theme.CountryPickerShapes
-import com.ezzy.ccp.countrypicker.theme.CountryPickerTypography
+import com.ezzy.ccp.countrypicker.theme.CountryListStyle
+import com.ezzy.ccp.countrypicker.theme.CountryPickerStyle
+import com.ezzy.ccp.countrypicker.theme.CountryPickerTheme
 import com.ezzy.ccp.resources.Res
 import com.ezzy.ccp.resources.ccp_section_selected_count
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * The grouped, scrollable country list.
+ * The country list, laid out in the style's [CountryListStyle].
  *
- * ### Performance
- * The whole world is ~236 rows, and this list has to stay smooth on low-end hardware:
+ * ### Item structure
+ * Each titled section contributes exactly one header item followed by one item per country, and
+ * nothing else — the A–Z rail ([rememberCountryListIndex]) maps letters to lazy-list indices by that
+ * rule. Content added through [leadingContent] comes before every section; a caller that adds some
+ * offsets the rail's indices by the number of items it added.
  *
- * - Item keys are **ISO alpha-2 codes**, never list indices. An index key makes Compose reuse the
- *   wrong slot when the list is filtered, which shows up as check marks appearing on the wrong rows.
- *   The dial code would be worse still — `+1` is not unique.
- * - `contentType` is set per row so Compose reuses row slots across sections instead of recreating them.
- * - `animateItem` is applied only to *placement*, not to fades. A fade on every item makes each frame
- *   of a fast scroll composite ~10 semi-transparent layers.
- * - The reveal stagger is capped at [CountryPickerMotion.maxStaggeredItems] rows and is skipped
- *   entirely while searching — animating rows the user is filtering through fights their input.
+ * ### Motion
+ * Rows fade in with a short stagger the first time the list appears, and slide rather than jump when
+ * a country moves between sections. Both are off when motion is.
  *
- * @param sections Already grouped and deduplicated by
- *   [com.ezzy.ccp.countrypicker.state.CountryPickerState].
- * @param selectedCountries Countries to show as selected.
- * @param onCountryClick Row activation.
+ * @param leadingContent Items placed before the first section, such as a carousel or a banner.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 public fun CountryList(
     sections: List<CountrySection>,
     selectedCountries: Set<Country>,
     onCountryClick: (Country) -> Unit,
     modifier: Modifier = Modifier,
-    config: CountryPickerConfig = CountryPickerConfig(),
-    listState: LazyListState = rememberLazyListState(),
+    selectionMode: CountrySelectionMode = CountrySelectionMode.Single,
     disabledCountries: Set<String> = emptySet(),
-    isSearching: Boolean = false,
+    listState: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(bottom = LIST_BOTTOM_PADDING),
-    colors: CountryPickerColors = CountryPickerDefaults.colors(),
-    shapes: CountryPickerShapes = CountryPickerDefaults.shapes(),
-    dimensions: CountryPickerDimensions = CountryPickerDefaults.dimensions(),
-    typography: CountryPickerTypography = CountryPickerDefaults.typography(),
-    motion: CountryPickerMotion = CountryPickerDefaults.motion(),
+    leadingContent: LazyListScope.() -> Unit = {},
+    style: CountryPickerStyle = CountryPickerTheme.style,
     flagContent: (@Composable (Country) -> Unit)? = null,
     listItemContent: (@Composable (CountryListItemScope) -> Unit)? = null,
 ) {
-    val flagShape = if (config.flagsVisible) config.flagShape else CountryFlagShape.Hidden
+    val motion = style.motion
+    // One timeline for the whole entrance; each row derives its own progress from it in the draw
+    // phase, so the stagger costs no recomposition.
+    val entrance = remember { Animatable(if (motion.enabled) 0f else 1f) }
+    val entranceMillis = motion.staggerMillis * motion.maxStaggeredItems + ENTRANCE_ITEM_MILLIS
+    LaunchedEffect(Unit) {
+        if (entrance.value < 1f) entrance.animateTo(1f, tween(entranceMillis, easing = LinearEasing))
+    }
 
     LazyColumn(
         state = listState,
         modifier = modifier.fillMaxWidth(),
         contentPadding = contentPadding,
     ) {
-        sections.forEach { section ->
+        leadingContent()
+
+        var rowIndex = 0
+        sections.forEachIndexed { sectionIndex, section ->
             if (section.kind.titleRes != null) {
-                // Sticky headers: with four sections and a long tail, a header that scrolls away
-                // leaves the user unable to tell which group a row belongs to.
-                stickyHeader(key = "header_${section.kind.name}", contentType = HEADER_CONTENT_TYPE) {
+                val header: @Composable LazyItemScope.() -> Unit = {
                     CountrySectionHeader(
                         section = section,
-                        showCount = config.isMultiSelect && section.kind == CountrySectionKind.Selected,
-                        colors = colors,
-                        dimensions = dimensions,
-                        typography = typography,
+                        showCount = selectionMode == CountrySelectionMode.Multiple && section.kind == CountrySectionKind.Selected,
+                        isFirst = sectionIndex == 0,
+                        style = style,
                     )
+                }
+                // Grouped and card lists keep their headers in flow: a canvas-colored bar floating
+                // over white cards looks broken. Plain lists pin them, so a long tail never loses
+                // track of which group a row belongs to.
+                if (style.layout.listStyle == CountryListStyle.Plain) {
+                    stickyHeader(key = "header_${section.kind.name}", contentType = HEADER_CONTENT_TYPE) { header() }
+                } else {
+                    item(key = "header_${section.kind.name}", contentType = HEADER_CONTENT_TYPE) { header() }
                 }
             }
 
-            countrySectionItems(
-                section = section,
-                selectedCountries = selectedCountries,
-                disabledCountries = disabledCountries,
-                config = config,
-                isSearching = isSearching,
-                flagShape = flagShape,
-                flagStyle = config.rowFlagStyle,
-                colors = colors,
-                shapes = shapes,
-                dimensions = dimensions,
-                typography = typography,
-                motion = motion,
-                flagContent = flagContent,
-                listItemContent = listItemContent,
-                onCountryClick = onCountryClick,
-            )
+            val firstRow = rowIndex
+            items(
+                count = section.items.size,
+                key = { "${section.kind.name}_${section.items[it].country.iso2Code}" },
+                contentType = { ROW_CONTENT_TYPE },
+            ) { index ->
+                val match = section.items[index]
+                val country = match.country
+                val selected = country in selectedCountries
+                val enabled = country.iso2Code !in disabledCountries
+                val position = GroupPosition.of(index, section.items.size)
+                val order = firstRow + index
+                val itemModifier = Modifier
+                    .animateItem(fadeInSpec = null, fadeOutSpec = null, placementSpec = motion.offset)
+                    .graphicsLayer {
+                        val stagger = (order.coerceAtMost(motion.maxStaggeredItems) * motion.staggerMillis).toFloat()
+                        val local = ((entrance.value * entranceMillis - stagger) / ENTRANCE_ITEM_MILLIS).coerceIn(0f, 1f)
+                        alpha = local
+                        translationY = (1f - local) * ENTRANCE_OFFSET.toPx()
+                    }
+                    .listItemContainer(style, position, untitledFirst = section.kind.titleRes == null && index == 0 && sectionIndex == 0)
+
+                val onClick = { onCountryClick(country) }
+                Box(itemModifier) {
+                    if (listItemContent != null) {
+                        listItemContent(CountryListItemScope(match, selected, enabled, selectionMode, onClick))
+                    } else {
+                        CountryListItem(
+                            match = match,
+                            selected = selected,
+                            onClick = onClick,
+                            enabled = enabled,
+                            selectionMode = selectionMode,
+                            unavailable = !enabled,
+                            shape = style.rowShape(),
+                            style = style,
+                            flagContent = flagContent,
+                        )
+                    }
+                }
+            }
+            rowIndex += section.items.size
         }
     }
 }
 
-/**
- * Emits one section's rows.
- *
- * Extracted so the key/contentType/animation decisions live in one place rather than being repeated
- * per section, and so the item lambda stays small enough for Compose to skip cheaply.
- */
-private fun androidx.compose.foundation.lazy.LazyListScope.countrySectionItems(
-    section: CountrySection,
-    selectedCountries: Set<Country>,
-    disabledCountries: Set<String>,
-    config: CountryPickerConfig,
-    isSearching: Boolean,
-    flagShape: CountryFlagShape,
-    flagStyle: CountryFlagStyle,
-    colors: CountryPickerColors,
-    shapes: CountryPickerShapes,
-    dimensions: CountryPickerDimensions,
-    typography: CountryPickerTypography,
-    motion: CountryPickerMotion,
-    flagContent: (@Composable (Country) -> Unit)?,
-    listItemContent: (@Composable (CountryListItemScope) -> Unit)?,
+/** [CountryList] driven by a [CountryPickerState]: its sections, selection and disabled countries. */
+@Composable
+public fun CountryList(
+    state: CountryPickerState,
     onCountryClick: (Country) -> Unit,
+    modifier: Modifier = Modifier,
+    listState: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(bottom = LIST_BOTTOM_PADDING),
+    leadingContent: LazyListScope.() -> Unit = {},
+    style: CountryPickerStyle = CountryPickerTheme.style,
+    flagContent: (@Composable (Country) -> Unit)? = null,
+    listItemContent: (@Composable (CountryListItemScope) -> Unit)? = null,
 ) {
-    items(
-        count = section.items.size,
-        // ISO alpha-2 scoped by section: a country appears in exactly one section, but scoping keeps
-        // keys unique even if a future config allowed overlap.
-        key = { index -> "${section.kind.name}_${section.items[index].country.iso2Code}" },
-        contentType = { ROW_CONTENT_TYPE },
-    ) { index ->
-        val match = section.items[index]
-        val country = match.country
-        val selected = country in selectedCountries
-        val enabled = country.iso2Code !in disabledCountries
-
-        val scope = CountryListItemScope(
-            match = match,
-            selected = selected,
-            enabled = enabled,
-            selectionMode = config.selectionMode,
-            onClick = { onCountryClick(country) },
-        )
-
-        // Placement-only animation, so a country moving into the Selected section slides rather than
-        // teleporting — without paying for a fade on every row during a scroll.
-        val itemModifier = if (isSearching || motion.staggerPerItemMillis == 0) {
-            Modifier
-        } else {
-            Modifier.animateItem(
-                fadeInSpec = null,
-                fadeOutSpec = null,
-                placementSpec = motion.listItemPlacement,
-            )
-        }
-
-        if (listItemContent != null) {
-            androidx.compose.foundation.layout.Box(modifier = itemModifier) { listItemContent(scope) }
-        } else {
-            CountryListItem(
-                match = match,
-                selected = selected,
-                onClick = scope.onClick,
-                modifier = itemModifier,
-                enabled = enabled,
-                selectionMode = config.selectionMode,
-                showIsoCode = config.showIsoCode,
-                showDialCode = config.showDialCode,
-                highlightMatches = config.highlightSearchMatches,
-                unavailable = !enabled,
-                flagShape = flagShape,
-                flagStyle = flagStyle,
-                colors = colors,
-                shapes = shapes,
-                dimensions = dimensions,
-                typography = typography,
-                motion = motion,
-                flagContent = flagContent,
-            )
-        }
-    }
+    val sections by state.sections
+    val pending by state.pendingSelection
+    CountryList(
+        sections = sections,
+        // Multiple selection shows the pending set so a tick is visible immediately; single
+        // selection falls back to the confirmed value until the user taps something.
+        selectedCountries = when {
+            state.config.isMultiSelect -> pending
+            pending.isNotEmpty() -> pending
+            else -> state.confirmedSelection
+        },
+        onCountryClick = onCountryClick,
+        modifier = modifier,
+        selectionMode = state.config.selectionMode,
+        disabledCountries = state.config.disabledCountryCodes,
+        listState = listState,
+        contentPadding = contentPadding,
+        leadingContent = leadingContent,
+        style = style,
+        flagContent = flagContent,
+        listItemContent = listItemContent,
+    )
 }
 
 /**
- * An uppercase, accent-colored section header.
+ * A section's title, in small capitals above its group.
  *
- * Carries `heading()` semantics so screen-reader users can jump between sections with heading
- * navigation instead of scrolling through every country.
- *
- * The header is opaque: as a sticky header it scrolls over rows, and a transparent one would show them
- * through the text.
+ * @param showCount Appends the count — "SELECTED · 3" — used for the selected group in multiple
+ *   selection.
+ * @param isFirst Drops the top spacing for the first section, which sits directly under the header.
  */
 @Composable
 public fun CountrySectionHeader(
     section: CountrySection,
     modifier: Modifier = Modifier,
     showCount: Boolean = false,
-    colors: CountryPickerColors = CountryPickerDefaults.colors(),
-    dimensions: CountryPickerDimensions = CountryPickerDefaults.dimensions(),
-    typography: CountryPickerTypography = CountryPickerDefaults.typography(),
+    isFirst: Boolean = false,
+    style: CountryPickerStyle = CountryPickerTheme.style,
 ) {
     val titleRes = section.kind.titleRes ?: return
     val title = if (showCount) {
@@ -243,73 +242,143 @@ public fun CountrySectionHeader(
     } else {
         stringResource(titleRes)
     }
-
-    Text(
-        text = title.uppercase(),
-        style = typography.sectionHeader,
-        color = colors.sectionLabel,
+    val plain = style.layout.listStyle == CountryListStyle.Plain
+    CapsLabel(
+        text = title,
+        style = style.typography.sectionLabel,
+        color = if (plain) style.colors.accent else style.colors.textSecondary,
         modifier = modifier
             .fillMaxWidth()
-            .background(colors.sheetContainer)
+            .background(if (plain) style.colors.background else androidx.compose.ui.graphics.Color.Transparent)
             .padding(
-                start = dimensions.rowHorizontalPadding,
-                end = dimensions.rowHorizontalPadding,
-                top = dimensions.sectionHeaderTopPadding,
-                bottom = dimensions.sectionHeaderBottomPadding,
+                start = style.sectionInset() + 4.dp,
+                end = style.sectionInset(),
+                top = if (isFirst) 6.dp else style.dimensions.groupSpacing,
+                bottom = 8.dp,
             )
             .semantics { heading() },
     )
 }
 
-/** Marks header slots so Compose does not reuse a header composition for a row. */
-private const val HEADER_CONTENT_TYPE = "ccp_section_header"
+/** Where a row sits in its group, which decides which of the group's corners it draws. */
+internal enum class GroupPosition {
+    Single, First, Middle, Last;
 
-/** Marks row slots so Compose reuses row compositions across sections. */
-private const val ROW_CONTENT_TYPE = "ccp_country_row"
-
-private val LIST_BOTTOM_PADDING = 8.dp
-
-/** Convenience for a fully-configured list driven straight off picker state. */
-@Composable
-public fun CountryList(
-    state: com.ezzy.ccp.countrypicker.state.CountryPickerState,
-    onCountryClick: (Country) -> Unit,
-    modifier: Modifier = Modifier,
-    listState: LazyListState = rememberLazyListState(),
-    colors: CountryPickerColors = CountryPickerDefaults.colors(),
-    shapes: CountryPickerShapes = CountryPickerDefaults.shapes(),
-    dimensions: CountryPickerDimensions = CountryPickerDefaults.dimensions(),
-    typography: CountryPickerTypography = CountryPickerDefaults.typography(),
-    motion: CountryPickerMotion = CountryPickerDefaults.motion(),
-    flagContent: (@Composable (Country) -> Unit)? = null,
-    listItemContent: (@Composable (CountryListItemScope) -> Unit)? = null,
-) {
-    val sections by state.sections
-    val pending by state.pendingSelection
-    val isSearching by state.isSearching
-
-    CountryList(
-        sections = sections,
-        // Multi-select renders the pending set so ticking a row is visible immediately. Single-select
-        // falls back to the confirmed value, which is what the sheet shows before the user taps
-        // anything.
-        selectedCountries = when {
-            state.config.selectionMode == CountrySelectionMode.Multiple -> pending
-            pending.isNotEmpty() -> pending
-            else -> state.confirmedSelection
-        },
-        onCountryClick = onCountryClick,
-        modifier = modifier,
-        config = state.config,
-        listState = listState,
-        disabledCountries = state.config.disabledCountryCodes,
-        isSearching = isSearching,
-        colors = colors,
-        shapes = shapes,
-        dimensions = dimensions,
-        typography = typography,
-        motion = motion,
-        flagContent = flagContent,
-        listItemContent = listItemContent,
-    )
+    companion object {
+        fun of(index: Int, count: Int): GroupPosition = when {
+            count == 1 -> Single
+            index == 0 -> First
+            index == count - 1 -> Last
+            else -> Middle
+        }
+    }
 }
+
+/** The clip shape each row uses for its highlight and press feedback. */
+private fun CountryPickerStyle.rowShape(): Shape = when (layout.listStyle) {
+    // The group clips the corners; the row's own highlight fills its band edge to edge.
+    CountryListStyle.InsetGrouped -> RectangleShape
+    CountryListStyle.Plain, CountryListStyle.Cards -> shapes.row
+}
+
+/** Horizontal inset of a section from the edge of the sheet. */
+private fun CountryPickerStyle.sectionInset(): Dp = when (layout.listStyle) {
+    CountryListStyle.Plain -> dimensions.sheetHorizontalPadding
+    CountryListStyle.InsetGrouped, CountryListStyle.Cards -> dimensions.groupHorizontalMargin
+}
+
+/**
+ * Draws the container a row sits in: its slice of a grouped card (with only the corners, edges and
+ * divider that belong to its [position]), its own card, or — for plain lists — just an inset divider.
+ */
+private fun Modifier.listItemContainer(
+    style: CountryPickerStyle,
+    position: GroupPosition,
+    untitledFirst: Boolean,
+): Modifier {
+    val colors = style.colors
+    val dimensions = style.dimensions
+    val showDivider = style.layout.showDividers && (position == GroupPosition.First || position == GroupPosition.Middle)
+    // Where the divider starts: after the flag, so it reads as separating names rather than rows.
+    val flagWidth = if (style.layout.flagStyle == CountryFlagStyle.Hidden) 0.dp else dimensions.flagSizeRow
+    val dividerInset = dimensions.rowHorizontalPadding + flagWidth + dimensions.rowContentSpacing
+
+    return when (style.layout.listStyle) {
+        CountryListStyle.InsetGrouped -> {
+            val r = style.shapes.groupCornerRadius
+            val shape = when (position) {
+                GroupPosition.Single -> RoundedCornerShape(r)
+                GroupPosition.First -> RoundedCornerShape(topStart = r, topEnd = r)
+                GroupPosition.Last -> RoundedCornerShape(bottomStart = r, bottomEnd = r)
+                GroupPosition.Middle -> RectangleShape
+            }
+            this
+                .padding(horizontal = dimensions.groupHorizontalMargin)
+                .padding(top = if (untitledFirst) 6.dp else 0.dp)
+                .drawWithContent {
+                    drawContent()
+                    // This row's slice of the group outline: a rounded rectangle that runs past the
+                    // row on any side it shares with a neighbour, clipped to the row. The shared
+                    // edges fall outside the clip, and the side edges continue unbroken into the
+                    // next row's slice.
+                    val stroke = HAIRLINE.toPx()
+                    val half = stroke / 2
+                    val overrun = r.toPx() + stroke * 4
+                    val opensUp = position == GroupPosition.Middle || position == GroupPosition.Last
+                    val opensDown = position == GroupPosition.First || position == GroupPosition.Middle
+                    val outline = Path().apply {
+                        addRoundRect(
+                            RoundRect(
+                                left = half,
+                                top = if (opensUp) -overrun else half,
+                                right = size.width - half,
+                                bottom = if (opensDown) size.height + overrun else size.height - half,
+                                cornerRadius = CornerRadius((r.toPx() - half).coerceAtLeast(0f)),
+                            ),
+                        )
+                    }
+                    clipRect { drawPath(outline, color = colors.hairline, style = Stroke(stroke)) }
+                    if (showDivider) drawDivider(dividerInset.toPx(), dimensions.rowHorizontalPadding.toPx(), colors.hairline, stroke)
+                }
+                .background(colors.surface, shape)
+                .clip(shape)
+        }
+        CountryListStyle.Cards -> this
+            .padding(horizontal = dimensions.groupHorizontalMargin, vertical = 4.dp)
+            .pickerShadow(style.elevation.tile, style.shapes.row, colors.shadow)
+            .background(colors.surface, style.shapes.row)
+            .border(HAIRLINE, colors.hairline, style.shapes.row)
+        CountryListStyle.Plain -> this
+            .padding(horizontal = PLAIN_ROW_INSET)
+            .drawWithContent {
+                drawContent()
+                if (showDivider) drawDivider(dividerInset.toPx(), dimensions.rowHorizontalPadding.toPx(), colors.hairline, HAIRLINE.toPx())
+            }
+    }
+}
+
+/** A hairline across the bottom of the row, inset from the start (and mirrored in RTL). */
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawDivider(
+    startInset: Float,
+    endInset: Float,
+    color: androidx.compose.ui.graphics.Color,
+    stroke: Float,
+) {
+    val y = size.height - stroke / 2
+    val (x0, x1) = if (layoutDirection == LayoutDirection.Ltr) {
+        startInset to size.width - endInset
+    } else {
+        endInset to size.width - startInset
+    }
+    drawLine(color = color, start = Offset(x0, y), end = Offset(x1, y), strokeWidth = stroke)
+}
+
+private const val HEADER_CONTENT_TYPE = "header"
+private const val ROW_CONTENT_TYPE = "row"
+private const val ENTRANCE_ITEM_MILLIS = 260
+private val ENTRANCE_OFFSET = 10.dp
+private val HAIRLINE = 0.75.dp
+
+/** How far a plain list's rows — and their selection highlight — sit from the edges. */
+internal val PLAIN_ROW_INSET = 8.dp
+private val LIST_BOTTOM_PADDING = 28.dp

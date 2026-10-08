@@ -22,38 +22,46 @@
 
 package com.ezzy.ccp.countrypicker.ui
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.Text
 import com.ezzy.ccp.countrypicker.model.Country
 import com.ezzy.ccp.countrypicker.model.CountryTextNormalizer
 import com.ezzy.ccp.countrypicker.state.CountrySection
 import com.ezzy.ccp.countrypicker.state.CountrySectionKind
-import com.ezzy.ccp.countrypicker.theme.CountryPickerColors
-import com.ezzy.ccp.countrypicker.theme.CountryPickerDefaults
-import com.ezzy.ccp.countrypicker.theme.CountryPickerTypography
+import com.ezzy.ccp.countrypicker.theme.CountryPickerStyle
+import com.ezzy.ccp.countrypicker.theme.CountryPickerTheme
 
 /**
  * A lookup from a country (or an initial letter) to its row index in the flat `LazyColumn` that
@@ -169,78 +177,122 @@ public fun CountryIndexRail(
     letters: List<Char>,
     onLetterSelected: (Char) -> Unit,
     modifier: Modifier = Modifier,
-    colors: CountryPickerColors = CountryPickerDefaults.colors(),
-    typography: CountryPickerTypography = CountryPickerDefaults.typography(),
+    style: CountryPickerStyle = CountryPickerTheme.style,
 ) {
     if (letters.isEmpty()) return
 
-    val haptic = LocalHapticFeedback.current
+    val colors = style.colors
+    val motion = style.motion
+    val haptics = rememberPickerHaptics()
+    val density = LocalDensity.current
     var railHeightPx by remember { mutableIntStateOf(0) }
     var activeLetter by remember { mutableStateOf<Char?>(null) }
+    var touchY by remember { mutableFloatStateOf(0f) }
+    var dragging by remember { mutableStateOf(false) }
 
-    // Maps a y offset within the rail to a letter. The rail draws its letters evenly spaced across
-    // its own height, so position maps to index by simple proportion — deriving it from the touch
-    // position rather than from per-letter hit boxes is what makes a drag continuous instead of
-    // only registering when the finger lands inside a glyph.
+    // Maps a y offset within the rail to a letter. Letters are spaced evenly across the rail, so
+    // position maps to index by proportion — deriving it from the touch position rather than from
+    // per-letter hit boxes is what makes a drag continuous.
     fun letterAt(y: Float): Char? {
         if (railHeightPx <= 0) return null
         val fraction = (y / railHeightPx).coerceIn(0f, 0.999f)
         return letters.getOrNull((fraction * letters.size).toInt())
     }
 
-    fun select(letter: Char?) {
-        if (letter == null || letter == activeLetter) return
+    fun select(y: Float) {
+        touchY = y.coerceIn(0f, railHeightPx.toFloat())
+        val letter = letterAt(y) ?: return
+        if (letter == activeLetter) return
         activeLetter = letter
-        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        haptics.scrub()
         onLetterSelected(letter)
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxHeight()
-            .width(RAIL_WIDTH)
-            .padding(vertical = RAIL_VERTICAL_PADDING)
-            .onSizeChanged { railHeightPx = it.height }
-            .pointerInput(letters) {
-                detectVerticalDragGestures(
-                    onDragStart = { select(letterAt(it.y)) },
-                    // Clearing the active letter on release lets the user scrub back onto the same
-                    // letter later and have it register again.
-                    onDragEnd = { activeLetter = null },
-                    onDragCancel = { activeLetter = null },
-                    onVerticalDrag = { change, _ -> select(letterAt(change.position.y)) },
+    val bubbleScale by animateFloatAsState(if (dragging) 1f else 0f, motion.selection, label = "bubbleScale")
+    val bubbleSize = style.dimensions.indexBubbleSize
+
+    Box(modifier = modifier.fillMaxHeight().width(style.dimensions.indexRailWidth)) {
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth()
+                .padding(vertical = RAIL_VERTICAL_PADDING)
+                .onSizeChanged { railHeightPx = it.height }
+                .pointerInput(letters) {
+                    detectVerticalDragGestures(
+                        onDragStart = {
+                            dragging = true
+                            select(it.y)
+                        },
+                        // Clearing the active letter on release lets the user scrub back onto the
+                        // same letter later and have it register again.
+                        onDragEnd = {
+                            dragging = false
+                            activeLetter = null
+                        },
+                        onDragCancel = {
+                            dragging = false
+                            activeLetter = null
+                        },
+                        onVerticalDrag = { change, _ -> select(change.position.y) },
+                    )
+                }
+                .pointerInput(letters) {
+                    // A separate detector: a drag detector never fires for a tap that does not move,
+                    // which is most taps on a rail this narrow.
+                    detectTapGestures { offset ->
+                        activeLetter = null
+                        select(offset.y)
+                    }
+                }
+                .clearAndSetSemantics {},
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            letters.forEach { letter ->
+                val active = letter == activeLetter
+                Text(
+                    text = letter.toString(),
+                    style = style.typography.indexLetter.copy(fontWeight = if (active) FontWeight.Bold else FontWeight.SemiBold),
+                    color = if (active) colors.accent else colors.textTertiary,
                 )
             }
-            .pointerInput(letters) {
-                // A separate detector: detectVerticalDragGestures never fires for a tap that does
-                // not move, which is most taps on a rail this narrow.
-                detectTapGestures { offset ->
-                    activeLetter = null
-                    select(letterAt(offset.y))
-                }
+        }
+
+        // The bubble rides beside the finger, outside the rail, so the letter being scrubbed is
+        // readable even though the thumb covers the rail itself.
+        if (bubbleScale > 0f && activeLetter != null) {
+            val padding = with(density) { RAIL_VERTICAL_PADDING.toPx() }
+            Box(
+                modifier = Modifier
+                    .offset {
+                        IntOffset(
+                            x = -(bubbleSize + BUBBLE_GAP).roundToPx(),
+                            y = (touchY + padding - bubbleSize.toPx() / 2).toInt(),
+                        )
+                    }
+                    .size(bubbleSize)
+                    .graphicsLayer {
+                        scaleX = bubbleScale
+                        scaleY = bubbleScale
+                        alpha = bubbleScale.coerceIn(0f, 1f)
+                    }
+                    .pickerShadow(style.elevation.floatingBar, CircleShape, colors.shadow)
+                    .background(colors.accent, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = activeLetter.toString(),
+                    style = style.typography.indexBubble,
+                    color = colors.onAccent,
+                )
             }
-            .clearAndSetSemantics {},
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceEvenly,
-    ) {
-        letters.forEach { letter ->
-            Text(
-                text = letter.toString(),
-                style = typography.countryMetadata.copy(
-                    fontWeight = if (letter == activeLetter) FontWeight.Bold else FontWeight.Medium,
-                ),
-                color = if (letter == activeLetter) {
-                    colors.selectorFocusedBorder
-                } else {
-                    colors.rowSecondaryContent
-                },
-            )
         }
     }
 }
 
-/** Narrow enough not to steal horizontal space from names, wide enough to hit. */
-private val RAIL_WIDTH: Dp = 24.dp
+/** Keeps the first and last letters clear of the list's rounded corners. */
+private val RAIL_VERTICAL_PADDING: Dp = 10.dp
 
-/** Keeps the first and last letters clear of the list's own rounded corners. */
-private val RAIL_VERTICAL_PADDING: Dp = 8.dp
+/** Space between the bubble and the rail. */
+private val BUBBLE_GAP: Dp = 12.dp

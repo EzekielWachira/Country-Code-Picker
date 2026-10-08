@@ -14,6 +14,11 @@ androidx-compose = "1.12.1"
 
 coroutines = "1.11.0"
 
+# Flag images from flagcdn.com. Coil loads, caches and decodes them (SVG included) on both
+# platforms; Ktor is its network layer, with OkHttp on Android and NSURLSession on iOS.
+coil = "3.6.3"
+ktor = "3.6.0"
+
 # libphonenumber on Android and the vendored libPhoneNumber-iOS (ccp/src/nativeInterop/
 # libPhoneNumber-iOS/VERSION) are generated from the same upstream metadata release. Keep them in
 # lockstep: a number that validates on one platform and not the other is a bug report waiting to
@@ -42,6 +47,11 @@ compose-material3 = { module = "org.jetbrains.compose.material3:material3", vers
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose-multiplatform" }
 
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
+coil-svg = { module = "io.coil-kt.coil3:coil-svg", version.ref = "coil" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 

@@ -22,12 +22,12 @@
 
 package com.ezzy.ccp.countrypicker.ui
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,32 +38,32 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.ezzy.ccp.countrypicker.theme.CountryPickerColors
-import com.ezzy.ccp.countrypicker.theme.CountryPickerDefaults
-import com.ezzy.ccp.countrypicker.theme.CountryPickerDimensions
-import com.ezzy.ccp.countrypicker.theme.CountryPickerShapes
-import com.ezzy.ccp.countrypicker.theme.CountryPickerTypography
-import com.ezzy.ccp.icons.EzzyIcons
-import com.ezzy.ccp.icons.Search
+import com.ezzy.ccp.countrypicker.model.Country
+import com.ezzy.ccp.countrypicker.theme.CountryFlagStyle
+import com.ezzy.ccp.countrypicker.theme.CountryPickerStyle
+import com.ezzy.ccp.countrypicker.theme.CountryPickerTheme
 import com.ezzy.ccp.resources.Res
 import com.ezzy.ccp.resources.ccp_clear_search
+import com.ezzy.ccp.resources.ccp_did_you_mean
 import com.ezzy.ccp.resources.ccp_empty_body
 import com.ezzy.ccp.resources.ccp_empty_title
 import com.ezzy.ccp.resources.ccp_empty_title_query
@@ -78,256 +78,248 @@ import com.ezzy.ccp.resources.ccp_retry
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * The sheet's "no results" state.
+ * Shown when a search matches nothing.
  *
- * Echoes the query back so the user can see exactly what was searched — a bare "No results" leaves
- * them unsure whether the typo is theirs or the app's — and names the other things they can search by,
- * since not everyone knows dial codes work. The Clear action is a real button, not just advice.
+ * A dead end is the worst outcome of a search, so this offers two ways forward: the countries the
+ * query nearly matched ("Did you mean Kenya?", for "Kenia"), each one tap away, and a button that
+ * clears the search.
  *
- * The whole block is an assertive live region so a screen-reader user learns their query returned
- * nothing without having to explore the list to find out.
+ * @param suggestions Near matches, closest first — see
+ *   [com.ezzy.ccp.countrypicker.state.CountryPickerState.searchSuggestions].
+ * @param onSuggestionClick Invoked with the suggestion the user tapped.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 public fun CountrySearchEmptyState(
     query: String,
     onClearSearch: () -> Unit,
     modifier: Modifier = Modifier,
-    colors: CountryPickerColors = CountryPickerDefaults.colors(),
-    shapes: CountryPickerShapes = CountryPickerDefaults.shapes(),
-    typography: CountryPickerTypography = CountryPickerDefaults.typography(),
+    suggestions: List<Country> = emptyList(),
+    onSuggestionClick: (Country) -> Unit = {},
+    style: CountryPickerStyle = CountryPickerTheme.style,
 ) {
-    val title = if (query.isBlank()) {
-        stringResource(Res.string.ccp_empty_title)
-    } else {
-        stringResource(Res.string.ccp_empty_title_query, query)
-    }
-
-    SheetStateBlock(
-        icon = { tint ->
-            Icon(
-                imageVector = EzzyIcons.Search,
-                contentDescription = null,
-                tint = tint,
-                modifier = Modifier.size(STATE_ICON_SIZE),
-            )
+    StateLayout(
+        icon = PickerIcons.Search,
+        tint = style.colors.accent,
+        title = if (query.isBlank()) {
+            stringResource(Res.string.ccp_empty_title)
+        } else {
+            stringResource(Res.string.ccp_empty_title_query, query.trim())
         },
-        title = title,
         body = stringResource(Res.string.ccp_empty_body),
         actionLabel = stringResource(Res.string.ccp_clear_search),
         onAction = onClearSearch,
-        modifier = modifier.semantics { liveRegion = LiveRegionMode.Assertive },
-        colors = colors,
-        shapes = shapes,
-        typography = typography,
-    )
+        modifier = modifier,
+        style = style,
+    ) {
+        if (suggestions.isNotEmpty() && style.layout.showSearchSuggestions) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.padding(top = 4.dp, bottom = 10.dp),
+            ) {
+                Icon(PickerIcons.Sparkle, contentDescription = null, tint = style.colors.accent, modifier = Modifier.size(13.dp))
+                Text(
+                    text = stringResource(Res.string.ccp_did_you_mean),
+                    style = style.typography.sectionLabel,
+                    color = style.colors.textSecondary,
+                )
+            }
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(bottom = 20.dp),
+            ) {
+                suggestions.forEach { country ->
+                    SuggestionChip(country, onClick = { onSuggestionClick(country) }, style = style)
+                }
+            }
+        }
+    }
 }
 
-/** The sheet's load-failure state, with a Retry action. */
+/** A suggested country: its flag and name on a raised capsule. */
+@Composable
+private fun SuggestionChip(country: Country, onClick: () -> Unit, style: CountryPickerStyle) {
+    val colors = style.colors
+    val interaction = remember { MutableInteractionSource() }
+    val scale by pressScale(interaction)
+    Row(
+        modifier = Modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .pickerShadow(style.elevation.tile, style.shapes.chip, colors.shadow)
+            .clip(style.shapes.chip)
+            .background(colors.surfaceRaised)
+            .border(0.75.dp, colors.hairline, style.shapes.chip)
+            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
+            .padding(start = 6.dp, end = 14.dp, top = 6.dp, bottom = 6.dp)
+            .semantics { contentDescription = country.displayName },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        CountryFlag(country = country, size = 26.dp, style = CountryFlagStyle.Circle)
+        SingleLineText(text = country.displayName, style = style.typography.chip, color = colors.textPrimary)
+    }
+}
+
+/**
+ * Shown when loading the country list fails.
+ *
+ * @param offline Shows the offline wording and icon instead of the generic error.
+ */
 @Composable
 public fun CountryErrorState(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
     offline: Boolean = false,
-    colors: CountryPickerColors = CountryPickerDefaults.colors(),
-    shapes: CountryPickerShapes = CountryPickerDefaults.shapes(),
-    typography: CountryPickerTypography = CountryPickerDefaults.typography(),
+    style: CountryPickerStyle = CountryPickerTheme.style,
 ) {
-    SheetStateBlock(
-        icon = { tint ->
-            Icon(
-                imageVector = PickerIcons.Alert,
-                contentDescription = null,
-                tint = tint,
-                modifier = Modifier.size(STATE_ICON_SIZE),
-            )
-        },
-        title = stringResource(
-            if (offline) Res.string.ccp_offline_title else Res.string.ccp_error_title,
-        ),
-        // Both messages state that the user's existing selection is untouched: a failed load must not
-        // leave them wondering whether the app also lost what they had already chosen.
-        body = stringResource(
-            if (offline) Res.string.ccp_offline_body else Res.string.ccp_error_body,
-        ),
+    StateLayout(
+        icon = if (offline) PickerIcons.Offline else PickerIcons.Alert,
+        tint = if (offline) style.colors.warning else style.colors.error,
+        title = stringResource(if (offline) Res.string.ccp_offline_title else Res.string.ccp_error_title),
+        body = stringResource(if (offline) Res.string.ccp_offline_body else Res.string.ccp_error_body),
         actionLabel = stringResource(Res.string.ccp_retry),
         onAction = onRetry,
-        modifier = modifier.semantics { liveRegion = LiveRegionMode.Assertive },
-        colors = colors,
-        shapes = shapes,
-        typography = typography,
+        actionIsPrimary = true,
+        modifier = modifier,
+        style = style,
     )
 }
 
 /**
- * The state for a configuration that filters out every country.
- *
- * Distinct from the search-empty state, and deliberately actionless: nothing the *user* can do fixes
- * an allow-list that excludes everything, so offering them a button would be misleading.
+ * Shown when the configuration allows no countries at all — almost always an integration mistake,
+ * which is why it says so plainly instead of rendering an empty list.
  */
 @Composable
 public fun CountryNoneAvailableState(
     modifier: Modifier = Modifier,
-    colors: CountryPickerColors = CountryPickerDefaults.colors(),
-    shapes: CountryPickerShapes = CountryPickerDefaults.shapes(),
-    typography: CountryPickerTypography = CountryPickerDefaults.typography(),
+    style: CountryPickerStyle = CountryPickerTheme.style,
 ) {
-    SheetStateBlock(
-        icon = { tint ->
-            Icon(
-                imageVector = PickerIcons.Globe,
-                contentDescription = null,
-                tint = tint,
-                modifier = Modifier.size(STATE_ICON_SIZE),
-            )
-        },
+    StateLayout(
+        icon = PickerIcons.Globe,
+        tint = style.colors.textSecondary,
         title = stringResource(Res.string.ccp_none_available_title),
         body = stringResource(Res.string.ccp_none_available_body),
-        actionLabel = null,
-        onAction = {},
         modifier = modifier,
-        colors = colors,
-        shapes = shapes,
-        typography = typography,
+        style = style,
     )
 }
 
 /**
- * Skeleton rows shown while a remote country source loads.
- *
- * Skeletons rather than a spinner because they preview the shape of what is coming, so the list does
- * not appear to jump into existence. Row widths vary so the placeholder reads as text rather than as a
- * progress bar.
+ * Placeholder rows shaped like the real list, with a highlight sweeping across them, while the
+ * country list loads. Announced once to screen readers as "Loading countries".
  */
 @Composable
 public fun CountryLoadingState(
     modifier: Modifier = Modifier,
     rowCount: Int = SKELETON_ROW_COUNT,
-    colors: CountryPickerColors = CountryPickerDefaults.colors(),
-    dimensions: CountryPickerDimensions = CountryPickerDefaults.dimensions(),
+    style: CountryPickerStyle = CountryPickerTheme.style,
 ) {
-    val loadingLabel = stringResource(Res.string.ccp_loading_countries)
-    val transition = rememberInfiniteTransition(label = "skeletonShimmer")
-    val shimmerAlpha by transition.animateFloat(
-        initialValue = SHIMMER_MIN_ALPHA,
-        targetValue = SHIMMER_MAX_ALPHA,
-        animationSpec = infiniteRepeatable(
-            animation = tween(SHIMMER_DURATION_MILLIS),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "skeletonAlpha",
-    )
-
+    val colors = style.colors
+    val dimensions = style.dimensions
+    val brush = rememberShimmerBrush(colors)
+    val label = stringResource(Res.string.ccp_loading_countries)
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .semantics { contentDescription = loadingLabel },
-    ) {
-        repeat(rowCount) { index ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(dimensions.rowMinHeight)
-                    .padding(horizontal = dimensions.rowHorizontalPadding),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(dimensions.rowContentSpacing),
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(dimensions.flagSizeRow)
-                        .clip(RoundedCornerShape(percent = 50))
-                        .background(colors.flagPlaceholderContainer)
-                        .alpha(shimmerAlpha),
-                )
-                Box(
-                    modifier = Modifier
-                        // Deterministic pseudo-random widths: varied enough to look like names,
-                        // stable enough not to reshuffle on recomposition.
-                        .fillMaxWidth(SKELETON_MIN_WIDTH + (index * SKELETON_WIDTH_STEP) % SKELETON_WIDTH_RANGE)
-                        .height(SKELETON_LINE_HEIGHT)
-                        .clip(RoundedCornerShape(percent = 50))
-                        .background(colors.flagPlaceholderContainer)
-                        .alpha(shimmerAlpha),
-                )
-            }
-        }
-    }
-}
-
-/** Shared layout for the icon + title + body + action states. */
-@Composable
-private fun SheetStateBlock(
-    icon: @Composable (androidx.compose.ui.graphics.Color) -> Unit,
-    title: String,
-    body: String,
-    actionLabel: String?,
-    onAction: () -> Unit,
-    colors: CountryPickerColors,
-    shapes: CountryPickerShapes,
-    typography: CountryPickerTypography,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = STATE_HORIZONTAL_PADDING, vertical = STATE_VERTICAL_PADDING),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .padding(horizontal = dimensions.groupHorizontalMargin, vertical = 6.dp)
+            .semantics {
+                contentDescription = label
+                liveRegion = LiveRegionMode.Polite
+            },
     ) {
         Box(
+            Modifier
+                .padding(start = 4.dp, bottom = 10.dp)
+                .size(width = 96.dp, height = 10.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .background(brush),
+        )
+        Column(
             modifier = Modifier
-                .size(STATE_ICON_CONTAINER_SIZE)
-                .clip(RoundedCornerShape(percent = 50))
-                .background(colors.flagPlaceholderContainer),
-            contentAlignment = Alignment.Center,
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(style.shapes.groupCornerRadius))
+                .background(colors.surface)
+                .border(0.75.dp, colors.hairline, RoundedCornerShape(style.shapes.groupCornerRadius)),
         ) {
-            icon(colors.sheetSecondaryContent)
-        }
-
-        Spacer(Modifier.height(STATE_ICON_SPACING))
-
-        Text(
-            text = title,
-            style = typography.countryName,
-            color = colors.sheetContent,
-            textAlign = TextAlign.Center,
-        )
-
-        Spacer(Modifier.height(STATE_TITLE_SPACING))
-
-        Text(
-            text = body,
-            style = typography.sheetSubtitle,
-            color = colors.sheetSecondaryContent,
-            textAlign = TextAlign.Center,
-        )
-
-        if (actionLabel != null) {
-            Spacer(Modifier.height(STATE_ACTION_SPACING))
-            Button(
-                onClick = onAction,
-                shape = shapes.button,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colors.selectedRowContainer,
-                    contentColor = colors.selectedRowContent,
-                ),
-            ) {
-                Text(text = actionLabel, style = typography.buttonLabel)
+            repeat(rowCount) { index ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(dimensions.rowMinHeight)
+                        .padding(horizontal = dimensions.rowHorizontalPadding),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(dimensions.rowContentSpacing),
+                ) {
+                    Box(Modifier.size(dimensions.flagSizeRow).clip(style.shapes.flagTile).background(brush))
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        // Varying widths read as text; identical bars read as a progress meter.
+                        val width = SKELETON_WIDTHS[index % SKELETON_WIDTHS.size]
+                        Box(Modifier.fillMaxWidth(width).height(12.dp).clip(RoundedCornerShape(6.dp)).background(brush))
+                    }
+                    Box(Modifier.size(width = 34.dp, height = 12.dp).clip(RoundedCornerShape(6.dp)).background(brush))
+                }
             }
         }
     }
 }
 
-private val STATE_ICON_SIZE = 26.dp
-private val STATE_ICON_CONTAINER_SIZE = 56.dp
-private val STATE_ICON_SPACING = 16.dp
-private val STATE_TITLE_SPACING = 6.dp
-private val STATE_ACTION_SPACING = 20.dp
-private val STATE_HORIZONTAL_PADDING = 32.dp
-private val STATE_VERTICAL_PADDING = 40.dp
-private val SKELETON_LINE_HEIGHT = 14.dp
-private const val SKELETON_ROW_COUNT = 9
-private const val SKELETON_MIN_WIDTH = 0.38f
-private const val SKELETON_WIDTH_STEP = 0.13f
-private const val SKELETON_WIDTH_RANGE = 0.44f
-private const val SHIMMER_MIN_ALPHA = 0.4f
-private const val SHIMMER_MAX_ALPHA = 1f
-private const val SHIMMER_DURATION_MILLIS = 700
+/** The shared layout of the empty, error and unavailable states. */
+@Composable
+private fun StateLayout(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    tint: androidx.compose.ui.graphics.Color,
+    title: String,
+    body: String,
+    modifier: Modifier = Modifier,
+    actionLabel: String? = null,
+    onAction: () -> Unit = {},
+    actionIsPrimary: Boolean = false,
+    style: CountryPickerStyle,
+    extra: @Composable () -> Unit = {},
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp, vertical = 36.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        StateIllustration(icon = icon, tint = tint)
+        Spacer(Modifier.height(18.dp))
+        Text(
+            text = title,
+            style = style.typography.emptyTitle,
+            color = style.colors.textPrimary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.semantics {
+                heading()
+                liveRegion = LiveRegionMode.Polite
+            },
+        )
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = body,
+            style = style.typography.emptyBody,
+            color = style.colors.textSecondary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.widthIn(max = 320.dp),
+        )
+        Spacer(Modifier.height(20.dp))
+        extra()
+        if (actionLabel != null) {
+            PickerButton(
+                onClick = onAction,
+                kind = if (actionIsPrimary) PickerButtonKind.Primary else PickerButtonKind.Secondary,
+            ) {
+                Text(actionLabel)
+            }
+        }
+    }
+}
+
+private const val SKELETON_ROW_COUNT = 8
+private val SKELETON_WIDTHS = listOf(0.62f, 0.45f, 0.7f, 0.52f, 0.38f, 0.66f, 0.48f, 0.58f)

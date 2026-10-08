@@ -58,6 +58,8 @@ public final class com/ezzy/ccp/countrypicker/data/CountrySearchEngine {
 	public static final field INSTANCE Lcom/ezzy/ccp/countrypicker/data/CountrySearchEngine;
 	public final fun search (Ljava/util/List;Ljava/lang/String;Ljava/util/Set;I)Ljava/util/List;
 	public static synthetic fun search$default (Lcom/ezzy/ccp/countrypicker/data/CountrySearchEngine;Ljava/util/List;Ljava/lang/String;Ljava/util/Set;IILjava/lang/Object;)Ljava/util/List;
+	public final fun suggest (Ljava/util/List;Ljava/lang/String;I)Ljava/util/List;
+	public static synthetic fun suggest$default (Lcom/ezzy/ccp/countrypicker/data/CountrySearchEngine;Ljava/util/List;Ljava/lang/String;IILjava/lang/Object;)Ljava/util/List;
 }
 
 public final class com/ezzy/ccp/countrypicker/data/DefaultCountryDataSource : com/ezzy/ccp/countrypicker/data/CountryDataSource {
@@ -807,29 +809,19 @@ public final class com/ezzy/ccp/countrypicker/state/CountryLoadState$Loading : c
 public final class com/ezzy/ccp/countrypicker/state/CountryPickerConfig {
 	public static final field $stable I
 	public fun <init> ()V
-	public fun <init> (Lcom/ezzy/ccp/countrypicker/model/CountrySelectionMode;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Lcom/ezzy/ccp/countrypicker/model/CountryRegion;ZZZZZZZZLcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;ZILjava/lang/Integer;ZLjava/util/Set;IZZZLjava/util/List;ILjava/util/Comparator;)V
-	public synthetic fun <init> (Lcom/ezzy/ccp/countrypicker/model/CountrySelectionMode;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Lcom/ezzy/ccp/countrypicker/model/CountryRegion;ZZZZZZZZLcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;ZILjava/lang/Integer;ZLjava/util/Set;IZZZLjava/util/List;ILjava/util/Comparator;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lcom/ezzy/ccp/countrypicker/model/CountrySelectionMode;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Lcom/ezzy/ccp/countrypicker/model/CountryRegion;ZZZZILjava/lang/Integer;ZLjava/util/Set;ILjava/util/List;ILjava/util/Comparator;)V
+	public synthetic fun <init> (Lcom/ezzy/ccp/countrypicker/model/CountrySelectionMode;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Lcom/ezzy/ccp/countrypicker/model/CountryRegion;ZZZZILjava/lang/Integer;ZLjava/util/Set;ILjava/util/List;ILjava/util/Comparator;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lcom/ezzy/ccp/countrypicker/model/CountrySelectionMode;
 	public final fun component10 ()Z
-	public final fun component11 ()Z
-	public final fun component12 ()Z
+	public final fun component11 ()I
+	public final fun component12 ()Ljava/lang/Integer;
 	public final fun component13 ()Z
-	public final fun component14 ()Z
-	public final fun component15 ()Lcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;
-	public final fun component16 ()Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;
-	public final fun component17 ()Z
-	public final fun component18 ()I
-	public final fun component19 ()Ljava/lang/Integer;
+	public final fun component14 ()Ljava/util/Set;
+	public final fun component15 ()I
+	public final fun component16 ()Ljava/util/List;
+	public final fun component17 ()I
+	public final fun component18 ()Ljava/util/Comparator;
 	public final fun component2 ()Ljava/util/Set;
-	public final fun component20 ()Z
-	public final fun component21 ()Ljava/util/Set;
-	public final fun component22 ()I
-	public final fun component23 ()Z
-	public final fun component24 ()Z
-	public final fun component25 ()Z
-	public final fun component26 ()Ljava/util/List;
-	public final fun component27 ()I
-	public final fun component28 ()Ljava/util/Comparator;
 	public final fun component3 ()Ljava/util/Set;
 	public final fun component4 ()Ljava/util/Set;
 	public final fun component5 ()Ljava/util/Set;
@@ -837,8 +829,8 @@ public final class com/ezzy/ccp/countrypicker/state/CountryPickerConfig {
 	public final fun component7 ()Z
 	public final fun component8 ()Z
 	public final fun component9 ()Z
-	public final fun copy (Lcom/ezzy/ccp/countrypicker/model/CountrySelectionMode;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Lcom/ezzy/ccp/countrypicker/model/CountryRegion;ZZZZZZZZLcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;ZILjava/lang/Integer;ZLjava/util/Set;IZZZLjava/util/List;ILjava/util/Comparator;)Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;
-	public static synthetic fun copy$default (Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;Lcom/ezzy/ccp/countrypicker/model/CountrySelectionMode;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Lcom/ezzy/ccp/countrypicker/model/CountryRegion;ZZZZZZZZLcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;ZILjava/lang/Integer;ZLjava/util/Set;IZZZLjava/util/List;ILjava/util/Comparator;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;
+	public final fun copy (Lcom/ezzy/ccp/countrypicker/model/CountrySelectionMode;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Lcom/ezzy/ccp/countrypicker/model/CountryRegion;ZZZZILjava/lang/Integer;ZLjava/util/Set;ILjava/util/List;ILjava/util/Comparator;)Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;
+	public static synthetic fun copy$default (Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;Lcom/ezzy/ccp/countrypicker/model/CountrySelectionMode;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Lcom/ezzy/ccp/countrypicker/model/CountryRegion;ZZZZILjava/lang/Integer;ZLjava/util/Set;ILjava/util/List;ILjava/util/Comparator;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAllowedCountryCodes ()Ljava/util/Set;
 	public final fun getAutoConfirmOnMaximum ()Z
@@ -847,25 +839,14 @@ public final class com/ezzy/ccp/countrypicker/state/CountryPickerConfig {
 	public final fun getDisabledCountryCodes ()Ljava/util/Set;
 	public final fun getEnabledRegions ()Ljava/util/Set;
 	public final fun getExcludedCountryCodes ()Ljava/util/Set;
-	public final fun getFlagShape ()Lcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;
-	public final fun getFlagsVisible ()Z
-	public final fun getHighlightSearchMatches ()Z
 	public final fun getInitialRegion ()Lcom/ezzy/ccp/countrypicker/model/CountryRegion;
 	public final fun getMaximumSelectionCount ()Ljava/lang/Integer;
 	public final fun getMinimumSearchQueryLength ()I
 	public final fun getMinimumSelectionCount ()I
 	public final fun getRecentCountryLimit ()I
-	public final fun getRowFlagStyle ()Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;
 	public final fun getSearchFields ()Ljava/util/Set;
 	public final fun getSelectionMode ()Lcom/ezzy/ccp/countrypicker/model/CountrySelectionMode;
-	public final fun getShowAlphabetIndex ()Z
-	public final fun getShowCurrentSelection ()Z
-	public final fun getShowDialCode ()Z
-	public final fun getShowFlag ()Z
-	public final fun getShowIsoCode ()Z
 	public final fun getShowRecentlySelected ()Z
-	public final fun getShowRegionFilters ()Z
-	public final fun getShowResultCount ()Z
 	public final fun getShowSearch ()Z
 	public final fun getShowSuggestedCountries ()Z
 	public final fun getSuggestedCountryCodes ()Ljava/util/List;
@@ -894,9 +875,13 @@ public final class com/ezzy/ccp/countrypicker/state/CountryPickerState {
 	public final fun getLoadState ()Lcom/ezzy/ccp/countrypicker/state/CountryLoadState;
 	public final fun getMatches ()Landroidx/compose/runtime/State;
 	public final fun getPendingSelection ()Landroidx/compose/runtime/State;
+	public final fun getQuickPicks ()Landroidx/compose/runtime/State;
+	public final fun getQuickPicksInList ()Z
 	public final fun getRecentCountryCodes ()Ljava/util/List;
+	public final fun getRegionCounts ()Landroidx/compose/runtime/State;
 	public final fun getResultCount ()Landroidx/compose/runtime/State;
 	public final fun getSearchQuery ()Ljava/lang/String;
+	public final fun getSearchSuggestions ()Landroidx/compose/runtime/State;
 	public final fun getSections ()Landroidx/compose/runtime/State;
 	public final fun getSelectedRegion ()Lcom/ezzy/ccp/countrypicker/model/CountryRegion;
 	public final fun isDisabled (Lcom/ezzy/ccp/countrypicker/model/Country;)Z
@@ -911,8 +896,23 @@ public final class com/ezzy/ccp/countrypicker/state/CountryPickerState {
 	public final fun open ()V
 	public final fun resetPendingSelection ()V
 	public final fun selectRegion (Lcom/ezzy/ccp/countrypicker/model/CountryRegion;)V
+	public final fun setQuickPicksInList (Z)V
 	public final fun toggleCountry (Lcom/ezzy/ccp/countrypicker/model/Country;)V
 	public final fun updateSearchQuery (Ljava/lang/String;)V
+}
+
+public final class com/ezzy/ccp/countrypicker/state/CountryQuickPick {
+	public static final field $stable I
+	public fun <init> (Lcom/ezzy/ccp/countrypicker/model/Country;Lcom/ezzy/ccp/countrypicker/state/QuickPickSource;)V
+	public final fun component1 ()Lcom/ezzy/ccp/countrypicker/model/Country;
+	public final fun component2 ()Lcom/ezzy/ccp/countrypicker/state/QuickPickSource;
+	public final fun copy (Lcom/ezzy/ccp/countrypicker/model/Country;Lcom/ezzy/ccp/countrypicker/state/QuickPickSource;)Lcom/ezzy/ccp/countrypicker/state/CountryQuickPick;
+	public static synthetic fun copy$default (Lcom/ezzy/ccp/countrypicker/state/CountryQuickPick;Lcom/ezzy/ccp/countrypicker/model/Country;Lcom/ezzy/ccp/countrypicker/state/QuickPickSource;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/state/CountryQuickPick;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCountry ()Lcom/ezzy/ccp/countrypicker/model/Country;
+	public final fun getSource ()Lcom/ezzy/ccp/countrypicker/state/QuickPickSource;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class com/ezzy/ccp/countrypicker/state/CountrySection {
@@ -962,57 +962,81 @@ public final class com/ezzy/ccp/countrypicker/state/PhoneNumberFieldStateKt {
 	public static final fun rememberPhoneNumberFieldState (Lcom/ezzy/ccp/countrypicker/model/Country;Ljava/lang/String;ZLjava/util/Set;Landroidx/compose/runtime/Composer;II)Lcom/ezzy/ccp/countrypicker/state/PhoneNumberFieldState;
 }
 
+public final class com/ezzy/ccp/countrypicker/state/QuickPickSource : java/lang/Enum {
+	public static final field Detected Lcom/ezzy/ccp/countrypicker/state/QuickPickSource;
+	public static final field Recent Lcom/ezzy/ccp/countrypicker/state/QuickPickSource;
+	public static final field Suggested Lcom/ezzy/ccp/countrypicker/state/QuickPickSource;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/ezzy/ccp/countrypicker/state/QuickPickSource;
+	public static fun values ()[Lcom/ezzy/ccp/countrypicker/state/QuickPickSource;
+}
+
 public final class com/ezzy/ccp/countrypicker/state/RememberCountryPickerStateKt {
 	public static final fun RecordRecentSelections (Ljava/util/Set;Lcom/ezzy/ccp/countrypicker/persistence/RecentCountryStore;Landroidx/compose/runtime/Composer;I)V
 	public static final fun rememberCountryPickerState (Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;Ljava/util/Set;Lcom/ezzy/ccp/countrypicker/data/CountryRepository;Lcom/ezzy/ccp/countrypicker/persistence/RecentCountryStore;Lcom/ezzy/ccp/countrypicker/detection/CountryDetector;Lcom/ezzy/ccp/countrypicker/detection/CountryDetectionBehavior;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)Lcom/ezzy/ccp/countrypicker/state/CountryPickerState;
 }
 
-public final class com/ezzy/ccp/countrypicker/theme/CountryFlagConfig {
+public abstract interface class com/ezzy/ccp/countrypicker/theme/CountryFlagSource {
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/CountryFlagSource$Emoji : com/ezzy/ccp/countrypicker/theme/CountryFlagSource {
 	public static final field $stable I
-	public fun <init> ()V
-	public synthetic fun <init> (Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;FFLandroidx/compose/foundation/layout/PaddingValues;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;FFLandroidx/compose/foundation/layout/PaddingValues;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;
-	public final fun component2 ()Lcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;
-	public final fun component3-D9Ej5fM ()F
-	public final fun component4-D9Ej5fM ()F
-	public final fun component5 ()Landroidx/compose/foundation/layout/PaddingValues;
-	public final fun copy--JS8el8 (Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;FFLandroidx/compose/foundation/layout/PaddingValues;)Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;
-	public static synthetic fun copy--JS8el8$default (Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;FFLandroidx/compose/foundation/layout/PaddingValues;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;
+	public static final field INSTANCE Lcom/ezzy/ccp/countrypicker/theme/CountryFlagSource$Emoji;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getContainerSize-D9Ej5fM ()F
-	public final fun getContentPadding ()Landroidx/compose/foundation/layout/PaddingValues;
-	public final fun getShape ()Lcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;
-	public final fun getSize-D9Ej5fM ()F
-	public final fun getStyle ()Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/ezzy/ccp/countrypicker/theme/CountryFlagShape : java/lang/Enum {
-	public static final field Circle Lcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;
-	public static final field Hidden Lcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;
-	public static final field Original Lcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;
-	public static final field Rounded Lcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;
-	public static final field Square Lcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;
-	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public final fun shape (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;)Landroidx/compose/ui/graphics/Shape;
-	public static fun valueOf (Ljava/lang/String;)Lcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;
-	public static fun values ()[Lcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;
+public final class com/ezzy/ccp/countrypicker/theme/CountryFlagSource$FlagCdn : com/ezzy/ccp/countrypicker/theme/CountryFlagSource {
+	public static final field $stable I
+	public static final field Companion Lcom/ezzy/ccp/countrypicker/theme/CountryFlagSource$FlagCdn$Companion;
+	public static final field DEFAULT_BASE_URL Ljava/lang/String;
+	public fun <init> ()V
+	public fun <init> (Lcom/ezzy/ccp/countrypicker/theme/FlagImageShape;Lcom/ezzy/ccp/countrypicker/theme/FlagImageFormat;ZLjava/lang/String;)V
+	public synthetic fun <init> (Lcom/ezzy/ccp/countrypicker/theme/FlagImageShape;Lcom/ezzy/ccp/countrypicker/theme/FlagImageFormat;ZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/ezzy/ccp/countrypicker/theme/FlagImageShape;
+	public final fun component2 ()Lcom/ezzy/ccp/countrypicker/theme/FlagImageFormat;
+	public final fun component3 ()Z
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (Lcom/ezzy/ccp/countrypicker/theme/FlagImageShape;Lcom/ezzy/ccp/countrypicker/theme/FlagImageFormat;ZLjava/lang/String;)Lcom/ezzy/ccp/countrypicker/theme/CountryFlagSource$FlagCdn;
+	public static synthetic fun copy$default (Lcom/ezzy/ccp/countrypicker/theme/CountryFlagSource$FlagCdn;Lcom/ezzy/ccp/countrypicker/theme/FlagImageShape;Lcom/ezzy/ccp/countrypicker/theme/FlagImageFormat;ZLjava/lang/String;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryFlagSource$FlagCdn;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBaseUrl ()Ljava/lang/String;
+	public final fun getFallbackToEmoji ()Z
+	public final fun getFormat ()Lcom/ezzy/ccp/countrypicker/theme/FlagImageFormat;
+	public final fun getShape ()Lcom/ezzy/ccp/countrypicker/theme/FlagImageShape;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public final fun urlFor (Ljava/lang/String;II)Ljava/lang/String;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/CountryFlagSource$FlagCdn$Companion {
 }
 
 public final class com/ezzy/ccp/countrypicker/theme/CountryFlagStyle : java/lang/Enum {
-	public static final field FilledContainer Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;
+	public static final field Circle Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;
+	public static final field Hidden Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;
 	public static final field Plain Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;
-	public static final field TonalContainer Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;
+	public static final field Rounded Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;
+	public static final field Tile Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;
 	public static fun values ()[Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;
 }
 
+public final class com/ezzy/ccp/countrypicker/theme/CountryListStyle : java/lang/Enum {
+	public static final field Cards Lcom/ezzy/ccp/countrypicker/theme/CountryListStyle;
+	public static final field InsetGrouped Lcom/ezzy/ccp/countrypicker/theme/CountryListStyle;
+	public static final field Plain Lcom/ezzy/ccp/countrypicker/theme/CountryListStyle;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/ezzy/ccp/countrypicker/theme/CountryListStyle;
+	public static fun values ()[Lcom/ezzy/ccp/countrypicker/theme/CountryListStyle;
+}
+
 public final class com/ezzy/ccp/countrypicker/theme/CountryPickerColors {
 	public static final field $stable I
-	public synthetic fun <init> (JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final field Companion Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors$Companion;
+	public synthetic fun <init> (JJJJJJJJJJJJJJJJJJJJJJJJJJLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1-0d7_KjU ()J
 	public final fun component10-0d7_KjU ()J
 	public final fun component11-0d7_KjU ()J
@@ -1032,106 +1056,84 @@ public final class com/ezzy/ccp/countrypicker/theme/CountryPickerColors {
 	public final fun component24-0d7_KjU ()J
 	public final fun component25-0d7_KjU ()J
 	public final fun component26-0d7_KjU ()J
-	public final fun component27-0d7_KjU ()J
-	public final fun component28-0d7_KjU ()J
-	public final fun component29-0d7_KjU ()J
 	public final fun component3-0d7_KjU ()J
-	public final fun component30-0d7_KjU ()J
-	public final fun component31-0d7_KjU ()J
-	public final fun component32-0d7_KjU ()J
-	public final fun component33-0d7_KjU ()J
-	public final fun component34-0d7_KjU ()J
-	public final fun component35-0d7_KjU ()J
-	public final fun component36-0d7_KjU ()J
-	public final fun component37-0d7_KjU ()J
-	public final fun component38-0d7_KjU ()J
-	public final fun component39-0d7_KjU ()J
 	public final fun component4-0d7_KjU ()J
-	public final fun component40-0d7_KjU ()J
-	public final fun component41-0d7_KjU ()J
 	public final fun component5-0d7_KjU ()J
 	public final fun component6-0d7_KjU ()J
 	public final fun component7-0d7_KjU ()J
 	public final fun component8-0d7_KjU ()J
 	public final fun component9-0d7_KjU ()J
-	public final fun copy-ilA1nao (JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;
-	public static synthetic fun copy-ilA1nao$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJIILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;
+	public final fun copy-CRp9MJE (JJJJJJJJJJJJJJJJJJJJJJJJJJ)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;
+	public static synthetic fun copy-CRp9MJE$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;JJJJJJJJJJJJJJJJJJJJJJJJJJILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getCheckIcon-0d7_KjU ()J
-	public final fun getCheckboxChecked-0d7_KjU ()J
-	public final fun getCheckboxUnchecked-0d7_KjU ()J
-	public final fun getChevron-0d7_KjU ()J
-	public final fun getCurrentSelectionContainer-0d7_KjU ()J
-	public final fun getDetectedBadgeContainer-0d7_KjU ()J
-	public final fun getDetectedBadgeContent-0d7_KjU ()J
-	public final fun getDragHandle-0d7_KjU ()J
+	public final fun getAccent-0d7_KjU ()J
+	public final fun getAccentSoft-0d7_KjU ()J
+	public final fun getBackground-0d7_KjU ()J
 	public final fun getError-0d7_KjU ()J
-	public final fun getFlagPlaceholderContainer-0d7_KjU ()J
-	public final fun getFlagPlaceholderContent-0d7_KjU ()J
-	public final fun getRegionChipBorder-0d7_KjU ()J
-	public final fun getRegionChipContainer-0d7_KjU ()J
-	public final fun getRegionChipContent-0d7_KjU ()J
-	public final fun getRegionChipSelectedContainer-0d7_KjU ()J
-	public final fun getRegionChipSelectedContent-0d7_KjU ()J
-	public final fun getRowContainer-0d7_KjU ()J
-	public final fun getRowContent-0d7_KjU ()J
-	public final fun getRowDisabledContent-0d7_KjU ()J
-	public final fun getRowSecondaryContent-0d7_KjU ()J
+	public final fun getErrorSoft-0d7_KjU ()J
+	public final fun getFocusRing-0d7_KjU ()J
+	public final fun getHairline-0d7_KjU ()J
+	public final fun getHighlight-0d7_KjU ()J
+	public final fun getOnAccent-0d7_KjU ()J
+	public final fun getOnAccentSoft-0d7_KjU ()J
+	public final fun getOutline-0d7_KjU ()J
 	public final fun getScrim-0d7_KjU ()J
-	public final fun getSearchContainer-0d7_KjU ()J
-	public final fun getSearchContent-0d7_KjU ()J
-	public final fun getSearchFocusedBorder-0d7_KjU ()J
-	public final fun getSearchHighlight-0d7_KjU ()J
-	public final fun getSearchPlaceholder-0d7_KjU ()J
-	public final fun getSectionLabel-0d7_KjU ()J
-	public final fun getSelectedRowContainer-0d7_KjU ()J
-	public final fun getSelectedRowContent-0d7_KjU ()J
-	public final fun getSelectorBorder-0d7_KjU ()J
-	public final fun getSelectorContainer-0d7_KjU ()J
-	public final fun getSelectorContent-0d7_KjU ()J
-	public final fun getSelectorDisabledContainer-0d7_KjU ()J
-	public final fun getSelectorDisabledContent-0d7_KjU ()J
-	public final fun getSelectorFocusedBorder-0d7_KjU ()J
-	public final fun getSelectorLabel-0d7_KjU ()J
-	public final fun getSelectorSecondaryContent-0d7_KjU ()J
-	public final fun getSheetContainer-0d7_KjU ()J
-	public final fun getSheetContent-0d7_KjU ()J
-	public final fun getSheetSecondaryContent-0d7_KjU ()J
+	public final fun getShadow-0d7_KjU ()J
+	public final fun getSkeleton-0d7_KjU ()J
+	public final fun getSkeletonShine-0d7_KjU ()J
 	public final fun getSuccess-0d7_KjU ()J
+	public final fun getSuccessSoft-0d7_KjU ()J
+	public final fun getSurface-0d7_KjU ()J
+	public final fun getSurfaceRaised-0d7_KjU ()J
+	public final fun getSurfaceSunken-0d7_KjU ()J
+	public final fun getTextDisabled-0d7_KjU ()J
+	public final fun getTextPrimary-0d7_KjU ()J
+	public final fun getTextSecondary-0d7_KjU ()J
+	public final fun getTextTertiary-0d7_KjU ()J
+	public final fun getWarning-0d7_KjU ()J
+	public final fun getWarningSoft-0d7_KjU ()J
 	public fun hashCode ()I
-	public final fun rowContainer-vNxB06k (Z)J
-	public final fun rowContent-WaAFU9c (ZZ)J
+	public final fun isDark ()Z
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/CountryPickerColors$Companion {
+	public final fun signature-jxsXWHM (JJZ)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;
+	public static synthetic fun signature-jxsXWHM$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors$Companion;JJZILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;
 }
 
 public final class com/ezzy/ccp/countrypicker/theme/CountryPickerDefaults {
 	public static final field $stable I
 	public static final field INSTANCE Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDefaults;
-	public final fun colors-REPzBSA (JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJLandroidx/compose/runtime/Composer;IIIIIII)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;
-	public final fun config (Ljava/util/Set;Ljava/util/Set;ZZZZLjava/util/List;)Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;
-	public static synthetic fun config$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDefaults;Ljava/util/Set;Ljava/util/Set;ZZZZLjava/util/List;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;
-	public final fun dimensions ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;
-	public final fun motion (ZLandroidx/compose/runtime/Composer;II)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;
-	public final fun multiSelectConfig (Ljava/util/Set;Ljava/util/Set;ILjava/lang/Integer;ZZLjava/util/List;)Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;
-	public static synthetic fun multiSelectConfig$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDefaults;Ljava/util/Set;Ljava/util/Set;ILjava/lang/Integer;ZZLjava/util/List;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;
+	public final fun config (Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/List;Z)Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;
+	public static synthetic fun config$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDefaults;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;Ljava/util/List;ZILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;
+	public final fun multiSelectConfig (Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;ILjava/lang/Integer;Ljava/util/List;)Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;
+	public static synthetic fun multiSelectConfig$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDefaults;Ljava/util/Set;Ljava/util/Set;Ljava/util/Set;ILjava/lang/Integer;Ljava/util/List;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;
 	public final fun phoneConfig (Ljava/util/Set;Ljava/util/Set;Ljava/util/List;)Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;
 	public static synthetic fun phoneConfig$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDefaults;Ljava/util/Set;Ljava/util/Set;Ljava/util/List;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;
-	public final fun shapes (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;
-	public static synthetic fun shapes$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDefaults;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;
-	public final fun typography (Landroidx/compose/runtime/Composer;I)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/CountryPickerDensity : java/lang/Enum {
+	public static final field Comfortable Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDensity;
+	public static final field Compact Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDensity;
+	public static final field Spacious Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDensity;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDensity;
+	public static fun values ()[Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDensity;
 }
 
 public final class com/ezzy/ccp/countrypicker/theme/CountryPickerDimensions {
 	public static final field $stable I
+	public static final field Companion Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions$Companion;
 	public fun <init> ()V
-	public synthetic fun <init> (FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFIILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1-D9Ej5fM ()F
 	public final fun component10-D9Ej5fM ()F
 	public final fun component11-D9Ej5fM ()F
 	public final fun component12-D9Ej5fM ()F
 	public final fun component13-D9Ej5fM ()F
-	public final fun component14 ()F
+	public final fun component14-D9Ej5fM ()F
 	public final fun component15-D9Ej5fM ()F
 	public final fun component16-D9Ej5fM ()F
 	public final fun component17-D9Ej5fM ()F
@@ -1150,75 +1152,184 @@ public final class com/ezzy/ccp/countrypicker/theme/CountryPickerDimensions {
 	public final fun component29-D9Ej5fM ()F
 	public final fun component3-D9Ej5fM ()F
 	public final fun component30-D9Ej5fM ()F
-	public final fun component31-D9Ej5fM ()F
-	public final fun component32-D9Ej5fM ()F
-	public final fun component33-D9Ej5fM ()F
-	public final fun component34-D9Ej5fM ()F
-	public final fun component35-D9Ej5fM ()F
-	public final fun component36-D9Ej5fM ()F
-	public final fun component37-D9Ej5fM ()F
 	public final fun component4-D9Ej5fM ()F
 	public final fun component5-D9Ej5fM ()F
 	public final fun component6-D9Ej5fM ()F
 	public final fun component7-D9Ej5fM ()F
 	public final fun component8-D9Ej5fM ()F
 	public final fun component9-D9Ej5fM ()F
-	public final fun copy-kx9-QSQ (FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;
-	public static synthetic fun copy-kx9-QSQ$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFIILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;
+	public final fun copy-trw0NAQ (FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;
+	public static synthetic fun copy-trw0NAQ$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getCheckIconSize-D9Ej5fM ()F
 	public final fun getCheckboxSize-D9Ej5fM ()F
-	public final fun getChevronSize-D9Ej5fM ()F
-	public final fun getCurrentSelectionPadding-D9Ej5fM ()F
-	public final fun getFlagAspectRatioWidthMultiplier ()F
-	public final fun getFlagSize-D9Ej5fM ()F
+	public final fun getChipHeight-D9Ej5fM ()F
+	public final fun getChipHorizontalPadding-D9Ej5fM ()F
+	public final fun getChipSpacing-D9Ej5fM ()F
+	public final fun getFieldBorderWidth-D9Ej5fM ()F
+	public final fun getFieldCompactHeight-D9Ej5fM ()F
+	public final fun getFieldContentSpacing-D9Ej5fM ()F
+	public final fun getFieldFocusedBorderWidth-D9Ej5fM ()F
+	public final fun getFieldHorizontalPadding-D9Ej5fM ()F
+	public final fun getFieldMinHeight-D9Ej5fM ()F
 	public final fun getFlagSizeCompact-D9Ej5fM ()F
+	public final fun getFlagSizeField-D9Ej5fM ()F
 	public final fun getFlagSizeRow-D9Ej5fM ()F
+	public final fun getFlagSizeTile-D9Ej5fM ()F
+	public final fun getFocusRingWidth-D9Ej5fM ()F
+	public final fun getGroupHorizontalMargin-D9Ej5fM ()F
+	public final fun getGroupSpacing-D9Ej5fM ()F
 	public final fun getIconButtonSize-D9Ej5fM ()F
+	public final fun getIndexBubbleSize-D9Ej5fM ()F
+	public final fun getIndexRailWidth-D9Ej5fM ()F
+	public final fun getIndicatorSize-D9Ej5fM ()F
 	public final fun getMinimumTouchTarget-D9Ej5fM ()F
-	public final fun getPhoneFieldMinHeightNoLabel-D9Ej5fM ()F
-	public final fun getPhoneFieldMinHeightWithLabel-D9Ej5fM ()F
-	public final fun getRegionChipHeight-D9Ej5fM ()F
-	public final fun getRegionChipHorizontalPadding-D9Ej5fM ()F
-	public final fun getRegionChipSpacing-D9Ej5fM ()F
 	public final fun getRowContentSpacing-D9Ej5fM ()F
 	public final fun getRowHorizontalPadding-D9Ej5fM ()F
 	public final fun getRowMinHeight-D9Ej5fM ()F
 	public final fun getRowVerticalPadding-D9Ej5fM ()F
-	public final fun getSearchBorderWidth-D9Ej5fM ()F
-	public final fun getSearchContentSpacing-D9Ej5fM ()F
 	public final fun getSearchFieldHeight-D9Ej5fM ()F
-	public final fun getSearchHorizontalMargin-D9Ej5fM ()F
-	public final fun getSectionHeaderBottomPadding-D9Ej5fM ()F
-	public final fun getSectionHeaderTopPadding-D9Ej5fM ()F
-	public final fun getSelectorBorderWidth-D9Ej5fM ()F
-	public final fun getSelectorCompactMinHeight-D9Ej5fM ()F
-	public final fun getSelectorContentSpacing-D9Ej5fM ()F
-	public final fun getSelectorDialMinHeight-D9Ej5fM ()F
-	public final fun getSelectorFlagOnlyMinHeight-D9Ej5fM ()F
-	public final fun getSelectorFocusedBorderWidth-D9Ej5fM ()F
-	public final fun getSelectorHorizontalPadding-D9Ej5fM ()F
-	public final fun getSelectorMinHeight-D9Ej5fM ()F
-	public final fun getSelectorOutlinedMinHeight-D9Ej5fM ()F
-	public final fun getSelectorVerticalPadding-D9Ej5fM ()F
-	public final fun getSheetHeaderStartPadding-D9Ej5fM ()F
 	public final fun getSheetHorizontalPadding-D9Ej5fM ()F
+	public final fun getTileHeight-D9Ej5fM ()F
+	public final fun getTileWidth-D9Ej5fM ()F
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/CountryPickerDimensions$Companion {
+	public final fun forDensity (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDensity;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/CountryPickerElevation {
+	public static final field $stable I
+	public static final field Companion Lcom/ezzy/ccp/countrypicker/theme/CountryPickerElevation$Companion;
+	public fun <init> (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;)V
+	public final fun component1 ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+	public final fun component2 ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+	public final fun component3 ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+	public final fun component4 ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+	public final fun component5 ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+	public final fun component6 ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+	public final fun component7 ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+	public final fun copy (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerElevation;
+	public static synthetic fun copy$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerElevation;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerElevation;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCard ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+	public final fun getDialog ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+	public final fun getField ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+	public final fun getFieldFocused ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+	public final fun getFloatingBar ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+	public final fun getSearchField ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+	public final fun getTile ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/CountryPickerElevation$Companion {
+	public final fun getFlat ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerElevation;
+	public final fun signature (Z)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerElevation;
+	public static synthetic fun signature$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerElevation$Companion;ZILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerElevation;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/CountryPickerHaptics {
+	public static final field $stable I
+	public static final field Companion Lcom/ezzy/ccp/countrypicker/theme/CountryPickerHaptics$Companion;
+	public fun <init> ()V
+	public synthetic fun <init> (ZLandroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ZLandroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Z
+	public final fun component2-QTGlAvA ()Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;
+	public final fun component3-QTGlAvA ()Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;
+	public final fun component4-QTGlAvA ()Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;
+	public final fun component5-QTGlAvA ()Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;
+	public final fun component6-QTGlAvA ()Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;
+	public final fun component7-QTGlAvA ()Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;
+	public final fun component8-QTGlAvA ()Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;
+	public final fun copy-cwh6TjA (ZLandroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerHaptics;
+	public static synthetic fun copy-cwh6TjA$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerHaptics;ZLandroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerHaptics;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEnabled ()Z
+	public final fun getError-QTGlAvA ()Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;
+	public final fun getFilter-QTGlAvA ()Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;
+	public final fun getLimitReached-QTGlAvA ()Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;
+	public final fun getScrub-QTGlAvA ()Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;
+	public final fun getSelect-QTGlAvA ()Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;
+	public final fun getToggleOff-QTGlAvA ()Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;
+	public final fun getToggleOn-QTGlAvA ()Landroidx/compose/ui/hapticfeedback/HapticFeedbackType;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/CountryPickerHaptics$Companion {
+	public final fun getOff ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerHaptics;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/CountryPickerLayout {
+	public static final field $stable I
+	public fun <init> ()V
+	public synthetic fun <init> (Lcom/ezzy/ccp/countrypicker/theme/PickerPresentation;Lcom/ezzy/ccp/countrypicker/theme/CountryListStyle;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagSource;Lcom/ezzy/ccp/countrypicker/theme/SelectionIndicator;Lcom/ezzy/ccp/countrypicker/theme/SheetHeaderStyle;Lcom/ezzy/ccp/countrypicker/theme/QuickPicksStyle;ZZZZZZZZZZFFFFILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lcom/ezzy/ccp/countrypicker/theme/PickerPresentation;Lcom/ezzy/ccp/countrypicker/theme/CountryListStyle;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagSource;Lcom/ezzy/ccp/countrypicker/theme/SelectionIndicator;Lcom/ezzy/ccp/countrypicker/theme/SheetHeaderStyle;Lcom/ezzy/ccp/countrypicker/theme/QuickPicksStyle;ZZZZZZZZZZFFFFLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/ezzy/ccp/countrypicker/theme/PickerPresentation;
+	public final fun component10 ()Z
+	public final fun component11 ()Z
+	public final fun component12 ()Z
+	public final fun component13 ()Z
+	public final fun component14 ()Z
+	public final fun component15 ()Z
+	public final fun component16 ()Z
+	public final fun component17 ()Z
+	public final fun component18 ()F
+	public final fun component19-D9Ej5fM ()F
+	public final fun component2 ()Lcom/ezzy/ccp/countrypicker/theme/CountryListStyle;
+	public final fun component20-D9Ej5fM ()F
+	public final fun component21-D9Ej5fM ()F
+	public final fun component3 ()Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;
+	public final fun component4 ()Lcom/ezzy/ccp/countrypicker/theme/CountryFlagSource;
+	public final fun component5 ()Lcom/ezzy/ccp/countrypicker/theme/SelectionIndicator;
+	public final fun component6 ()Lcom/ezzy/ccp/countrypicker/theme/SheetHeaderStyle;
+	public final fun component7 ()Lcom/ezzy/ccp/countrypicker/theme/QuickPicksStyle;
+	public final fun component8 ()Z
+	public final fun component9 ()Z
+	public final fun copy-OrKekts (Lcom/ezzy/ccp/countrypicker/theme/PickerPresentation;Lcom/ezzy/ccp/countrypicker/theme/CountryListStyle;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagSource;Lcom/ezzy/ccp/countrypicker/theme/SelectionIndicator;Lcom/ezzy/ccp/countrypicker/theme/SheetHeaderStyle;Lcom/ezzy/ccp/countrypicker/theme/QuickPicksStyle;ZZZZZZZZZZFFFF)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerLayout;
+	public static synthetic fun copy-OrKekts$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerLayout;Lcom/ezzy/ccp/countrypicker/theme/PickerPresentation;Lcom/ezzy/ccp/countrypicker/theme/CountryListStyle;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagSource;Lcom/ezzy/ccp/countrypicker/theme/SelectionIndicator;Lcom/ezzy/ccp/countrypicker/theme/SheetHeaderStyle;Lcom/ezzy/ccp/countrypicker/theme/QuickPicksStyle;ZZZZZZZZZZFFFFILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerLayout;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDialogMaxHeight-D9Ej5fM ()F
+	public final fun getDialogMaxWidth-D9Ej5fM ()F
+	public final fun getFlagSource ()Lcom/ezzy/ccp/countrypicker/theme/CountryFlagSource;
+	public final fun getFlagStyle ()Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;
+	public final fun getHeaderStyle ()Lcom/ezzy/ccp/countrypicker/theme/SheetHeaderStyle;
+	public final fun getHighlightSearchMatches ()Z
+	public final fun getListStyle ()Lcom/ezzy/ccp/countrypicker/theme/CountryListStyle;
+	public final fun getPresentation ()Lcom/ezzy/ccp/countrypicker/theme/PickerPresentation;
+	public final fun getQuickPicks ()Lcom/ezzy/ccp/countrypicker/theme/QuickPicksStyle;
+	public final fun getSelectionIndicator ()Lcom/ezzy/ccp/countrypicker/theme/SelectionIndicator;
+	public final fun getSheetHeightFraction ()F
+	public final fun getShowAlphabetIndex ()Z
+	public final fun getShowDialCode ()Z
+	public final fun getShowDividers ()Z
+	public final fun getShowIsoCode ()Z
+	public final fun getShowRegionCounts ()Z
+	public final fun getShowRegionFilters ()Z
+	public final fun getShowRegionName ()Z
+	public final fun getShowResultCount ()Z
+	public final fun getShowSearchSuggestions ()Z
+	public final fun getWideScreenBreakpoint-D9Ej5fM ()F
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
 public final class com/ezzy/ccp/countrypicker/theme/CountryPickerMotion {
 	public static final field $stable I
-	public static final field CONTENT_MILLIS I
 	public static final field Companion Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion$Companion;
-	public static final field MICRO_MILLIS I
 	public fun <init> ()V
-	public fun <init> (Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;II)V
-	public synthetic fun <init> (Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;IIILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public synthetic fun <init> (ZLandroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;FFJIIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ZLandroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;FFJIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Z
 	public final fun component10 ()Landroidx/compose/animation/core/FiniteAnimationSpec;
-	public final fun component11 ()I
-	public final fun component12 ()I
+	public final fun component11 ()F
+	public final fun component12-D9Ej5fM ()F
+	public final fun component13 ()J
+	public final fun component14 ()I
+	public final fun component15 ()I
 	public final fun component2 ()Landroidx/compose/animation/core/FiniteAnimationSpec;
 	public final fun component3 ()Landroidx/compose/animation/core/FiniteAnimationSpec;
 	public final fun component4 ()Landroidx/compose/animation/core/FiniteAnimationSpec;
@@ -1227,21 +1338,24 @@ public final class com/ezzy/ccp/countrypicker/theme/CountryPickerMotion {
 	public final fun component7 ()Landroidx/compose/animation/core/FiniteAnimationSpec;
 	public final fun component8 ()Landroidx/compose/animation/core/FiniteAnimationSpec;
 	public final fun component9 ()Landroidx/compose/animation/core/FiniteAnimationSpec;
-	public final fun copy (Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;II)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;
-	public static synthetic fun copy$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;IIILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;
+	public final fun copy-mkbBYWo (ZLandroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;FFJII)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;
+	public static synthetic fun copy-mkbBYWo$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;ZLandroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;Landroidx/compose/animation/core/FiniteAnimationSpec;FFJIIILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getColorSpec ()Landroidx/compose/animation/core/FiniteAnimationSpec;
-	public final fun getContent ()Landroidx/compose/animation/core/FiniteAnimationSpec;
-	public final fun getDpSpec ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public final fun getColor ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public final fun getDp ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public final fun getEnabled ()Z
 	public final fun getFadeIn ()Landroidx/compose/animation/core/FiniteAnimationSpec;
 	public final fun getFadeOut ()Landroidx/compose/animation/core/FiniteAnimationSpec;
-	public final fun getFloatSpec ()Landroidx/compose/animation/core/FiniteAnimationSpec;
-	public final fun getListItemPlacement ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public final fun getLayout ()Landroidx/compose/animation/core/FiniteAnimationSpec;
 	public final fun getMaxStaggeredItems ()I
-	public final fun getMicro ()Landroidx/compose/animation/core/FiniteAnimationSpec;
-	public final fun getSelectionSpring ()Landroidx/compose/animation/core/FiniteAnimationSpec;
-	public final fun getSizeSpec ()Landroidx/compose/animation/core/FiniteAnimationSpec;
-	public final fun getStaggerPerItemMillis ()I
+	public final fun getOffset ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public final fun getPress ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public final fun getPressedScale ()F
+	public final fun getSelection ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public final fun getSelectionDismissDelayMillis ()J
+	public final fun getShakeDistance-D9Ej5fM ()F
+	public final fun getSize ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public final fun getStaggerMillis ()I
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 	public final fun withMotionEnabled (Z)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;
@@ -1257,11 +1371,28 @@ public final class com/ezzy/ccp/countrypicker/theme/CountryPickerMotionKt {
 	public static final fun respectingSystemAnimationScale (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Landroidx/compose/runtime/Composer;I)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;
 }
 
+public final class com/ezzy/ccp/countrypicker/theme/CountryPickerShadow {
+	public static final field $stable I
+	public static final field Companion Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow$Companion;
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+	public static synthetic fun copy$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;Ljava/util/List;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLayers ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/CountryPickerShadow$Companion {
+	public final fun getNone ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShadow;
+}
+
 public final class com/ezzy/ccp/countrypicker/theme/CountryPickerShapes {
 	public static final field $stable I
 	public fun <init> ()V
-	public fun <init> (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;)V
-	public synthetic fun <init> (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;FLandroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;FLandroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Landroidx/compose/ui/graphics/Shape;
 	public final fun component10 ()Landroidx/compose/ui/graphics/Shape;
 	public final fun component11 ()Landroidx/compose/ui/graphics/Shape;
@@ -1271,42 +1402,83 @@ public final class com/ezzy/ccp/countrypicker/theme/CountryPickerShapes {
 	public final fun component2 ()Landroidx/compose/ui/graphics/Shape;
 	public final fun component3 ()Landroidx/compose/ui/graphics/Shape;
 	public final fun component4 ()Landroidx/compose/ui/graphics/Shape;
-	public final fun component5 ()Landroidx/compose/ui/graphics/Shape;
+	public final fun component5-D9Ej5fM ()F
 	public final fun component6 ()Landroidx/compose/ui/graphics/Shape;
 	public final fun component7 ()Landroidx/compose/ui/graphics/Shape;
 	public final fun component8 ()Landroidx/compose/ui/graphics/Shape;
 	public final fun component9 ()Landroidx/compose/ui/graphics/Shape;
-	public final fun copy (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;
-	public static synthetic fun copy$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;
+	public final fun copy-skrPljE (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;FLandroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;
+	public static synthetic fun copy-skrPljE$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;FLandroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/Shape;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBadge ()Landroidx/compose/ui/graphics/Shape;
 	public final fun getButton ()Landroidx/compose/ui/graphics/Shape;
-	public final fun getCurrentSelectionCard ()Landroidx/compose/ui/graphics/Shape;
-	public final fun getDetectedBadge ()Landroidx/compose/ui/graphics/Shape;
-	public final fun getFlagCircle ()Landroidx/compose/ui/graphics/Shape;
+	public final fun getChip ()Landroidx/compose/ui/graphics/Shape;
+	public final fun getDialog ()Landroidx/compose/ui/graphics/Shape;
+	public final fun getField ()Landroidx/compose/ui/graphics/Shape;
 	public final fun getFlagRounded ()Landroidx/compose/ui/graphics/Shape;
-	public final fun getFlagSquare ()Landroidx/compose/ui/graphics/Shape;
-	public final fun getRegionChip ()Landroidx/compose/ui/graphics/Shape;
+	public final fun getFlagTile ()Landroidx/compose/ui/graphics/Shape;
+	public final fun getFloatingBar ()Landroidx/compose/ui/graphics/Shape;
+	public final fun getGroupCornerRadius-D9Ej5fM ()F
+	public final fun getPill ()Landroidx/compose/ui/graphics/Shape;
 	public final fun getRow ()Landroidx/compose/ui/graphics/Shape;
 	public final fun getSearchField ()Landroidx/compose/ui/graphics/Shape;
-	public final fun getSelectorFilled ()Landroidx/compose/ui/graphics/Shape;
-	public final fun getSelectorMinimal ()Landroidx/compose/ui/graphics/Shape;
-	public final fun getSelectorOutlined ()Landroidx/compose/ui/graphics/Shape;
-	public final fun getSelectorPill ()Landroidx/compose/ui/graphics/Shape;
 	public final fun getSheet ()Landroidx/compose/ui/graphics/Shape;
+	public final fun getTile ()Landroidx/compose/ui/graphics/Shape;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/ezzy/ccp/countrypicker/theme/CountryPickerTokens {
+public final class com/ezzy/ccp/countrypicker/theme/CountryPickerStyle {
 	public static final field $stable I
-	public static final field INSTANCE Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTokens;
-	public final fun getSuccessDark-0d7_KjU ()J
-	public final fun getSuccessLight-0d7_KjU ()J
+	public fun <init> (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerElevation;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerLayout;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerHaptics;)V
+	public final fun component1 ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;
+	public final fun component2 ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;
+	public final fun component3 ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;
+	public final fun component4 ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;
+	public final fun component5 ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;
+	public final fun component6 ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerElevation;
+	public final fun component7 ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerLayout;
+	public final fun component8 ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerHaptics;
+	public final fun copy (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerElevation;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerLayout;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerHaptics;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;
+	public static synthetic fun copy$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerElevation;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerLayout;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerHaptics;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getColors ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;
+	public final fun getDimensions ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;
+	public final fun getElevation ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerElevation;
+	public final fun getHaptics ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerHaptics;
+	public final fun getLayout ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerLayout;
+	public final fun getMotion ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;
+	public final fun getShapes ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;
+	public final fun getTypography ()Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public final fun withDensity (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDensity;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/CountryPickerStyleKt {
+	public static final fun CountryPickerTheme (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+	public static final fun getLocalCountryPickerStyle ()Landroidx/compose/runtime/ProvidableCompositionLocal;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/CountryPickerStyles {
+	public static final field $stable I
+	public static final field INSTANCE Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyles;
+	public final fun cupertino-YCSmB94 (Landroidx/compose/ui/graphics/Color;ZLcom/ezzy/ccp/countrypicker/theme/CountryPickerDensity;Landroidx/compose/runtime/Composer;II)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;
+	public final fun material (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDensity;Landroidx/compose/runtime/Composer;II)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;
+	public final fun minimal (ZLcom/ezzy/ccp/countrypicker/theme/CountryPickerDensity;Landroidx/compose/runtime/Composer;II)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;
+	public final fun signature-euL9pac (JZLcom/ezzy/ccp/countrypicker/theme/CountryPickerDensity;Landroidx/compose/ui/text/font/FontFamily;Landroidx/compose/runtime/Composer;II)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/CountryPickerTheme {
+	public static final field $stable I
+	public static final field INSTANCE Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTheme;
+	public final fun getStyle (Landroidx/compose/runtime/Composer;I)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;
 }
 
 public final class com/ezzy/ccp/countrypicker/theme/CountryPickerTypography {
 	public static final field $stable I
-	public fun <init> (Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;)V
+	public static final field Companion Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography$Companion;
+	public fun <init> (Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;)V
 	public final fun component1 ()Landroidx/compose/ui/text/TextStyle;
 	public final fun component10 ()Landroidx/compose/ui/text/TextStyle;
 	public final fun component11 ()Landroidx/compose/ui/text/TextStyle;
@@ -1316,7 +1488,10 @@ public final class com/ezzy/ccp/countrypicker/theme/CountryPickerTypography {
 	public final fun component15 ()Landroidx/compose/ui/text/TextStyle;
 	public final fun component16 ()Landroidx/compose/ui/text/TextStyle;
 	public final fun component17 ()Landroidx/compose/ui/text/TextStyle;
+	public final fun component18 ()Landroidx/compose/ui/text/TextStyle;
+	public final fun component19 ()Landroidx/compose/ui/text/TextStyle;
 	public final fun component2 ()Landroidx/compose/ui/text/TextStyle;
+	public final fun component20 ()Landroidx/compose/ui/text/TextStyle;
 	public final fun component3 ()Landroidx/compose/ui/text/TextStyle;
 	public final fun component4 ()Landroidx/compose/ui/text/TextStyle;
 	public final fun component5 ()Landroidx/compose/ui/text/TextStyle;
@@ -1324,62 +1499,56 @@ public final class com/ezzy/ccp/countrypicker/theme/CountryPickerTypography {
 	public final fun component7 ()Landroidx/compose/ui/text/TextStyle;
 	public final fun component8 ()Landroidx/compose/ui/text/TextStyle;
 	public final fun component9 ()Landroidx/compose/ui/text/TextStyle;
-	public final fun copy (Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;
-	public static synthetic fun copy$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;
+	public final fun copy (Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;
+	public static synthetic fun copy$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;Landroidx/compose/ui/text/TextStyle;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getBadgeLabel ()Landroidx/compose/ui/text/TextStyle;
-	public final fun getButtonLabel ()Landroidx/compose/ui/text/TextStyle;
-	public final fun getCompactValue ()Landroidx/compose/ui/text/TextStyle;
-	public final fun getCountryMetadata ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getBadge ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getButton ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getCaption ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getChip ()Landroidx/compose/ui/text/TextStyle;
 	public final fun getCountryName ()Landroidx/compose/ui/text/TextStyle;
-	public final fun getDialCodeValue ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getCountryNameSelected ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getDialCode ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getEmptyBody ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getEmptyTitle ()Landroidx/compose/ui/text/TextStyle;
 	public final fun getFieldLabel ()Landroidx/compose/ui/text/TextStyle;
-	public final fun getHelperText ()Landroidx/compose/ui/text/TextStyle;
-	public final fun getRegionChipLabel ()Landroidx/compose/ui/text/TextStyle;
-	public final fun getResultCount ()Landroidx/compose/ui/text/TextStyle;
-	public final fun getScreenTitle ()Landroidx/compose/ui/text/TextStyle;
-	public final fun getSearchInput ()Landroidx/compose/ui/text/TextStyle;
-	public final fun getSectionHeader ()Landroidx/compose/ui/text/TextStyle;
-	public final fun getSelectorSecondary ()Landroidx/compose/ui/text/TextStyle;
-	public final fun getSelectorValue ()Landroidx/compose/ui/text/TextStyle;
-	public final fun getSheetSubtitle ()Landroidx/compose/ui/text/TextStyle;
-	public final fun getSheetTitle ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getFieldValue ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getHelper ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getIndexBubble ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getIndexLetter ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getPhoneNumber ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getSearch ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getSectionLabel ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getSubtitle ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getTileLabel ()Landroidx/compose/ui/text/TextStyle;
+	public final fun getTitle ()Landroidx/compose/ui/text/TextStyle;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/ezzy/ccp/countrypicker/theme/CountrySelectorContentConfig {
-	public static final field $stable I
-	public fun <init> ()V
-	public fun <init> (Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;ZLcom/ezzy/ccp/countrypicker/model/CountrySupportingContent;ZZLcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;)V
-	public synthetic fun <init> (Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;ZLcom/ezzy/ccp/countrypicker/model/CountrySupportingContent;ZZLcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;
-	public final fun component2 ()Z
-	public final fun component3 ()Lcom/ezzy/ccp/countrypicker/model/CountrySupportingContent;
-	public final fun component4 ()Z
-	public final fun component5 ()Z
-	public final fun component6 ()Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;
-	public final fun copy (Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;ZLcom/ezzy/ccp/countrypicker/model/CountrySupportingContent;ZZLcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;)Lcom/ezzy/ccp/countrypicker/theme/CountrySelectorContentConfig;
-	public static synthetic fun copy$default (Lcom/ezzy/ccp/countrypicker/theme/CountrySelectorContentConfig;Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;ZLcom/ezzy/ccp/countrypicker/model/CountrySupportingContent;ZZLcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountrySelectorContentConfig;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getFlagConfig ()Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;
-	public final fun getHasVisibleLabel ()Z
-	public final fun getLabelMode ()Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;
-	public final fun getShowCountryName ()Z
-	public final fun getShowDropdownIcon ()Z
-	public final fun getShowFlag ()Z
-	public final fun getSupportingContent ()Lcom/ezzy/ccp/countrypicker/model/CountrySupportingContent;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
+public final class com/ezzy/ccp/countrypicker/theme/CountryPickerTypography$Companion {
+	public final fun signature (Landroidx/compose/ui/text/font/FontFamily;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;
+	public static synthetic fun signature$default (Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography$Companion;Landroidx/compose/ui/text/font/FontFamily;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;
 }
 
-public final class com/ezzy/ccp/countrypicker/theme/CountrySelectorDefaults {
-	public static final field $stable I
-	public static final field INSTANCE Lcom/ezzy/ccp/countrypicker/theme/CountrySelectorDefaults;
-	public final fun contentConfig (Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;ZLcom/ezzy/ccp/countrypicker/model/CountrySupportingContent;ZZLcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;)Lcom/ezzy/ccp/countrypicker/theme/CountrySelectorContentConfig;
-	public static synthetic fun contentConfig$default (Lcom/ezzy/ccp/countrypicker/theme/CountrySelectorDefaults;Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;ZLcom/ezzy/ccp/countrypicker/model/CountrySupportingContent;ZZLcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountrySelectorContentConfig;
-	public final fun rowOnlyContentConfig (Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;)Lcom/ezzy/ccp/countrypicker/theme/CountrySelectorContentConfig;
-	public static synthetic fun rowOnlyContentConfig$default (Lcom/ezzy/ccp/countrypicker/theme/CountrySelectorDefaults;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/CountrySelectorContentConfig;
+public final class com/ezzy/ccp/countrypicker/theme/FlagImageFormat : java/lang/Enum {
+	public static final field Jpeg Lcom/ezzy/ccp/countrypicker/theme/FlagImageFormat;
+	public static final field Png Lcom/ezzy/ccp/countrypicker/theme/FlagImageFormat;
+	public static final field Svg Lcom/ezzy/ccp/countrypicker/theme/FlagImageFormat;
+	public static final field WebP Lcom/ezzy/ccp/countrypicker/theme/FlagImageFormat;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/ezzy/ccp/countrypicker/theme/FlagImageFormat;
+	public static fun values ()[Lcom/ezzy/ccp/countrypicker/theme/FlagImageFormat;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/FlagImageShape : java/lang/Enum {
+	public static final field OriginalSameHeight Lcom/ezzy/ccp/countrypicker/theme/FlagImageShape;
+	public static final field OriginalSameWidth Lcom/ezzy/ccp/countrypicker/theme/FlagImageShape;
+	public static final field Waving Lcom/ezzy/ccp/countrypicker/theme/FlagImageShape;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun isOriginal ()Z
+	public static fun valueOf (Ljava/lang/String;)Lcom/ezzy/ccp/countrypicker/theme/FlagImageShape;
+	public static fun values ()[Lcom/ezzy/ccp/countrypicker/theme/FlagImageShape;
 }
 
 public final class com/ezzy/ccp/countrypicker/theme/PhoneFieldSize : java/lang/Enum {
@@ -1396,52 +1565,128 @@ public final class com/ezzy/ccp/countrypicker/theme/PhoneFieldSize : java/lang/E
 public final class com/ezzy/ccp/countrypicker/theme/PhoneNumberInputDefaults {
 	public static final field $stable I
 	public static final field INSTANCE Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputDefaults;
-	public final fun hiddenLabelStyle (Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;Lcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;)Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle;
-	public static synthetic fun hiddenLabelStyle$default (Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputDefaults;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;Lcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle;
-	public final fun style (Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;ZZLcom/ezzy/ccp/countrypicker/model/PhonePrefixContentMode;Lcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;)Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle;
-	public static synthetic fun style$default (Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputDefaults;Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;ZZLcom/ezzy/ccp/countrypicker/model/PhonePrefixContentMode;Lcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle;
+	public final fun hiddenLabelStyle (Lcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;)Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle;
+	public static synthetic fun hiddenLabelStyle$default (Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputDefaults;Lcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle;
+	public final fun style (Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;Lcom/ezzy/ccp/countrypicker/model/PhonePrefixContentMode;ZZLcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;ZZZZ)Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle;
+	public static synthetic fun style$default (Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputDefaults;Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;Lcom/ezzy/ccp/countrypicker/model/PhonePrefixContentMode;ZZLcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;ZZZZILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle;
 }
 
 public final class com/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle {
 	public static final field $stable I
 	public fun <init> ()V
-	public fun <init> (Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;ZZLcom/ezzy/ccp/countrypicker/model/PhonePrefixContentMode;Lcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;)V
-	public synthetic fun <init> (Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;ZZLcom/ezzy/ccp/countrypicker/model/PhonePrefixContentMode;Lcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;Lcom/ezzy/ccp/countrypicker/model/PhonePrefixContentMode;ZZLcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;ZZZZ)V
+	public synthetic fun <init> (Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;Lcom/ezzy/ccp/countrypicker/model/PhonePrefixContentMode;ZZLcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;ZZZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;
-	public final fun component2 ()Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;
+	public final fun component2 ()Lcom/ezzy/ccp/countrypicker/model/PhonePrefixContentMode;
 	public final fun component3 ()Z
 	public final fun component4 ()Z
-	public final fun component5 ()Lcom/ezzy/ccp/countrypicker/model/PhonePrefixContentMode;
-	public final fun component6 ()Lcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;
-	public final fun copy (Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;ZZLcom/ezzy/ccp/countrypicker/model/PhonePrefixContentMode;Lcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;)Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle;
-	public static synthetic fun copy$default (Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle;Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;ZZLcom/ezzy/ccp/countrypicker/model/PhonePrefixContentMode;Lcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;ILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle;
+	public final fun component5 ()Lcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;
+	public final fun component6 ()Z
+	public final fun component7 ()Z
+	public final fun component8 ()Z
+	public final fun component9 ()Z
+	public final fun copy (Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;Lcom/ezzy/ccp/countrypicker/model/PhonePrefixContentMode;ZZLcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;ZZZZ)Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle;
+	public static synthetic fun copy$default (Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle;Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;Lcom/ezzy/ccp/countrypicker/model/PhonePrefixContentMode;ZZLcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;ZZZZILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getFlagConfig ()Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;
 	public final fun getHasVisibleLabel ()Z
 	public final fun getLabelMode ()Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;
 	public final fun getPrefixContentMode ()Lcom/ezzy/ccp/countrypicker/model/PhonePrefixContentMode;
 	public final fun getShowDropdownIcon ()Z
+	public final fun getShowGhostDigits ()Z
+	public final fun getShowNumberType ()Z
 	public final fun getShowPrefixDivider ()Z
+	public final fun getShowProgress ()Z
+	public final fun getShowValidIndicator ()Z
 	public final fun getSize ()Lcom/ezzy/ccp/countrypicker/theme/PhoneFieldSize;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class com/ezzy/ccp/countrypicker/theme/PickerPresentation : java/lang/Enum {
+	public static final field Adaptive Lcom/ezzy/ccp/countrypicker/theme/PickerPresentation;
+	public static final field BottomSheet Lcom/ezzy/ccp/countrypicker/theme/PickerPresentation;
+	public static final field Dialog Lcom/ezzy/ccp/countrypicker/theme/PickerPresentation;
+	public static final field FullScreenSheet Lcom/ezzy/ccp/countrypicker/theme/PickerPresentation;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/ezzy/ccp/countrypicker/theme/PickerPresentation;
+	public static fun values ()[Lcom/ezzy/ccp/countrypicker/theme/PickerPresentation;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/QuickPicksStyle : java/lang/Enum {
+	public static final field Carousel Lcom/ezzy/ccp/countrypicker/theme/QuickPicksStyle;
+	public static final field Hidden Lcom/ezzy/ccp/countrypicker/theme/QuickPicksStyle;
+	public static final field Sections Lcom/ezzy/ccp/countrypicker/theme/QuickPicksStyle;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/ezzy/ccp/countrypicker/theme/QuickPicksStyle;
+	public static fun values ()[Lcom/ezzy/ccp/countrypicker/theme/QuickPicksStyle;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/SelectionIndicator : java/lang/Enum {
+	public static final field Check Lcom/ezzy/ccp/countrypicker/theme/SelectionIndicator;
+	public static final field None Lcom/ezzy/ccp/countrypicker/theme/SelectionIndicator;
+	public static final field Radio Lcom/ezzy/ccp/countrypicker/theme/SelectionIndicator;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/ezzy/ccp/countrypicker/theme/SelectionIndicator;
+	public static fun values ()[Lcom/ezzy/ccp/countrypicker/theme/SelectionIndicator;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/ShadowLayer {
+	public static final field $stable I
+	public synthetic fun <init> (FFFFILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (FFFFLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-D9Ej5fM ()F
+	public final fun component2-D9Ej5fM ()F
+	public final fun component3-D9Ej5fM ()F
+	public final fun component4 ()F
+	public final fun copy-DRUOcmI (FFFF)Lcom/ezzy/ccp/countrypicker/theme/ShadowLayer;
+	public static synthetic fun copy-DRUOcmI$default (Lcom/ezzy/ccp/countrypicker/theme/ShadowLayer;FFFFILjava/lang/Object;)Lcom/ezzy/ccp/countrypicker/theme/ShadowLayer;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAlpha ()F
+	public final fun getBlur-D9Ej5fM ()F
+	public final fun getOffsetY-D9Ej5fM ()F
+	public final fun getSpread-D9Ej5fM ()F
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/ezzy/ccp/countrypicker/theme/SheetHeaderStyle : java/lang/Enum {
+	public static final field Compact Lcom/ezzy/ccp/countrypicker/theme/SheetHeaderStyle;
+	public static final field Large Lcom/ezzy/ccp/countrypicker/theme/SheetHeaderStyle;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/ezzy/ccp/countrypicker/theme/SheetHeaderStyle;
+	public static fun values ()[Lcom/ezzy/ccp/countrypicker/theme/SheetHeaderStyle;
+}
+
+public final class com/ezzy/ccp/countrypicker/ui/ComposableSingletons$CountryPickerSheetKt {
+	public static final field INSTANCE Lcom/ezzy/ccp/countrypicker/ui/ComposableSingletons$CountryPickerSheetKt;
+	public fun <init> ()V
+	public final fun getLambda$-1919023111$CCP_ccp ()Lkotlin/jvm/functions/Function3;
+}
+
+public final class com/ezzy/ccp/countrypicker/ui/ComposableSingletons$CountrySearchFieldKt {
+	public static final field INSTANCE Lcom/ezzy/ccp/countrypicker/ui/ComposableSingletons$CountrySearchFieldKt;
+	public fun <init> ()V
+	public final fun getLambda$-1358979116$CCP_ccp ()Lkotlin/jvm/functions/Function3;
+}
+
 public final class com/ezzy/ccp/countrypicker/ui/ComposableSingletons$CountrySheetStatesKt {
 	public static final field INSTANCE Lcom/ezzy/ccp/countrypicker/ui/ComposableSingletons$CountrySheetStatesKt;
 	public fun <init> ()V
-	public final fun getLambda$-708402178$CCP_ccp ()Lkotlin/jvm/functions/Function3;
-	public final fun getLambda$47024748$CCP_ccp ()Lkotlin/jvm/functions/Function3;
-	public final fun getLambda$917992087$CCP_ccp ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$1535479516$CCP_ccp ()Lkotlin/jvm/functions/Function2;
+}
+
+public final class com/ezzy/ccp/countrypicker/ui/ComposableSingletons$DetectedCountryRowKt {
+	public static final field INSTANCE Lcom/ezzy/ccp/countrypicker/ui/ComposableSingletons$DetectedCountryRowKt;
+	public fun <init> ()V
+	public final fun getLambda$-27998121$CCP_ccp ()Lkotlin/jvm/functions/Function3;
 }
 
 public final class com/ezzy/ccp/countrypicker/ui/CountryFlagKt {
-	public static final fun CountryFlag (Lcom/ezzy/ccp/countrypicker/model/Country;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagConfig;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
-	public static final fun CountryFlag-dsL6K2w (Lcom/ezzy/ccp/countrypicker/model/Country;Landroidx/compose/ui/Modifier;FLcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun CountryFlag-osbwsH8 (Lcom/ezzy/ccp/countrypicker/model/Country;Landroidx/compose/ui/Modifier;FLcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagSource;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 }
 
 public final class com/ezzy/ccp/countrypicker/ui/CountryIndexRailKt {
-	public static final fun CountryIndexRail (Ljava/util/List;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Landroidx/compose/runtime/Composer;II)V
+	public static final fun CountryIndexRail (Ljava/util/List;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Landroidx/compose/runtime/Composer;II)V
 	public static final fun rememberCountryListIndex (Ljava/util/List;Landroidx/compose/runtime/Composer;I)Lcom/ezzy/ccp/countrypicker/ui/CountryListIndex;
 }
 
@@ -1454,7 +1699,7 @@ public final class com/ezzy/ccp/countrypicker/ui/CountryListIndex {
 }
 
 public final class com/ezzy/ccp/countrypicker/ui/CountryListItemKt {
-	public static final fun CountryListItem (Lcom/ezzy/ccp/countrypicker/model/CountryMatch;ZLkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;ZLcom/ezzy/ccp/countrypicker/model/CountrySelectionMode;ZZZZLcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;Lcom/ezzy/ccp/countrypicker/theme/CountryFlagStyle;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;III)V
+	public static final fun CountryListItem (Lcom/ezzy/ccp/countrypicker/model/CountryMatch;ZLkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;ZLcom/ezzy/ccp/countrypicker/model/CountrySelectionMode;ZLandroidx/compose/ui/graphics/Shape;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;III)V
 }
 
 public final class com/ezzy/ccp/countrypicker/ui/CountryListItemScope {
@@ -1479,27 +1724,32 @@ public final class com/ezzy/ccp/countrypicker/ui/CountryListItemScope {
 }
 
 public final class com/ezzy/ccp/countrypicker/ui/CountryListKt {
-	public static final fun CountryList (Lcom/ezzy/ccp/countrypicker/state/CountryPickerState;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/lazy/LazyListState;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
-	public static final fun CountryList (Ljava/util/List;Ljava/util/Set;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;Landroidx/compose/foundation/lazy/LazyListState;Ljava/util/Set;ZLandroidx/compose/foundation/layout/PaddingValues;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
-	public static final fun CountrySectionHeader (Lcom/ezzy/ccp/countrypicker/state/CountrySection;Landroidx/compose/ui/Modifier;ZLcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Landroidx/compose/runtime/Composer;II)V
+	public static final fun CountryList (Lcom/ezzy/ccp/countrypicker/state/CountryPickerState;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/lazy/LazyListState;Landroidx/compose/foundation/layout/PaddingValues;Lkotlin/jvm/functions/Function1;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun CountryList (Ljava/util/List;Ljava/util/Set;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/model/CountrySelectionMode;Ljava/util/Set;Landroidx/compose/foundation/lazy/LazyListState;Landroidx/compose/foundation/layout/PaddingValues;Lkotlin/jvm/functions/Function1;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public static final fun CountrySectionHeader (Lcom/ezzy/ccp/countrypicker/state/CountrySection;Landroidx/compose/ui/Modifier;ZZLcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Landroidx/compose/runtime/Composer;II)V
 }
 
 public final class com/ezzy/ccp/countrypicker/ui/CountryPickerSheetKt {
-	public static final fun CountryPickerSheet (Lcom/ezzy/ccp/countrypicker/state/CountryPickerState;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Landroidx/compose/material3/SheetState;Lcom/ezzy/ccp/countrypicker/persistence/RecentCountryStore;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
-	public static final fun MultiCountryPickerSheet (Lcom/ezzy/ccp/countrypicker/state/CountryPickerState;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Landroidx/compose/material3/SheetState;Lcom/ezzy/ccp/countrypicker/persistence/RecentCountryStore;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public static final fun CountryPickerPanel (Lcom/ezzy/ccp/countrypicker/state/CountryPickerState;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Lcom/ezzy/ccp/countrypicker/persistence/RecentCountryStore;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public static final fun CountryPickerSheet (Lcom/ezzy/ccp/countrypicker/state/CountryPickerState;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lcom/ezzy/ccp/countrypicker/persistence/RecentCountryStore;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public static final fun MultiCountryPickerSheet (Lcom/ezzy/ccp/countrypicker/state/CountryPickerState;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/persistence/RecentCountryStore;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+}
+
+public final class com/ezzy/ccp/countrypicker/ui/CountryQuickPicksKt {
+	public static final fun CountryQuickPicks (Ljava/util/List;Ljava/util/Set;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/PaddingValues;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 }
 
 public final class com/ezzy/ccp/countrypicker/ui/CountryRegionFiltersKt {
-	public static final fun CountryRegionFilters (Lcom/ezzy/ccp/countrypicker/model/CountryRegion;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Ljava/util/List;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Landroidx/compose/runtime/Composer;II)V
+	public static final fun CountryRegionFilters (Lcom/ezzy/ccp/countrypicker/model/CountryRegion;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Ljava/util/List;Ljava/util/Map;Landroidx/compose/foundation/layout/PaddingValues;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Landroidx/compose/runtime/Composer;II)V
 }
 
 public final class com/ezzy/ccp/countrypicker/ui/CountrySearchFieldKt {
-	public static final fun CountrySearchField (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/model/UiText;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;ZLcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Landroidx/compose/runtime/Composer;III)V
+	public static final fun CountrySearchField (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/model/UiText;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;ZLcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Landroidx/compose/runtime/Composer;II)V
 }
 
 public final class com/ezzy/ccp/countrypicker/ui/CountrySelectorKt {
-	public static final fun CountrySelector (Lcom/ezzy/ccp/countrypicker/model/Country;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;ZLcom/ezzy/ccp/countrypicker/ui/CountrySelectorState;Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;ZLcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/persistence/RecentCountryStore;Lcom/ezzy/ccp/countrypicker/detection/CountryDetector;Lcom/ezzy/ccp/countrypicker/detection/CountryDetectionBehavior;Lcom/ezzy/ccp/countrypicker/data/CountryRepository;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Lcom/ezzy/ccp/countrypicker/theme/CountrySelectorContentConfig;Landroidx/compose/runtime/Composer;IIII)V
-	public static final fun CountrySelectorField (Lcom/ezzy/ccp/countrypicker/model/Country;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;ZLcom/ezzy/ccp/countrypicker/ui/CountrySelectorState;Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;ZZZLcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Ljava/lang/String;Lcom/ezzy/ccp/countrypicker/theme/CountrySelectorContentConfig;Landroidx/compose/runtime/Composer;IIII)V
+	public static final fun CountrySelector (Lcom/ezzy/ccp/countrypicker/model/Country;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;ZLcom/ezzy/ccp/countrypicker/ui/CountrySelectorState;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;Lcom/ezzy/ccp/countrypicker/model/CountrySupportingContent;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;ZLcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/persistence/RecentCountryStore;Lcom/ezzy/ccp/countrypicker/detection/CountryDetector;Lcom/ezzy/ccp/countrypicker/detection/CountryDetectionBehavior;Lcom/ezzy/ccp/countrypicker/data/CountryRepository;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;IIII)V
+	public static final fun CountrySelectorField (Lcom/ezzy/ccp/countrypicker/model/Country;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;ZLcom/ezzy/ccp/countrypicker/ui/CountrySelectorState;Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/InputLabelMode;Lcom/ezzy/ccp/countrypicker/model/CountrySupportingContent;ZLcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function4;Ljava/lang/String;Landroidx/compose/runtime/Composer;III)V
 }
 
 public final class com/ezzy/ccp/countrypicker/ui/CountrySelectorState : java/lang/Enum {
@@ -1516,40 +1766,43 @@ public final class com/ezzy/ccp/countrypicker/ui/CountrySelectorState : java/lan
 }
 
 public final class com/ezzy/ccp/countrypicker/ui/CountrySelectorVariant : java/lang/Enum {
+	public static final field Card Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;
 	public static final field Compact Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;
 	public static final field DialCode Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;
+	public static final field Elevated Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;
 	public static final field Filled Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;
 	public static final field FlagOnly Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;
-	public static final field Minimal Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;
 	public static final field Outlined Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;
+	public static final field Underlined Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public final fun isFullWidth ()Z
+	public final fun isPill ()Z
 	public static fun valueOf (Ljava/lang/String;)Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;
 	public static fun values ()[Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;
 }
 
 public final class com/ezzy/ccp/countrypicker/ui/CountrySheetStatesKt {
-	public static final fun CountryErrorState (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;ZLcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Landroidx/compose/runtime/Composer;II)V
-	public static final fun CountryLoadingState (Landroidx/compose/ui/Modifier;ILcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Landroidx/compose/runtime/Composer;II)V
-	public static final fun CountryNoneAvailableState (Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Landroidx/compose/runtime/Composer;II)V
-	public static final fun CountrySearchEmptyState (Ljava/lang/String;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Landroidx/compose/runtime/Composer;II)V
+	public static final fun CountryErrorState (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;ZLcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Landroidx/compose/runtime/Composer;II)V
+	public static final fun CountryLoadingState (Landroidx/compose/ui/Modifier;ILcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Landroidx/compose/runtime/Composer;II)V
+	public static final fun CountryNoneAvailableState (Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Landroidx/compose/runtime/Composer;II)V
+	public static final fun CountrySearchEmptyState (Ljava/lang/String;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Ljava/util/List;Lkotlin/jvm/functions/Function1;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Landroidx/compose/runtime/Composer;II)V
 }
 
 public final class com/ezzy/ccp/countrypicker/ui/DetectedCountryRowKt {
-	public static final fun DetectedCountryBadge (Lcom/ezzy/ccp/countrypicker/detection/CountryDetectionSource;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Landroidx/compose/runtime/Composer;II)V
-	public static final fun DetectedCountrySuggestion (Lcom/ezzy/ccp/countrypicker/model/Country;Lcom/ezzy/ccp/countrypicker/detection/CountryDetectionSource;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;ZLcom/ezzy/ccp/countrypicker/theme/CountryFlagShape;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public static final fun DetectedCountryBadge (Lcom/ezzy/ccp/countrypicker/detection/CountryDetectionSource;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Landroidx/compose/runtime/Composer;II)V
+	public static final fun DetectedCountrySuggestion (Lcom/ezzy/ccp/countrypicker/model/Country;Lcom/ezzy/ccp/countrypicker/detection/CountryDetectionSource;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;ZLcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 }
 
 public final class com/ezzy/ccp/countrypicker/ui/MultiCountrySelectorKt {
-	public static final fun MultiCountrySelector (Ljava/util/Set;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;ZLcom/ezzy/ccp/countrypicker/ui/CountrySelectorState;Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;ZLcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/persistence/RecentCountryStore;Lcom/ezzy/ccp/countrypicker/data/CountryRepository;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;IIII)V
+	public static final fun MultiCountrySelector (Ljava/util/Set;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;Lcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;ZLcom/ezzy/ccp/countrypicker/ui/CountrySelectorState;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;ZLcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;ZLcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/persistence/RecentCountryStore;Lcom/ezzy/ccp/countrypicker/data/CountryRepository;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;IIII)V
 }
 
 public final class com/ezzy/ccp/countrypicker/ui/PhoneCountryCodeSelectorKt {
-	public static final fun PhoneCountryCodeSelector (Lcom/ezzy/ccp/countrypicker/model/Country;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;ZLcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/persistence/RecentCountryStore;Lcom/ezzy/ccp/countrypicker/data/CountryRepository;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public static final fun PhoneCountryCodeSelector (Lcom/ezzy/ccp/countrypicker/model/Country;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;ZLcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/persistence/RecentCountryStore;Lcom/ezzy/ccp/countrypicker/data/CountryRepository;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
 }
 
 public final class com/ezzy/ccp/countrypicker/ui/PhoneNumberFieldKt {
-	public static final fun PhoneNumberField (Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/state/PhoneNumberFieldState;ZZLcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle;Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;ZZZZLcom/ezzy/ccp/countrypicker/model/UiText;ZLcom/ezzy/ccp/countrypicker/phone/PhoneVerificationController;Lcom/ezzy/ccp/countrypicker/persistence/RecentCountryStore;Lcom/ezzy/ccp/countrypicker/data/CountryRepository;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerColors;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerShapes;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerDimensions;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerTypography;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerMotion;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;IIII)V
+	public static final fun PhoneNumberField (Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lcom/ezzy/ccp/countrypicker/state/PhoneNumberFieldState;ZZLcom/ezzy/ccp/countrypicker/ui/CountrySelectorVariant;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/model/UiText;Lcom/ezzy/ccp/countrypicker/theme/PhoneNumberInputStyle;Lcom/ezzy/ccp/countrypicker/state/CountryPickerConfig;ZZZZLcom/ezzy/ccp/countrypicker/model/UiText;ZLcom/ezzy/ccp/countrypicker/phone/PhoneVerificationController;Lcom/ezzy/ccp/countrypicker/persistence/RecentCountryStore;Lcom/ezzy/ccp/countrypicker/data/CountryRepository;Lcom/ezzy/ccp/countrypicker/theme/CountryPickerStyle;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;IIII)V
 }
 
 public final class com/ezzy/ccp/data/DataKt {

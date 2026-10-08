@@ -1,8 +1,8 @@
 # Phone number field
 
 `PhoneNumberField` is an international phone number field: the country prefix (flag, dial code,
-chevron) and the national number editor inside **one** unified outlined container, with a label that
-floats into a notch in the border the way a Material outlined text field does.
+chevron) and the number in **one** field, with a label that rests where the number goes and lifts
+above it as soon as the field has focus or a value.
 
 ```kotlin
 val kenya = remember { DefaultCountryDataSource.findByIso2("KE")!! }
@@ -31,6 +31,14 @@ What you get:
   libphonenumber metadata for the selected country, so no example number is hardcoded anywhere.
 - **Max length enforcement.** Input is capped at the region's maximum (with tolerance for countries
   whose national lengths vary), so a mistyped extra digit cannot silently invalidate a correct number.
+- **Ghost digits.** The empty field shows the country's example number; once typing starts, the rest
+  of it is ghosted as zeros — `712 3|00 000` — so the expected length and grouping stay visible.
+- **Progress and confirmation.** A hairline along the bottom fills as digits arrive and turns green
+  when the number is valid, and a valid number earns a badge naming its kind — `✓ Mobile`,
+  `✓ Landline` — so a landline entered where a mobile is wanted is visible before submitting. Screen
+  readers hear the same as the field's state: *"Valid number, Mobile"*.
+- **Tools while editing, results at rest.** The clear button appears only while the field has focus,
+  as on iOS, so a filled field shows the number and its badge rather than its controls.
 
 !!! warning "Pass an initial country"
     The default `state` starts on the first dataset entry alphabetically (Afghanistan). Always pass
@@ -47,7 +55,8 @@ What you get:
 | `label` | "Phone number" | Floating label. Rendered only when `inputStyle.labelMode` is `Floating` |
 | `accessibilityLabel` | `label` | The label exposed to screen readers regardless of whether the visible label renders |
 | `placeholder` | `null` | Placeholder inside the editor |
-| `inputStyle` | `PhoneNumberInputDefaults.style()` | Label mode, flag presentation, prefix content, divider, size. See [Styling the field](#styling-the-field) |
+| `variant` | `Elevated` | `Elevated`, `Outlined`, `Filled`, `Underlined` or `Card` — the same containers as the [country selector](../country-picker/selector.md#variants) |
+| `inputStyle` | `PhoneNumberInputDefaults.style()` | Label, prefix content, divider, size, and the ghost digits, progress, badge and check. See [Styling the field](#styling-the-field) |
 | `config` | `CountryPickerDefaults.phoneConfig()` | The embedded picker's [configuration](../country-picker/configuration.md): allowed/excluded countries, suggestions, search |
 | `showHelperText` | `true` | The live "Formats live for …" helper |
 | `showClearButton` | `true` | A clear button while the field has content |
@@ -56,7 +65,7 @@ What you get:
 | `validateWhileTyping` | `false` | Show validation errors before the field loses focus |
 | `verificationController` | `null` | Opt in to [verification](verification.md) |
 | `recentCountryStore`, `repository` | no-op / bundled | As on every selector |
-| `colors`, `shapes`, `dimensions`, `typography`, `motion`, `flagContent` | defaults | [Theming](../theming.md) |
+| `style`, `flagContent` | the theme's | [Theming](../theming.md) |
 | `onDone` | `{}` | Invoked when the keyboard action fires **and** the number is valid |
 
 ## `PhoneNumberFieldState`
@@ -134,18 +143,22 @@ PhoneNumberField(
 | Property | Default | Options |
 |---|---|---|
 | `labelMode` | `Floating` | `Floating` or `Hidden`. Hiding never removes the label from accessibility |
-| `flagConfig` | plain flag, 24dp | See [Flags](../theming.md#flags) |
 | `showDropdownIcon` | `true` | The chevron in the prefix |
 | `showPrefixDivider` | `true` | The thin vertical divider between prefix and editor. Off removes it from the layout entirely, leaving no dead space |
 | `prefixContentMode` | `FlagAndDialCode` | `FlagOnly` (🇰🇪), `DialCodeOnly` (+254), `FlagAndDialCode` (🇰🇪 +254), `CountryCodeAndDialCode` (KE +254) |
 | `size` | `Regular` | `Regular`, `Compact`, `ExtraCompact` |
+| `showGhostDigits` | `true` | Ghost the rest of the example number as the user types |
+| `showProgress` | `true` | The hairline that fills as digits arrive |
+| `showNumberType` | `true` | The `✓ Mobile` badge on a valid number |
+| `showValidIndicator` | `true` | A check on a valid number when the badge is off |
+
+The prefix's flag follows the style's [`flagStyle` and `flagSource`](../theming.md#flags), like every
+other flag in the library.
 
 ### Sizes
 
-The field is built on Material's real outlined text field decoration, whose minimum height comes from
-its own content, so it cannot simply be told a smaller height. `PhoneFieldSize.Compact` and
-`ExtraCompact` instead scale padding, flag, chevron, icon-button and font sizes **together**, so a
-shorter field looks proportioned rather than clipped.
+`PhoneFieldSize.Compact` and `ExtraCompact` scale padding, flag, chevron, icon-button and font sizes
+**together**, so a shorter field looks proportioned rather than squeezed.
 
 | `PhoneFieldSize` | Content scale | Font scale |
 |---|---|---|

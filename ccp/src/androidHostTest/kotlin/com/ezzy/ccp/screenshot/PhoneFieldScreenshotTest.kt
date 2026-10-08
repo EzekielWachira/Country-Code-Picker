@@ -50,6 +50,9 @@ class PhoneFieldScreenshotTest : ScreenshotTestBase() {
     fun `filled field groups the number`() = snapshot("phone_filled") { Field("712345678") }
 
     @Test
+    fun `a partly typed number shows the remaining digits as ghosts`() = snapshot("phone_partial") { Field("7123") }
+
+    @Test
     fun `a number that is too short shows an error once touched`() =
         snapshot("phone_error") { Field("71", touched = true) }
 

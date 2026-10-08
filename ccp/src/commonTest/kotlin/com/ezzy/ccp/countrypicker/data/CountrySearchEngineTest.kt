@@ -269,6 +269,48 @@ class CountrySearchEngineTest {
         assertEquals("KE", DefaultCountryDataSource.findByIso2("ke")?.iso2Code)
     }
 
+    // ── "Did you mean" ──────────────────────────────────────────────────────────────────────────
+
+    @Test
+    fun `a misspelled name suggests the country it nearly matches`() {
+        assertEquals("DE", CountrySearchEngine.suggest(all, "Germny").firstOrNull()?.iso2Code)
+    }
+
+    @Test
+    fun `a transposed pair of letters costs one edit`() {
+        assertEquals(1, CountrySearchEngine.editDistance("germnay", "germany"))
+        assertEquals("DE", CountrySearchEngine.suggest(all, "Germnay").firstOrNull()?.iso2Code)
+    }
+
+    @Test
+    fun `edit distance counts insertions — deletions and substitutions`() {
+        assertEquals(0, CountrySearchEngine.editDistance("kenya", "kenya"))
+        assertEquals(1, CountrySearchEngine.editDistance("kenia", "kenya"))
+        assertEquals(1, CountrySearchEngine.editDistance("kenyaa", "kenya"))
+        assertEquals(3, CountrySearchEngine.editDistance("", "abc"))
+    }
+
+    @Test
+    fun `a half-typed name with a typo is compared against a prefix of the same length`() {
+        assertTrue("AU" in CountrySearchEngine.suggest(all, "austrai").map { it.iso2Code })
+    }
+
+    @Test
+    fun `numeric queries get no suggestions`() {
+        assertTrue(CountrySearchEngine.suggest(all, "2549").isEmpty())
+    }
+
+    @Test
+    fun `gibberish gets no suggestions rather than an unrelated neighbour`() {
+        assertTrue(CountrySearchEngine.suggest(all, "zzzzznotacountry").isEmpty())
+    }
+
+    @Test
+    fun `suggestions respect the limit — closest first`() {
+        val suggestions = CountrySearchEngine.suggest(all, "Germny", limit = 1)
+        assertEquals(listOf("DE"), suggestions.map { it.iso2Code })
+    }
+
     private companion object {
         const val EXPECTED_COUNTRY_COUNT = 236
     }

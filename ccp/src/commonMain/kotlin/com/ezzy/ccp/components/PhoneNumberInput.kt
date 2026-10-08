@@ -86,13 +86,12 @@ import com.ezzy.ccp.countrypicker.model.UiText
 import com.ezzy.ccp.countrypicker.model.toLegacy
 import com.ezzy.ccp.countrypicker.state.CountryPickerConfig
 import com.ezzy.ccp.countrypicker.state.rememberCountryPickerState
-import com.ezzy.ccp.countrypicker.theme.CountryFlagConfig
 import com.ezzy.ccp.countrypicker.theme.CountryFlagStyle
-import com.ezzy.ccp.countrypicker.theme.CountryPickerDefaults
+import com.ezzy.ccp.countrypicker.theme.CountryPickerStyle as PickerStyle
+import com.ezzy.ccp.countrypicker.theme.CountryPickerTheme
 import com.ezzy.ccp.countrypicker.ui.CountryPickerSheet
 import com.ezzy.ccp.countrypicker.ui.EmbeddedPhonePrefix
 import com.ezzy.ccp.countrypicker.ui.PhonePrefixDivider
-import com.ezzy.ccp.countrypicker.ui.phoneFieldColors
 import com.ezzy.ccp.countrypicker.ui.rememberActiveInteractionSource
 import com.ezzy.ccp.countrypicker.ui.scaledForPhoneField
 import com.ezzy.ccp.data.countryList
@@ -249,7 +248,7 @@ public fun PhoneNumberInput(
  * vertical divider as its leading content. This is the fix for both the "two separate rounded boxes"
  * bug and a follow-up regression where the rebuilt field was one filled box with the label drawn as a
  * separate line of text above it, rather than a true outline. Internally this is the same
- * [EmbeddedPhonePrefix]/[PhonePrefixDivider]/[phoneFieldColors] building blocks
+ * [EmbeddedPhonePrefix]/[PhonePrefixDivider] building blocks
  * [com.ezzy.ccp.countrypicker.ui.PhoneNumberField] uses, so the legacy component is not a second,
  * parallel implementation of the same idea.
  *
@@ -278,29 +277,17 @@ private fun UnifiedLegacyPhoneField(
     var isPrefixOpen by remember { mutableStateOf(false) }
     val borderInteractionSource = rememberActiveInteractionSource(isFocused || isPrefixOpen)
 
-    val pickerColors = CountryPickerDefaults.colors(
-        selectorContent = colors.countryCodeTextColor,
-        chevron = colors.countryChevronColor,
-        selectorLabel = colors.phoneHintColor,
-        selectorBorder = colors.borderColor,
-        selectorFocusedBorder = colors.cursorColor,
-        error = colors.errorColor,
-    )
     val pickerConfig = remember(countriesToShow, countriesExclude, pinnedCountries, ccpConfig) {
-        legacyCountryPickerConfig(countriesToShow, countriesExclude, pinnedCountries, ccpConfig)
+        legacyCountryPickerConfig(countriesToShow, countriesExclude, pinnedCountries)
     }
-    val fieldColors = phoneFieldColors(pickerColors)
+    val pickerStyle = legacyPickerStyle(ccpConfig)
+    val fieldColors = legacyFieldColors(colors)
     // ccpConfig.borderWidth defaults to 0.dp, meaning "no explicit override" for the older filled-box
     // rendering (which relied on containerColor for contrast, not a border). An outlined field with a
     // transparent container needs a real, visible border by default, so 0.dp falls back to the
     // library's own outline width instead of literally rendering no border. A caller who set a
     // non-zero width explicitly still gets it respected for the unfocused state.
-    val dimensions = CountryPickerDefaults.dimensions()
-    val unfocusedBorderWidth = if (ccpConfig.borderWidth > 0.dp) {
-        ccpConfig.borderWidth
-    } else {
-        dimensions.selectorBorderWidth
-    }
+    val unfocusedBorderWidth = if (ccpConfig.borderWidth > 0.dp) ccpConfig.borderWidth else LEGACY_BORDER_WIDTH
     val showLabel = ccpConfig.showLabel && label != null
 
     // Compact/ExtraCompact scale the flag, chevron, icon buttons, content padding, and font size
@@ -308,17 +295,11 @@ private fun UnifiedLegacyPhoneField(
     // because the content shrinks along with it rather than staying fixed inside a squeezed box.
     val contentScale = ccpConfig.phoneFieldSize.contentScale
     val fontScale = ccpConfig.phoneFieldSize.fontScale
-    val effectiveDimensions = dimensions.scaledForPhoneField(ccpConfig.phoneFieldSize)
-    val effectiveTypography = CountryPickerDefaults.typography().scaledForPhoneField(fontScale)
-    val effectiveFlagConfig = CountryFlagConfig(style = CountryFlagStyle.Plain, size = LEGACY_FLAG_SIZE)
-        .scaledForPhoneField(ccpConfig.phoneFieldSize)
     val effectiveValueStyle = MaterialTheme.typography.bodyLarge
         .copy(color = colors.inputTextColor)
         .scaledForPhoneField(fontScale)
     val effectiveHintStyle = ccpConfig.phoneHintStyle.scaledForPhoneField(fontScale)
-    val fieldMinHeight = (
-        if (showLabel) dimensions.phoneFieldMinHeightWithLabel else dimensions.phoneFieldMinHeightNoLabel
-        ) * contentScale
+    val fieldMinHeight = (if (showLabel) LEGACY_MIN_HEIGHT_WITH_LABEL else LEGACY_MIN_HEIGHT_NO_LABEL) * contentScale
     // Resolved outside the semantics lambda: that block is not composable, so it cannot call
     // stringResource itself.
     val phoneInputLabel = stringResource(Res.string.ccp_phone_input_a11y)
@@ -384,19 +365,23 @@ private fun UnifiedLegacyPhoneField(
                                 PhonePrefixContentMode.DialCodeOnly
                             },
                             // The legacy selector always showed a bare emoji with no backing shape —
-                            // Plain style reproduces that exactly rather than the newer tonal look.
-                            flagConfig = effectiveFlagConfig,
+                            // Plain style reproduces that exactly rather than the newer tile look.
+                            flagSize = LEGACY_FLAG_SIZE * contentScale,
+                            flagStyle = CountryFlagStyle.Plain,
+                            textStyle = pickerStyle.typography.dialCode
+                                .copy(color = colors.countryCodeTextColor)
+                                .scaledForPhoneField(fontScale),
+                            chevronColor = colors.countryChevronColor,
                             config = pickerConfig,
-                            colors = pickerColors,
-                            dimensions = effectiveDimensions,
-                            typography = effectiveTypography,
+                            style = pickerStyle,
+                            minHeight = pickerStyle.dimensions.minimumTouchTarget * contentScale,
                             onOpenChanged = { isPrefixOpen = it },
                         )
 
                         PhonePrefixDivider(
                             visible = ccpConfig.showPhonePrefixDivider,
-                            fieldHeight = effectiveDimensions.selectorDialMinHeight,
-                            colors = pickerColors,
+                            height = LEGACY_DIVIDER_HEIGHT * contentScale,
+                            style = pickerStyle,
                         )
                     }
                 },
@@ -432,7 +417,7 @@ private fun UnifiedLegacyPhoneField(
                         interactionSource = borderInteractionSource,
                         colors = fieldColors,
                         shape = ccpConfig.phoneInputShape,
-                        focusedBorderThickness = dimensions.selectorFocusedBorderWidth,
+                        focusedBorderThickness = LEGACY_FOCUSED_BORDER_WIDTH,
                         unfocusedBorderThickness = unfocusedBorderWidth,
                     )
                 },
@@ -593,6 +578,11 @@ private fun LegacyDropdownPhoneField(
 }
 
 private val LEGACY_FLAG_SIZE = 18.dp
+private val LEGACY_BORDER_WIDTH = 1.dp
+private val LEGACY_FOCUSED_BORDER_WIDTH = 2.dp
+private val LEGACY_MIN_HEIGHT_WITH_LABEL = 68.dp
+private val LEGACY_MIN_HEIGHT_NO_LABEL = 60.dp
+private val LEGACY_DIVIDER_HEIGHT = 24.dp
 private val CLEAR_BUTTON_SIZE = 36.dp
 private val CLEAR_ICON_SIZE = 16.dp
 private val DECORATION_VERTICAL_PADDING = 16.dp
@@ -734,8 +724,8 @@ private fun LegacyCountryPickerSheet(
     pinnedCountries: List<String>,
     ccpConfig: CCPConfig,
 ) {
-    val config = remember(countriesToShow, countriesExclude, pinnedCountries, ccpConfig) {
-        legacyCountryPickerConfig(countriesToShow, countriesExclude, pinnedCountries, ccpConfig)
+    val config = remember(countriesToShow, countriesExclude, pinnedCountries) {
+        legacyCountryPickerConfig(countriesToShow, countriesExclude, pinnedCountries)
     }
 
     val selected = remember(selectedCountryCode) {
@@ -757,28 +747,72 @@ private fun LegacyCountryPickerSheet(
         onDismiss = onDismiss,
         title = UiText.resource(Res.string.ccp_country_code_title),
         subtitle = UiText.resource(Res.string.ccp_country_code_subtitle),
+        style = legacyPickerStyle(ccpConfig),
     )
 }
 
 /**
- * Translates the legacy allow/exclude/pinned-list parameters plus [CCPConfig] into a
- * [CountryPickerConfig] — the one place this mapping happens, shared by [LegacyCountryPickerSheet]
- * (used by [SelectedCountryComponent] and the Dropdown style) and [UnifiedLegacyPhoneField]'s embedded
- * prefix, so the two call sites cannot drift into interpreting the legacy lists differently.
+ * Translates the legacy allow/exclude/pinned-list parameters into a [CountryPickerConfig] — the one
+ * place this mapping happens, shared by [LegacyCountryPickerSheet] (used by [SelectedCountryComponent]
+ * and the Dropdown style) and [UnifiedLegacyPhoneField]'s embedded prefix, so the two call sites
+ * cannot drift into interpreting the legacy lists differently.
  */
 private fun legacyCountryPickerConfig(
     countriesToShow: List<String>,
     countriesExclude: List<String>,
     pinnedCountries: List<String>,
-    ccpConfig: CCPConfig,
 ): CountryPickerConfig = CountryPickerConfig(
     // An empty legacy whitelist meant "all countries", so it maps to null rather than to an empty
     // allow-set, which in the new config means "nothing is allowed".
     allowedCountryCodes = countriesToShow.takeIf { it.isNotEmpty() }?.toSet(),
     excludedCountryCodes = countriesExclude.toSet(),
     suggestedCountryCodes = pinnedCountries,
-    showDialCode = ccpConfig.showDialCodeCountryItem,
-    showFlag = ccpConfig.showFlagCountryItem,
+)
+
+/**
+ * The ambient picker style with the legacy row options applied — whether rows show their flag and
+ * dial code — the presentational half of what [legacyCountryPickerConfig] does for behaviour.
+ */
+@Composable
+private fun legacyPickerStyle(ccpConfig: CCPConfig): PickerStyle {
+    val base = CountryPickerTheme.style
+    return remember(base, ccpConfig.showDialCodeCountryItem, ccpConfig.showFlagCountryItem) {
+        base.copy(
+            layout = base.layout.copy(
+                showDialCode = ccpConfig.showDialCodeCountryItem,
+                flagStyle = if (ccpConfig.showFlagCountryItem) base.layout.flagStyle else CountryFlagStyle.Hidden,
+            ),
+        )
+    }
+}
+
+/**
+ * Maps [CCPColors] onto Material's outlined-field colors. The container is always transparent: the
+ * legacy field reads as an outlined text field — a border with the label notched into it — not a
+ * filled box.
+ */
+@Composable
+private fun legacyFieldColors(colors: CCPColors) = OutlinedTextFieldDefaults.colors(
+    focusedTextColor = colors.inputTextColor,
+    unfocusedTextColor = colors.inputTextColor,
+    disabledTextColor = colors.inputTextColor,
+    errorTextColor = colors.inputTextColor,
+    focusedContainerColor = Color.Transparent,
+    unfocusedContainerColor = Color.Transparent,
+    disabledContainerColor = Color.Transparent,
+    errorContainerColor = Color.Transparent,
+    cursorColor = colors.cursorColor,
+    errorCursorColor = colors.errorColor,
+    focusedBorderColor = colors.cursorColor,
+    unfocusedBorderColor = colors.borderColor,
+    disabledBorderColor = colors.borderColor,
+    errorBorderColor = colors.errorColor,
+    focusedLabelColor = colors.cursorColor,
+    unfocusedLabelColor = colors.phoneHintColor,
+    disabledLabelColor = colors.phoneHintColor,
+    errorLabelColor = colors.errorColor,
+    focusedPlaceholderColor = colors.phoneHintColor,
+    unfocusedPlaceholderColor = colors.phoneHintColor,
 )
 
 @Preview

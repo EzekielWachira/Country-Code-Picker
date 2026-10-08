@@ -24,30 +24,30 @@ package com.ezzy.ccp.countrypicker.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -55,8 +55,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -65,39 +65,28 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.ezzy.ccp.countrypicker.model.UiText
 import com.ezzy.ccp.countrypicker.model.resolve
-import com.ezzy.ccp.countrypicker.theme.CountryPickerColors
-import com.ezzy.ccp.countrypicker.theme.CountryPickerDefaults
-import com.ezzy.ccp.countrypicker.theme.CountryPickerDimensions
-import com.ezzy.ccp.countrypicker.theme.CountryPickerMotion
-import com.ezzy.ccp.countrypicker.theme.CountryPickerShapes
-import com.ezzy.ccp.countrypicker.theme.CountryPickerTypography
-import com.ezzy.ccp.icons.Close
-import com.ezzy.ccp.icons.EzzyIcons
-import com.ezzy.ccp.icons.Search
+import com.ezzy.ccp.countrypicker.theme.CountryPickerStyle
+import com.ezzy.ccp.countrypicker.theme.CountryPickerTheme
 import com.ezzy.ccp.resources.Res
+import com.ezzy.ccp.resources.ccp_cancel
 import com.ezzy.ccp.resources.ccp_clear_search
 import com.ezzy.ccp.resources.ccp_search_hint
 import com.ezzy.ccp.resources.ccp_search_label
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * The sheet's search field.
+ * The search field at the top of the picker.
  *
- * Morphs from filled-at-rest to outlined-when-focused, matching the design: the container color stays
- * and a primary-colored stroke animates in. Both the color *and* the stroke width animate, so focus is
- * not signalled by hue alone.
+ * At rest it is a quiet card; focused, its border turns to the accent and a soft ring blooms around
+ * it, so where the keyboard is typing is never in doubt. The clear button appears only once there is
+ * something to clear, and [onCancel], when given, adds a Cancel action beside the field while it is
+ * focused — the familiar way to back out of a search on iOS, and a convenient one everywhere.
  *
- * ### Keyboard
- * The IME action is [ImeAction.Search] and dismisses the keyboard, revealing the results the user just
- * filtered — search is already live on every keystroke, so "Search" has nothing left to submit and
- * getting the keyboard out of the way is the useful behaviour.
+ * Filtering is the caller's job and is expected to be synchronous: there is no search button and no
+ * debounce, because local search over a few hundred countries is instant.
  *
- * @param query Current text.
- * @param onQueryChange Called on every keystroke. Filtering is synchronous and undebounced; see
- *   [com.ezzy.ccp.countrypicker.data.CountrySearchEngine].
- * @param onFocusChanged Reported so the sheet can expand and hide the region chips while searching.
- * @param autoFocus Requests focus on first composition. Off by default: opening a sheet straight into
- *   a keyboard hides most of the list, and users who came to browse have to dismiss it first.
+ * @param onCancel Clears the query and leaves the field. `null` hides the Cancel action.
+ * @param autoFocus Focus the field, and so raise the keyboard, as soon as it appears.
  */
 @Composable
 public fun CountrySearchField(
@@ -107,68 +96,74 @@ public fun CountrySearchField(
     placeholder: UiText = UiText.resource(Res.string.ccp_search_hint),
     onFocusChanged: (Boolean) -> Unit = {},
     onSearchAction: () -> Unit = {},
+    onCancel: (() -> Unit)? = null,
     autoFocus: Boolean = false,
-    colors: CountryPickerColors = CountryPickerDefaults.colors(),
-    shapes: CountryPickerShapes = CountryPickerDefaults.shapes(),
-    dimensions: CountryPickerDimensions = CountryPickerDefaults.dimensions(),
-    typography: CountryPickerTypography = CountryPickerDefaults.typography(),
-    motion: CountryPickerMotion = CountryPickerDefaults.motion(),
+    style: CountryPickerStyle = CountryPickerTheme.style,
 ) {
+    val colors = style.colors
+    val dimensions = style.dimensions
+    val shapes = style.shapes
+    val motion = style.motion
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
     val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    // Resolved outside the semantics lambda: that block is not a composable scope.
     val searchLabel = stringResource(Res.string.ccp_search_label)
 
-    // Report focus upward so the sheet can react (expand, hide chips) without owning the field.
-    androidx.compose.runtime.LaunchedEffect(isFocused) { onFocusChanged(isFocused) }
-    androidx.compose.runtime.LaunchedEffect(autoFocus) {
-        if (autoFocus) focusRequester.requestFocus()
-    }
+    LaunchedEffect(isFocused) { onFocusChanged(isFocused) }
+    LaunchedEffect(autoFocus) { if (autoFocus) focusRequester.requestFocus() }
 
-    val borderColor by animateColorAsState(
-        targetValue = if (isFocused) colors.searchFocusedBorder else Color.Transparent,
-        animationSpec = motion.colorSpec,
-        label = "searchBorderColor",
+    // A white card reads on a tinted canvas; on a canvas the same color as cards, a sunken fill does.
+    val restingContainer = if (colors.background == colors.surface) colors.surfaceSunken else colors.surface
+    val hasDepth = colors.background != colors.surface
+    val border by animateColorAsState(
+        targetValue = when {
+            isFocused -> colors.accent
+            hasDepth -> colors.hairline
+            else -> colors.surfaceSunken
+        },
+        animationSpec = motion.color,
+        label = "searchBorder",
     )
-    val borderWidth by animateDpAsState(
-        targetValue = if (isFocused) dimensions.searchBorderWidth else 0.dp,
-        animationSpec = motion.dpSpec,
-        label = "searchBorderWidth",
+    val ring by animateFloatAsState(if (isFocused) 1f else 0f, motion.layout, label = "searchRing")
+    val iconTint by animateColorAsState(
+        targetValue = if (isFocused) colors.accent else colors.textTertiary,
+        animationSpec = motion.color,
+        label = "searchIcon",
     )
 
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = shapes.searchField,
-        color = colors.searchContainer,
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Row(
             modifier = Modifier
-                .border(borderWidth, borderColor, shapes.searchField)
-                .defaultMinSize(minHeight = dimensions.searchFieldHeight)
-                .padding(start = dimensions.searchHorizontalMargin, end = SEARCH_END_PADDING),
+                .weight(1f)
+                .height(dimensions.searchFieldHeight)
+                .focusRing(ring, dimensions.focusRingWidth, colors.focusRing, shapes.searchField)
+                .then(if (hasDepth) Modifier.pickerShadow(style.elevation.searchField, shapes.searchField, colors.shadow) else Modifier)
+                .background(restingContainer, shapes.searchField)
+                .border(if (isFocused) dimensions.fieldFocusedBorderWidth else dimensions.fieldBorderWidth, border, shapes.searchField)
+                .padding(start = 14.dp, end = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(dimensions.searchContentSpacing),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Icon(
-                imageVector = EzzyIcons.Search,
+                imageVector = PickerIcons.Search,
                 contentDescription = null,
-                tint = colors.searchPlaceholder,
-                modifier = Modifier.size(SEARCH_ICON_SIZE),
+                tint = iconTint,
+                modifier = Modifier.size(19.dp),
             )
 
             BasicTextField(
                 value = query,
                 onValueChange = onQueryChange,
-                textStyle = typography.searchInput.copy(color = colors.searchContent),
-                cursorBrush = SolidColor(colors.searchFocusedBorder),
+                textStyle = style.typography.search.copy(color = colors.textPrimary),
+                cursorBrush = SolidColor(colors.accent),
                 singleLine = true,
                 interactionSource = interactionSource,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Search,
-                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(
                     onSearch = {
                         // Results are already filtered; hiding the keyboard reveals them.
@@ -182,19 +177,18 @@ public fun CountrySearchField(
                     .semantics { contentDescription = searchLabel },
                 decorationBox = { innerTextField ->
                     Box(contentAlignment = Alignment.CenterStart) {
-                        // Fading the placeholder's alpha rather than adding or removing it keeps the
-                        // text metrics stable, so the first typed character does not shift the
-                        // baseline.
+                        // Fading rather than removing the placeholder keeps the text metrics stable,
+                        // so the first typed character does not shift the baseline.
                         val placeholderAlpha by animateFloatAsState(
                             targetValue = if (query.isEmpty()) 1f else 0f,
-                            animationSpec = motion.floatSpec,
-                            label = "searchPlaceholderAlpha",
+                            animationSpec = motion.fadeIn,
+                            label = "searchPlaceholder",
                         )
                         if (placeholderAlpha > 0f) {
-                            Text(
+                            SingleLineText(
                                 text = placeholder.resolve(),
-                                style = typography.searchInput,
-                                color = colors.searchPlaceholder,
+                                style = style.typography.search,
+                                color = colors.textTertiary,
                                 modifier = Modifier.alpha(placeholderAlpha),
                             )
                         }
@@ -205,25 +199,38 @@ public fun CountrySearchField(
 
             AnimatedVisibility(
                 visible = query.isNotEmpty(),
-                enter = scaleIn(motion.selectionSpring) + fadeIn(motion.fadeIn),
-                exit = scaleOut(motion.fadeOut) + fadeOut(motion.fadeOut),
+                enter = scaleIn(motion.selection) + fadeIn(motion.fadeIn),
+                exit = scaleOut(motion.layout) + fadeOut(motion.fadeOut),
             ) {
-                IconButton(
+                PickerIconButton(
+                    icon = PickerIcons.Close,
+                    contentDescription = stringResource(Res.string.ccp_clear_search),
                     onClick = { onQueryChange("") },
-                    modifier = Modifier.size(dimensions.iconButtonSize),
+                    tint = colors.surface,
+                    container = colors.textTertiary,
+                    visualSize = 20.dp,
+                    iconSize = 11.dp,
+                )
+            }
+        }
+
+        if (onCancel != null) {
+            AnimatedVisibility(
+                visible = isFocused,
+                enter = expandHorizontally(motion.size) + fadeIn(motion.fadeIn),
+                exit = shrinkHorizontally(motion.size) + fadeOut(motion.fadeOut),
+            ) {
+                PickerButton(
+                    onClick = {
+                        onCancel()
+                        focusManager.clearFocus()
+                    },
+                    kind = PickerButtonKind.Text,
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 12.dp, end = 4.dp),
                 ) {
-                    Icon(
-                        imageVector = EzzyIcons.Close,
-                        contentDescription = stringResource(Res.string.ccp_clear_search),
-                        tint = colors.searchPlaceholder,
-                        modifier = Modifier.size(CLEAR_ICON_SIZE),
-                    )
+                    Text(stringResource(Res.string.ccp_cancel))
                 }
             }
         }
     }
 }
-
-private val SEARCH_ICON_SIZE = 22.dp
-private val CLEAR_ICON_SIZE = 20.dp
-private val SEARCH_END_PADDING = 4.dp

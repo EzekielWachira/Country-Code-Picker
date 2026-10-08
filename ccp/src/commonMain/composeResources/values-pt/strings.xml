@@ -7,7 +7,6 @@
     <string name="ccp_select_country_subtitle">Escolha o seu país de residência</string>
     <string name="ccp_country_code_title">Código do país</string>
     <string name="ccp_country_code_subtitle">Pesquise por país ou código de discagem</string>
-    <string name="ccp_title_with_count">%1$s · %2$d</string>
     <string name="ccp_close">Fechar</string>
     <string name="ccp_back">Voltar</string>
     <string name="ccp_drag_handle">Arraste para redimensionar ou fechar</string>
@@ -27,6 +26,7 @@
         <item quantity="other">%1$d resultados</item>
     </plurals>
     <string name="ccp_result_count_in_region">%1$s em %2$s</string>
+    <string name="ccp_did_you_mean">Você quis dizer?</string>
     <plurals name="ccp_countries_found">
         <item quantity="one">%1$d país encontrado</item>
         <item quantity="many">%1$d de países encontrados</item>
@@ -39,7 +39,7 @@
     <string name="ccp_section_recent">Selecionados recentemente</string>
     <string name="ccp_section_suggested">Sugeridos</string>
     <string name="ccp_section_all">Todos os países</string>
-    <string name="ccp_current_selection">Seleção atual</string>
+    <string name="ccp_section_quick_picks">Escolhas rápidas</string>
 
     <!-- ── Region filters ───────────────────────────────────────────────────── -->
     <string name="ccp_region_all">Todas</string>
@@ -57,6 +57,8 @@
     <string name="ccp_confirm_count">Confirmar (%1$d)</string>
     <string name="ccp_retry">Tentar novamente</string>
     <string name="ccp_use">Usar</string>
+    <string name="ccp_change">Alterar</string>
+    <string name="ccp_remove_country_a11y">Remover %1$s</string>
 
     <!-- ── Selector ─────────────────────────────────────────────────────────── -->
     <string name="ccp_country_of_residence">País de residência</string>
@@ -145,6 +147,13 @@
     <string name="ccp_phone_error_invalid_generic">Digite um número de telefone válido</string>
     <string name="ccp_phone_error_unsupported_country">Números de telefone não são compatíveis com %1$s</string>
     <string name="ccp_phone_error_invalid_country_code">Esse código de discagem não é reconhecido</string>
+    <string name="ccp_number_type_mobile">Celular</string>
+    <string name="ccp_number_type_landline">Fixo</string>
+    <string name="ccp_number_type_mobile_or_landline">Celular ou fixo</string>
+    <string name="ccp_number_type_toll_free">Gratuito</string>
+    <string name="ccp_number_type_voip">VoIP</string>
+    <string name="ccp_phone_state_valid">Número válido</string>
+    <string name="ccp_phone_state_valid_type">Número válido, %1$s</string>
     <!-- Shown when the number is real but the wrong kind of line for this flow -->
     <string name="ccp_phone_error_requires_mobile">Digite um número de celular</string>
     <string name="ccp_phone_error_requires_landline">Digite um número fixo</string>

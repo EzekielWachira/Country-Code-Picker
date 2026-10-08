@@ -194,6 +194,55 @@ public class CountryPickerState internal constructor(
         if (region == null) available else available.filter { it.region == region }
     }
 
+    /**
+     * Countries surviving the allow/exclude rules, before any region filter — the base for the
+     * region counts and quick picks, which describe the whole picker rather than the current filter.
+     */
+    private val unfilteredCountries: State<List<Country>> = derivedStateOf {
+        repository.applyAvailability(
+            countries = allCountries,
+            allowedCountryCodes = config.allowedCountryCodes,
+            excludedCountryCodes = config.excludedCountryCodes,
+        )
+    }
+
+    /** How many available countries each region holds, for the counts on the region filters. */
+    public val regionCounts: State<Map<CountryRegion, Int>> = derivedStateOf {
+        unfilteredCountries.value.groupingBy { it.region }.eachCount()
+    }
+
+    /**
+     * Whether recent and suggested countries appear as sections at the top of the list (`true`), or
+     * are surfaced somewhere else — the quick-pick carousel — and left in place in the full list.
+     *
+     * Set by the sheet from [com.ezzy.ccp.countrypicker.theme.CountryPickerLayout.quickPicks].
+     */
+    public var quickPicksInList: Boolean by mutableStateOf(true)
+
+    /**
+     * The countries worth one tap: the detected country, then recents, then the host's suggestions,
+     * each listed once. Disabled countries are left out — a shortcut that cannot be taken is noise.
+     */
+    public val quickPicks: State<List<CountryQuickPick>> = derivedStateOf {
+        val available = unfilteredCountries.value.associateBy { it.iso2Code }
+        val seen = HashSet<String>()
+        val picks = ArrayList<CountryQuickPick>()
+        fun add(code: String, source: QuickPickSource) {
+            val iso = DefaultCountryDataSource.normalizeIsoCode(code)
+            val country = available[iso] ?: return
+            if (iso in config.disabledCountryCodes || !seen.add(iso)) return
+            picks += CountryQuickPick(country, source)
+        }
+        (detectionResult as? CountryDetectionResult.Detected)?.let { add(it.iso2Code, QuickPickSource.Detected) }
+        if (config.showRecentlySelected) {
+            recentCountryCodes.take(config.recentCountryLimit).forEach { add(it, QuickPickSource.Recent) }
+        }
+        if (config.showSuggestedCountries) {
+            config.suggestedCountryCodes.forEach { add(it, QuickPickSource.Suggested) }
+        }
+        picks
+    }
+
     /** Ranked search results over [availableCountries]. */
     public val matches: State<List<CountryMatch>> = derivedStateOf {
         CountrySearchEngine.search(
@@ -225,6 +274,14 @@ public class CountryPickerState internal constructor(
         loadState is CountryLoadState.Loaded &&
             matches.value.isEmpty() &&
             availableCountries.value.isNotEmpty()
+    }
+
+    /**
+     * "Did you mean …" candidates: countries within a small edit distance of the query, populated
+     * only when the query matched nothing — so a typo like "Kenia" offers Kenya instead of a dead end.
+     */
+    public val searchSuggestions: State<List<Country>> = derivedStateOf {
+        if (!isEmptyBySearch.value) emptyList() else CountrySearchEngine.suggest(availableCountries.value, searchQuery)
     }
 
     /** Whether Confirm should be enabled in multi-select. */
@@ -476,13 +533,13 @@ public class CountryPickerState internal constructor(
             sections += CountrySection(CountrySectionKind.Selected, it)
         }
 
-        if (config.showRecentlySelected) {
+        if (config.showRecentlySelected && quickPicksInList) {
             take(recentCountryCodes.take(config.recentCountryLimit)).takeIf { it.isNotEmpty() }?.let {
                 sections += CountrySection(CountrySectionKind.Recent, it)
             }
         }
 
-        if (config.showSuggestedCountries) {
+        if (config.showSuggestedCountries && quickPicksInList) {
             take(config.suggestedCountryCodes).takeIf { it.isNotEmpty() }?.let {
                 sections += CountrySection(CountrySectionKind.Suggested, it)
             }
@@ -511,3 +568,22 @@ public class CountryPickerState internal constructor(
         return if (pending.isNotEmpty()) pending else confirmedSelection
     }
 }
+
+/** Where a [CountryQuickPick] came from. */
+public enum class QuickPickSource {
+    /** The country detection reported. */
+    Detected,
+
+    /** One of the user's recent selections. */
+    Recent,
+
+    /** One of the host's suggested countries. */
+    Suggested,
+}
+
+/** A country offered as a one-tap shortcut, and why. */
+@androidx.compose.runtime.Immutable
+public data class CountryQuickPick(
+    val country: Country,
+    val source: QuickPickSource,
+)

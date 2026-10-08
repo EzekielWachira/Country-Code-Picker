@@ -23,54 +23,63 @@
 package com.ezzy.ccp.countrypicker.ui
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.ezzy.ccp.countrypicker.model.CountryRegion
-import com.ezzy.ccp.countrypicker.theme.CountryPickerColors
-import com.ezzy.ccp.countrypicker.theme.CountryPickerDefaults
-import com.ezzy.ccp.countrypicker.theme.CountryPickerDimensions
-import com.ezzy.ccp.countrypicker.theme.CountryPickerMotion
-import com.ezzy.ccp.countrypicker.theme.CountryPickerShapes
-import com.ezzy.ccp.countrypicker.theme.CountryPickerTypography
+import com.ezzy.ccp.countrypicker.theme.CountryPickerStyle
+import com.ezzy.ccp.countrypicker.theme.CountryPickerTheme
 import com.ezzy.ccp.resources.Res
 import com.ezzy.ccp.resources.ccp_region_all
 import com.ezzy.ccp.resources.ccp_region_filter_label
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * The horizontally scrollable region filter chips: All, Africa, Americas, Asia, Europe, Oceania.
+ * The region filter: a recessed track holding "All" and each region, with a raised pill that slides
+ * to the selected one.
  *
- * Uses [LazyRow] rather than a `Row` in a `horizontalScroll`, so the row makes no assumption about how
- * much width it has — on a narrow phone, at large font scale, or in a localization where "Americas" is
- * three times longer, the chips scroll instead of clipping.
+ * One moving highlight, rather than chips that each light up, makes the change of filter something
+ * the eye can follow. The track scrolls horizontally on narrow screens and keeps the selected region
+ * in view. Each option reports `Role.Tab` and its `selected` state, so a screen reader announces
+ * "Africa, selected" rather than leaving the user to infer it from the highlight.
  *
- * The selected chip is scrolled into view when it changes, which matters when a region is restored from
- * saved state and would otherwise be selected somewhere off-screen.
- *
- * @param selectedRegion The active filter, or `null` for "All".
- * @param onRegionSelected Called with the new filter. `null` means "All".
- * @param regions Regions to offer, from [com.ezzy.ccp.countrypicker.state.CountryPickerConfig.enabledRegions].
+ * @param counts Countries per region, shown beside each label when
+ *   [com.ezzy.ccp.countrypicker.theme.CountryPickerLayout.showRegionCounts] is on. Regions missing
+ *   from the map show no count.
  */
 @Composable
 public fun CountryRegionFilters(
@@ -78,126 +87,158 @@ public fun CountryRegionFilters(
     onRegionSelected: (CountryRegion?) -> Unit,
     modifier: Modifier = Modifier,
     regions: List<CountryRegion> = CountryRegion.entries,
-    colors: CountryPickerColors = CountryPickerDefaults.colors(),
-    shapes: CountryPickerShapes = CountryPickerDefaults.shapes(),
-    dimensions: CountryPickerDimensions = CountryPickerDefaults.dimensions(),
-    typography: CountryPickerTypography = CountryPickerDefaults.typography(),
-    motion: CountryPickerMotion = CountryPickerDefaults.motion(),
+    counts: Map<CountryRegion, Int> = emptyMap(),
+    contentPadding: PaddingValues = PaddingValues(horizontal = CountryPickerTheme.style.dimensions.sheetHorizontalPadding),
+    style: CountryPickerStyle = CountryPickerTheme.style,
 ) {
-    val listState = rememberLazyListState()
+    val colors = style.colors
+    val dimensions = style.dimensions
+    val shapes = style.shapes
+    val motion = style.motion
+    val haptics = rememberPickerHaptics()
+    val density = LocalDensity.current
+    val scrollState = rememberScrollState()
     val filterLabel = stringResource(Res.string.ccp_region_filter_label)
+    val showCounts = style.layout.showRegionCounts && counts.isNotEmpty()
 
-    // Index 0 is the "All" chip, so a region's chip index is its position in `regions` plus one.
-    val selectedIndex = selectedRegion?.let { regions.indexOf(it).takeIf { i -> i >= 0 }?.plus(1) } ?: 0
-    LaunchedEffect(selectedIndex) {
-        listState.animateScrollToItem(selectedIndex)
+    // Measured positions of each option inside the track, keyed by region (null = "All").
+    val bounds = remember { mutableStateMapOf<CountryRegion?, Pair<Dp, Dp>>() }
+    val target = bounds[selectedRegion]
+    // Kept as State and read in the offset lambda, so the slide re-places the pill each frame
+    // rather than recomposing the row.
+    val pillX = animateDpAsState(target?.first ?: 0.dp, motion.dp, label = "pillX")
+    val pillWidth by animateDpAsState(target?.second ?: 0.dp, motion.dp, label = "pillWidth")
+
+    LaunchedEffect(selectedRegion, target) {
+        val (x, width) = target ?: return@LaunchedEffect
+        // Keep the selected option comfortably inside the viewport rather than flush with its edge.
+        val viewport = scrollState.viewportSize
+        val left = with(density) { x.roundToPx() } - with(density) { 24.dp.roundToPx() }
+        val right = with(density) { (x + width).roundToPx() } + with(density) { 24.dp.roundToPx() }
+        when {
+            left < scrollState.value -> scrollState.animateScrollTo(left.coerceAtLeast(0))
+            right > scrollState.value + viewport -> scrollState.animateScrollTo(right - viewport)
+        }
     }
 
-    LazyRow(
-        state = listState,
-        modifier = modifier.semantics { contentDescription = filterLabel },
-        contentPadding = PaddingValues(horizontal = dimensions.searchHorizontalMargin),
-        horizontalArrangement = Arrangement.spacedBy(dimensions.regionChipSpacing),
+    val trackFill = colors.surfaceSunken
+    val raised = colors.background != colors.surface
+    val pillFill = if (raised) colors.surface else colors.accentSoft
+
+    Box(
+        modifier = modifier
+            .horizontalScrollFade(scrollState, EDGE_FADE)
+            .horizontalScroll(scrollState)
+            .padding(contentPadding)
+            .semantics { contentDescription = filterLabel },
     ) {
-        item(key = ALL_CHIP_KEY) {
-            RegionChip(
-                label = stringResource(Res.string.ccp_region_all),
-                selected = selectedRegion == null,
-                onClick = { onRegionSelected(null) },
-                colors = colors,
-                shapes = shapes,
-                dimensions = dimensions,
-                typography = typography,
-                motion = motion,
-            )
-        }
-        items(count = regions.size, key = { regions[it].key }) { index ->
-            val region = regions[index]
-            RegionChip(
-                label = stringResource(region.labelRes),
-                selected = selectedRegion == region,
-                onClick = { onRegionSelected(region) },
-                colors = colors,
-                shapes = shapes,
-                dimensions = dimensions,
-                typography = typography,
-                motion = motion,
-            )
+        Box(
+            modifier = Modifier
+                .height(dimensions.chipHeight + TRACK_PADDING * 2)
+                .background(trackFill, shapes.chip)
+                .padding(TRACK_PADDING),
+        ) {
+            // The pill sits behind the labels and only appears once the selected option is measured.
+            if (target != null) {
+                Box(
+                    modifier = Modifier
+                        .offset { IntOffset(pillX.value.roundToPx(), 0) }
+                        .width(pillWidth)
+                        .fillMaxHeight()
+                        .then(if (raised) Modifier.pickerShadow(style.elevation.tile, shapes.chip, colors.shadow) else Modifier)
+                        .background(pillFill, shapes.chip),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(dimensions.chipSpacing)) {
+                RegionOption(
+                    label = stringResource(Res.string.ccp_region_all),
+                    count = if (showCounts) counts.values.sum() else null,
+                    selected = selectedRegion == null,
+                    onClick = {
+                        if (selectedRegion != null) haptics.filter()
+                        onRegionSelected(null)
+                    },
+                    onMeasured = { x, w -> bounds[null] = x to w },
+                    style = style,
+                    pillOnSurface = raised,
+                )
+                regions.forEach { region ->
+                    RegionOption(
+                        label = stringResource(region.labelRes),
+                        count = if (showCounts) counts[region] else null,
+                        selected = selectedRegion == region,
+                        onClick = {
+                            if (selectedRegion != region) haptics.filter()
+                            onRegionSelected(region)
+                        },
+                        onMeasured = { x, w -> bounds[region] = x to w },
+                        style = style,
+                        pillOnSurface = raised,
+                    )
+                }
+            }
         }
     }
 }
 
-/**
- * One filter chip.
- *
- * `Modifier.clip` before `Modifier.clickable` gives the ripple the chip's rounded bounds. The chip
- * reports `Role.Tab` and its `selected` state, so a screen reader announces "Africa, selected" rather
- * than leaving the user to infer it from the fill.
- */
 @Composable
-private fun RegionChip(
+private fun RegionOption(
     label: String,
+    count: Int?,
     selected: Boolean,
     onClick: () -> Unit,
-    colors: CountryPickerColors,
-    shapes: CountryPickerShapes,
-    dimensions: CountryPickerDimensions,
-    typography: CountryPickerTypography,
-    motion: CountryPickerMotion,
+    onMeasured: (x: Dp, width: Dp) -> Unit,
+    style: CountryPickerStyle,
+    pillOnSurface: Boolean,
 ) {
-    val container by animateColorAsState(
-        targetValue = if (selected) {
-            colors.regionChipSelectedContainer
-        } else {
-            colors.regionChipContainer
-        },
-        animationSpec = motion.colorSpec,
-        label = "regionChipContainer",
-    )
+    val colors = style.colors
+    val density = LocalDensity.current
+    val interaction = remember { MutableInteractionSource() }
+    val scale by pressScale(interaction)
+    val selectedContent = if (pillOnSurface) colors.textPrimary else colors.onAccentSoft
     val content by animateColorAsState(
-        targetValue = if (selected) {
-            colors.regionChipSelectedContent
-        } else {
-            colors.regionChipContent
-        },
-        animationSpec = motion.colorSpec,
-        label = "regionChipContent",
+        targetValue = if (selected) selectedContent else colors.textSecondary,
+        animationSpec = style.motion.color,
+        label = "regionContent",
     )
-    val border by animateColorAsState(
-        // The selected chip drops its outline: fill and outline together read as a heavier,
-        // pressed-looking chip rather than a selected one.
-        targetValue = if (selected) {
-            androidx.compose.ui.graphics.Color.Transparent
-        } else {
-            colors.regionChipBorder
-        },
-        animationSpec = motion.colorSpec,
-        label = "regionChipBorder",
-    )
-
-    Box(
+    Row(
         modifier = Modifier
-            // The visual chip is 32dp; the vertical padding lifts the touch target to 48dp without
-            // making the chip itself look oversized.
-            .padding(vertical = CHIP_TOUCH_PADDING)
-            .clip(shapes.regionChip)
-            .background(container)
-            .border(CHIP_BORDER_WIDTH, border, shapes.regionChip)
-            .clickable(role = Role.Tab, onClick = onClick)
-            .defaultMinSize(minHeight = dimensions.regionChipHeight)
-            .padding(horizontal = dimensions.regionChipHorizontalPadding)
+            .fillMaxHeight()
+            .onPlaced { coordinates ->
+                with(density) {
+                    onMeasured(coordinates.positionInParent().x.toDp(), coordinates.size.width.toDp())
+                }
+            }
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .clickable(interactionSource = interaction, indication = null, role = Role.Tab, onClick = onClick)
+            .padding(horizontal = style.dimensions.chipHorizontalPadding)
             .semantics {
                 this.selected = selected
                 role = Role.Tab
             },
-        contentAlignment = Alignment.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Text(text = label, style = typography.regionChipLabel, color = content)
+        Text(
+            text = label,
+            style = style.typography.chip.copy(fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium),
+            color = content,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (count != null) {
+            Text(
+                text = count.toString(),
+                style = style.typography.chip.copy(fontWeight = FontWeight.Medium),
+                color = if (selected) content.copy(alpha = 0.55f) else colors.textTertiary,
+                maxLines = 1,
+            )
+        }
     }
 }
 
-private const val ALL_CHIP_KEY = "__all__"
-private val CHIP_BORDER_WIDTH = 1.dp
-
-/** Half the gap between the 32dp chip and the 48dp target, applied above and below. */
-private val CHIP_TOUCH_PADDING = 8.dp
+private val TRACK_PADDING = 3.dp
+private val EDGE_FADE = 28.dp

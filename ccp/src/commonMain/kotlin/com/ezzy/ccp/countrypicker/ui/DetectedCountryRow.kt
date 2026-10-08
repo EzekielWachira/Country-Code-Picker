@@ -23,21 +23,26 @@
 package com.ezzy.ccp.countrypicker.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -45,13 +50,8 @@ import androidx.compose.ui.unit.dp
 import com.ezzy.ccp.countrypicker.detection.CountryDetectionSource
 import com.ezzy.ccp.countrypicker.model.Country
 import com.ezzy.ccp.countrypicker.model.resolve
-import com.ezzy.ccp.countrypicker.theme.CountryFlagShape
-import com.ezzy.ccp.countrypicker.theme.CountryPickerColors
-import com.ezzy.ccp.countrypicker.theme.CountryPickerDefaults
-import com.ezzy.ccp.countrypicker.theme.CountryPickerDimensions
-import com.ezzy.ccp.countrypicker.theme.CountryPickerMotion
-import com.ezzy.ccp.countrypicker.theme.CountryPickerShapes
-import com.ezzy.ccp.countrypicker.theme.CountryPickerTypography
+import com.ezzy.ccp.countrypicker.theme.CountryPickerStyle
+import com.ezzy.ccp.countrypicker.theme.CountryPickerTheme
 import com.ezzy.ccp.resources.Res
 import com.ezzy.ccp.resources.ccp_detect_source_locale
 import com.ezzy.ccp.resources.ccp_detect_source_network
@@ -62,74 +62,46 @@ import com.ezzy.ccp.resources.ccp_use
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * The "✓ Detected — From your network · tap to change" supporting row.
+ * "📍 Detected · From your SIM card · tap to change" — shown under a field whose value came from
+ * detection rather than from the user.
  *
- * Pass this as `supportingText` content beneath a [CountrySelector] when
- * [com.ezzy.ccp.countrypicker.detection.CountryDetectionBehavior.ShowBadge] is in effect.
- *
- * The badge is tonal rather than a saturated accent: it is an explanation of where a value came from,
- * not a call to action, and styling it loudly makes users think something needs fixing. Naming the
- * *source* ("from your SIM card") rather than just claiming "detected" is what lets a user judge whether
- * to trust it — someone roaming abroad knows their SIM country is not where they live.
+ * The source is what makes this honest: "from your SIM card" is a claim a user can evaluate, where a
+ * bare "Detected" is not. The badge and source are announced as one sentence.
  */
 @Composable
 public fun DetectedCountryBadge(
     source: CountryDetectionSource,
     modifier: Modifier = Modifier,
-    colors: CountryPickerColors = CountryPickerDefaults.colors(),
-    shapes: CountryPickerShapes = CountryPickerDefaults.shapes(),
-    typography: CountryPickerTypography = CountryPickerDefaults.typography(),
+    style: CountryPickerStyle = CountryPickerTheme.style,
 ) {
     val badgeText = stringResource(Res.string.ccp_detected_badge)
     val sourceText = source.label.resolve()
-
     Row(
-        // One description for the whole row: TalkBack reads "Detected. From your SIM card · tap to
-        // change." as a sentence rather than three fragments.
-        modifier = modifier.semantics {
-            contentDescription = "$badgeText. $sourceText"
-        },
+        modifier = modifier.semantics { contentDescription = "$badgeText. $sourceText" },
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(BADGE_SPACING),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Row(
-            modifier = Modifier
-                .clip(shapes.detectedBadge)
-                .background(colors.detectedBadgeContainer)
-                .padding(horizontal = BADGE_HORIZONTAL_PADDING, vertical = BADGE_VERTICAL_PADDING)
-                .clearAndSetSemantics {},
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(BADGE_ICON_SPACING),
-        ) {
-            Icon(
-                imageVector = PickerIcons.Check,
-                contentDescription = null,
-                tint = colors.detectedBadgeContent,
-                modifier = Modifier.size(BADGE_ICON_SIZE),
-            )
-            Text(
-                text = badgeText,
-                style = typography.badgeLabel,
-                color = colors.detectedBadgeContent,
-            )
-        }
-
-        Text(
+        PickerBadge(
+            text = badgeText,
+            container = style.colors.accentSoft,
+            content = style.colors.onAccentSoft,
+            icon = PickerIcons.LocationPin,
+            modifier = Modifier.clearAndSetSemantics {},
+        )
+        SingleLineText(
             text = sourceText,
-            style = typography.helperText,
-            color = colors.selectorSecondaryContent,
+            style = style.typography.helper,
+            color = style.colors.textSecondary,
             modifier = Modifier.clearAndSetSemantics {},
         )
     }
 }
 
 /**
- * The ask-first suggestion card: "Looks like you're in Germany, from your network." with a Use action.
+ * A banner offering the detected country — "Looks like you're in Kenya, from your SIM card." — with
+ * a one-tap Use action, for when detection should suggest rather than decide.
  *
- * Used with [com.ezzy.ccp.countrypicker.detection.CountryDetectionBehavior.AskFirst], where detection
- * must not fill the field on its own. That is the right default for fields with legal weight — tax
- * residency, sanctions screening — because a silently prefilled answer the user never actually gave is a
- * liability rather than a convenience.
+ * @param visible Animates the banner in and out.
  */
 @Composable
 public fun DetectedCountrySuggestion(
@@ -138,69 +110,56 @@ public fun DetectedCountrySuggestion(
     onAccept: () -> Unit,
     modifier: Modifier = Modifier,
     visible: Boolean = true,
-    flagShape: CountryFlagShape = CountryFlagShape.Circle,
-    colors: CountryPickerColors = CountryPickerDefaults.colors(),
-    shapes: CountryPickerShapes = CountryPickerDefaults.shapes(),
-    dimensions: CountryPickerDimensions = CountryPickerDefaults.dimensions(),
-    typography: CountryPickerTypography = CountryPickerDefaults.typography(),
-    motion: CountryPickerMotion = CountryPickerDefaults.motion(),
+    style: CountryPickerStyle = CountryPickerTheme.style,
     flagContent: (@Composable (Country) -> Unit)? = null,
 ) {
+    val colors = style.colors
+    val shape = RoundedCornerShape(style.shapes.groupCornerRadius)
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(motion.fadeIn),
-        exit = fadeOut(motion.fadeOut),
+        enter = fadeIn(style.motion.fadeIn) + expandVertically(style.motion.size),
+        exit = fadeOut(style.motion.fadeOut) + shrinkVertically(style.motion.size),
         modifier = modifier,
     ) {
         Row(
             modifier = Modifier
-                .padding(top = SUGGESTION_TOP_PADDING)
-                .clip(shapes.currentSelectionCard)
-                .background(colors.currentSelectionContainer)
-                .padding(SUGGESTION_PADDING),
+                .fillMaxWidth()
+                .pickerShadow(style.elevation.card, shape, colors.shadow)
+                .background(colors.surfaceRaised, shape)
+                .border(0.75.dp, colors.hairline, shape)
+                .padding(start = 12.dp, end = 10.dp, top = 10.dp, bottom = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(SUGGESTION_SPACING),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            CountryFlag(
-                country = country,
-                size = dimensions.flagSizeRow,
-                shape = flagShape,
-                colors = colors,
-                dimensions = dimensions,
-                motion = motion,
-                flagContent = flagContent,
-            )
+            Box {
+                CountryFlag(country = country, size = style.dimensions.flagSizeRow, flagContent = flagContent)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(18.dp)
+                        .background(colors.accent, CircleShape)
+                        .border(2.dp, colors.surfaceRaised, CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(PickerIcons.LocationPin, contentDescription = null, tint = colors.onAccent, modifier = Modifier.size(10.dp))
+                }
+            }
             Text(
-                text = stringResource(
-                    Res.string.ccp_detected_suggestion,
-                    country.displayName,
-                    source.detectionSourceName(),
-                ),
-                style = typography.sheetSubtitle,
-                color = colors.sheetContent,
+                text = stringResource(Res.string.ccp_detected_suggestion, country.displayName, source.detectionSourceName()),
+                style = style.typography.helper,
+                color = colors.textPrimary,
                 modifier = Modifier.weight(1f),
             )
-            Button(
+            PickerButton(
                 onClick = onAccept,
-                shape = shapes.button,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colors.selectedRowContainer,
-                    contentColor = colors.selectedRowContent,
-                ),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             ) {
-                Text(text = stringResource(Res.string.ccp_use), style = typography.buttonLabel)
+                Text(stringResource(Res.string.ccp_use))
             }
         }
     }
 }
 
-/**
- * The mid-sentence name of a detection source: "your SIM card", "your network", "your device language".
- *
- * Separate from [CountryDetectionSource.label] because that one is a standalone phrase
- * ("From your SIM card · tap to change") and this one has to read correctly inside "Looks like you're in
- * Germany, from ___." Reusing one string for both produces broken sentences in at least one of them.
- */
 @Composable
 private fun CountryDetectionSource.detectionSourceName(): String = stringResource(
     when (this) {
@@ -209,12 +168,3 @@ private fun CountryDetectionSource.detectionSourceName(): String = stringResourc
         else -> Res.string.ccp_detect_source_locale
     },
 )
-
-private val BADGE_SPACING = 8.dp
-private val BADGE_ICON_SPACING = 5.dp
-private val BADGE_ICON_SIZE = 14.dp
-private val BADGE_HORIZONTAL_PADDING = 8.dp
-private val BADGE_VERTICAL_PADDING = 3.dp
-private val SUGGESTION_TOP_PADDING = 8.dp
-private val SUGGESTION_PADDING = 12.dp
-private val SUGGESTION_SPACING = 12.dp

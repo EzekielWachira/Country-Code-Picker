@@ -17,8 +17,6 @@
     <string name="ccp_select_country_subtitle">Choose your country of residence</string>
     <string name="ccp_country_code_title">Country code</string>
     <string name="ccp_country_code_subtitle">Search by country or dial code</string>
-    <!-- Title suffix showing how many countries are selected, e.g. "Select country · 2" -->
-    <string name="ccp_title_with_count">%1$s · %2$d</string>
     <string name="ccp_close">Close</string>
     <string name="ccp_back">Back</string>
     <string name="ccp_drag_handle">Drag to resize or dismiss</string>
@@ -40,6 +38,8 @@
     </plurals>
     <!-- Result count narrowed to a region, e.g. "12 results in Africa" -->
     <string name="ccp_result_count_in_region">%1$s in %2$s</string>
+    <!-- Heading over suggested spellings when a search finds nothing -->
+    <string name="ccp_did_you_mean">Did you mean?</string>
     <plurals name="ccp_countries_found">
         <item quantity="one">%1$d country found</item>
         <item quantity="other">%1$d countries found</item>
@@ -52,7 +52,8 @@
     <string name="ccp_section_recent">Recently selected</string>
     <string name="ccp_section_suggested">Suggested</string>
     <string name="ccp_section_all">All countries</string>
-    <string name="ccp_current_selection">Current selection</string>
+    <!-- Heading of the row of recent, suggested and detected countries above the list -->
+    <string name="ccp_section_quick_picks">Quick picks</string>
 
     <!-- ── Region filters ───────────────────────────────────────────────────── -->
     <string name="ccp_region_all">All</string>
@@ -71,6 +72,9 @@
     <string name="ccp_confirm_count">Confirm (%1$d)</string>
     <string name="ccp_retry">Try again</string>
     <string name="ccp_use">Use</string>
+    <string name="ccp_change">Change</string>
+    <!-- Accessibility label of a selected-country chip, e.g. "Remove Kenya" -->
+    <string name="ccp_remove_country_a11y">Remove %1$s</string>
 
     <!-- ── Selector ─────────────────────────────────────────────────────────── -->
     <string name="ccp_country_of_residence">Country of residence</string>
@@ -169,6 +173,15 @@
     <string name="ccp_phone_error_invalid_generic">Enter a valid phone number</string>
     <string name="ccp_phone_error_unsupported_country">Phone numbers aren't supported for %1$s</string>
     <string name="ccp_phone_error_invalid_country_code">That country calling code isn't recognised</string>
+    <!-- Badge naming the kind of a valid number -->
+    <string name="ccp_number_type_mobile">Mobile</string>
+    <string name="ccp_number_type_landline">Landline</string>
+    <string name="ccp_number_type_mobile_or_landline">Mobile or landline</string>
+    <string name="ccp_number_type_toll_free">Toll-free</string>
+    <string name="ccp_number_type_voip">VoIP</string>
+    <!-- Spoken state of a valid phone field; %1$s is the number type, e.g. "Valid number, Mobile" -->
+    <string name="ccp_phone_state_valid">Valid number</string>
+    <string name="ccp_phone_state_valid_type">Valid number, %1$s</string>
     <!-- Shown when the number is real but the wrong kind of line for this flow -->
     <string name="ccp_phone_error_requires_mobile">Enter a mobile number</string>
     <string name="ccp_phone_error_requires_landline">Enter a landline number</string>

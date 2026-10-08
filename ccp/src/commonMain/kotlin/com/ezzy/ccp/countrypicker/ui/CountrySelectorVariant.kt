@@ -23,47 +23,43 @@
 package com.ezzy.ccp.countrypicker.ui
 
 /**
- * The selector's visual form.
- *
- * All variants open the *same* sheet with the same configuration and produce the same callback — the
- * difference is purely how much space they take and how much they say. That is deliberate: a compact
- * pill and a full-width field that behave differently when tapped would be two components wearing one
- * name.
+ * The visual form of a country selector. Every variant opens the same picker with the same
+ * behaviour — they differ in footprint, never in function.
  */
 public enum class CountrySelectorVariant {
-    /**
-     * Full-width filled field: rounded top, underline, tonal background. Matches an M3 filled text
-     * field so it sits correctly in a form.
-     */
-    Filled,
+    /** A raised card with a hairline and soft shadow — the Signature field. */
+    Elevated,
 
-    /** Full-width outlined field. The design's default for "Country of residence". */
+    /** A transparent field with an outline. */
     Outlined,
 
-    /** Full-width, underline only, no fill. For dense forms. */
-    Minimal,
+    /** A softly filled field without an outline. */
+    Filled,
 
-    /** Pill showing flag + country name: `🇩🇪 Germany ˅`. */
+    /** Just an underline, for forms that are already boxed. */
+    Underlined,
+
+    /** A large card: a big flag, the name, and the country's region, dial code and ISO code. */
+    Card,
+
+    /** A pill with the flag and name, for toolbars and dense rows. */
     Compact,
 
-    /** Pill showing the flag alone: `🇩🇪 ˅`. Relies entirely on its content description. */
+    /** A pill with only the flag. */
     FlagOnly,
 
-    /** Pill showing flag + dial code: `🇰🇪 +254 ˅`. Used by the phone field. */
+    /** A pill with the flag and dial code — the phone prefix. */
     DialCode,
     ;
 
-    /** True for the variants that fill their parent's width and show a label. */
-    public val isFullWidth: Boolean get() = this == Filled || this == Outlined || this == Minimal
+    /** True for the full-width field variants; false for the pills. */
+    public val isFullWidth: Boolean get() = this == Elevated || this == Outlined || this == Filled || this == Underlined || this == Card
+
+    /** True for the pill variants. */
+    public val isPill: Boolean get() = !isFullWidth
 }
 
-/**
- * The selector's interaction/validation state.
- *
- * One enum rather than several booleans because these are mutually exclusive: a field cannot be
- * simultaneously loading and disabled, and modelling them as independent flags invites exactly that
- * contradiction.
- */
+/** Interaction and validation state of a selector. */
 public enum class CountrySelectorState {
     /** Normal, interactive. */
     Default,
@@ -77,13 +73,13 @@ public enum class CountrySelectorState {
     /** Resolving a value — during country detection, for instance. Shows a spinner. */
     Loading,
 
-    /** Invalid. Shows the error stroke, icon and message. */
+    /** Invalid. Shows the error stroke, icon and message, with a brief shake on entry. */
     Error,
 
     /** Validated. Shows the success stroke and message. */
     Success,
     ;
 
-    /** True when taps should be ignored. */
+    /** True when taps should open the picker. */
     public val isInteractive: Boolean get() = this == Default || this == Error || this == Success
 }

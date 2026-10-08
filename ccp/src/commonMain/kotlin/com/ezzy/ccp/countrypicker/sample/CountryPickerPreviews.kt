@@ -44,6 +44,7 @@ import com.ezzy.ccp.countrypicker.state.CountryPickerConfig
 import com.ezzy.ccp.countrypicker.state.rememberCountryPickerState
 import com.ezzy.ccp.countrypicker.state.rememberPhoneNumberFieldState
 import com.ezzy.ccp.countrypicker.theme.CountryPickerDefaults
+import com.ezzy.ccp.countrypicker.theme.CountryPickerTheme
 import com.ezzy.ccp.countrypicker.ui.CountryPickerSheet
 import com.ezzy.ccp.countrypicker.ui.CountrySelector
 import com.ezzy.ccp.countrypicker.ui.CountrySelectorState
@@ -267,10 +268,11 @@ private fun MultiSelectionSelectorPreview() = PreviewSurface {
 @Composable
 private fun MultiSelectionSheetPreview() = PreviewSurface {
     val state = rememberOpenCountryPickerState(
-        config = CountryPickerDefaults.multiSelectConfig(showIsoCode = false, showDialCode = false),
+        config = CountryPickerDefaults.multiSelectConfig(),
         selectedCountries = setOf(france, japan),
     )
-    CountryPickerSheet(state = state, onDismiss = {})
+    val style = CountryPickerTheme.style
+    CountryPickerSheet(state = state, onDismiss = {}, style = style.copy(layout = style.layout.copy(showDialCode = false)))
 }
 
 @Preview(name = "14 · Multi-selection with ISO and dial code", showBackground = true, heightDp = 800)
@@ -280,7 +282,8 @@ private fun MultiSelectionWithMetadataSheetPreview() = PreviewSurface {
         config = CountryPickerDefaults.multiSelectConfig(),
         selectedCountries = setOf(france),
     )
-    CountryPickerSheet(state = state, onDismiss = {})
+    val style = CountryPickerTheme.style
+    CountryPickerSheet(state = state, onDismiss = {}, style = style.copy(layout = style.layout.copy(showIsoCode = true)))
 }
 
 // ── 15. Dark mode ──────────────────────────────────────────────────────────────────────────────────

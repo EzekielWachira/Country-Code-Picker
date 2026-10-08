@@ -22,11 +22,18 @@
 
 package com.ezzy.ccp.countrypicker.ui
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -41,17 +48,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import com.ezzy.ccp.countrypicker.data.CountryRepository
 import com.ezzy.ccp.countrypicker.model.Country
@@ -62,44 +72,32 @@ import com.ezzy.ccp.countrypicker.persistence.NoOpRecentCountryStore
 import com.ezzy.ccp.countrypicker.persistence.RecentCountryStore
 import com.ezzy.ccp.countrypicker.state.CountryPickerConfig
 import com.ezzy.ccp.countrypicker.state.rememberCountryPickerState
-import com.ezzy.ccp.countrypicker.theme.CountryFlagConfig
 import com.ezzy.ccp.countrypicker.theme.CountryFlagStyle
-import com.ezzy.ccp.countrypicker.theme.CountryPickerColors
 import com.ezzy.ccp.countrypicker.theme.CountryPickerDefaults
-import com.ezzy.ccp.countrypicker.theme.CountryPickerDimensions
-import com.ezzy.ccp.countrypicker.theme.CountryPickerMotion
-import com.ezzy.ccp.countrypicker.theme.CountryPickerShapes
-import com.ezzy.ccp.countrypicker.theme.CountryPickerTypography
-import com.ezzy.ccp.icons.ChevronDown
-import com.ezzy.ccp.icons.EzzyIcons
+import com.ezzy.ccp.countrypicker.theme.CountryPickerStyle
+import com.ezzy.ccp.countrypicker.theme.CountryPickerTheme
 import com.ezzy.ccp.resources.Res
-import com.ezzy.ccp.resources.ccp_digit_words
 import com.ezzy.ccp.resources.ccp_country_code_subtitle
 import com.ezzy.ccp.resources.ccp_country_code_title
+import com.ezzy.ccp.resources.ccp_digit_words
 import com.ezzy.ccp.resources.ccp_phone_prefix_a11y
 import com.ezzy.ccp.resources.ccp_phone_prefix_plus
 import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * The phone field's country prefix, rendered as a bare clickable segment *inside* the unified field's
- * own outline — not as its own bordered pill.
+ * The country prefix inside a phone field — flag, dial code and a small chevron — that opens the
+ * country-code picker.
  *
- * This is the piece that fixes the "two separate rounded boxes" bug: [PhoneCountryCodeSelector] (and
- * every other [CountrySelectorVariant]) intentionally draws its own [CountrySelectorSurface] with a
- * background and border, because a *standalone* dial-code pill is a legitimate, correct look on its
- * own. Embedded inside [PhoneNumberField], though, that same independent Surface is the bug — it reads
- * as a second field glued to the first. This composable renders exactly the same flag/dial-code/chevron
- * content (via the shared [PhonePrefixInnerContent]) with no Surface of its own: no background, no
- * border, no independent shape — just a plain `Modifier.clickable` region that shares the outer field's
- * single outline.
+ * When the country changes on its own (a pasted or autofilled international number), the dial code
+ * rolls to its new value and the flag swaps, so the change is noticed rather than missed.
  *
- * It owns its own [rememberCountryPickerState] and opens the same [CountryPickerSheet] every other
- * selector uses — "the same reusable country picker" the acceptance criteria asks for, not a
- * parallel one.
- *
- * @param onCountrySelected Called with the newly chosen country. The caller re-formats/re-validates the
- *   number for the new region — [PhoneNumberField] already does this via [com.ezzy.ccp.countrypicker.state.PhoneNumberFieldState.selectCountry].
+ * @param flagStyle How the flag is drawn here, independently of the picker's rows.
+ * @param textStyle The dial code's style. A color set on it overrides the style's text color.
+ * @param minHeight Touch-target height. Shrinks with the compact field sizes so the prefix is never
+ *   taller than the field it sits in.
+ * @param onOpenChanged Reports whether the picker is open, so the field can draw itself active while
+ *   either of its two regions has the user's attention.
  */
 @Composable
 internal fun EmbeddedPhonePrefix(
@@ -109,24 +107,18 @@ internal fun EmbeddedPhonePrefix(
     enabled: Boolean = true,
     contentMode: PhonePrefixContentMode = PhonePrefixContentMode.FlagAndDialCode,
     showDropdownIcon: Boolean = true,
-    flagConfig: CountryFlagConfig = CountryFlagConfig(style = CountryFlagStyle.Plain, size = 24.dp),
+    flagSize: Dp = CountryPickerTheme.style.dimensions.flagSizeCompact,
+    flagStyle: CountryFlagStyle = CountryPickerTheme.style.layout.flagStyle,
+    textStyle: TextStyle = CountryPickerTheme.style.typography.dialCode,
+    chevronColor: Color = CountryPickerTheme.style.colors.textTertiary,
     config: CountryPickerConfig = CountryPickerDefaults.phoneConfig(),
     sheetTitle: UiText = UiText.resource(Res.string.ccp_country_code_title),
     sheetSubtitle: UiText? = UiText.resource(Res.string.ccp_country_code_subtitle),
     recentCountryStore: RecentCountryStore = NoOpRecentCountryStore,
     repository: CountryRepository = CountryRepository.Default,
-    colors: CountryPickerColors = CountryPickerDefaults.colors(),
-    shapes: CountryPickerShapes = CountryPickerDefaults.shapes(),
-    dimensions: CountryPickerDimensions = CountryPickerDefaults.dimensions(),
-    typography: CountryPickerTypography = CountryPickerDefaults.typography(),
-    motion: CountryPickerMotion = CountryPickerDefaults.motion(),
+    style: CountryPickerStyle = CountryPickerTheme.style,
+    minHeight: Dp = style.dimensions.minimumTouchTarget,
     flagContent: (@Composable (Country) -> Unit)? = null,
-    /**
-     * Reports whenever the embedded sheet opens or closes, so an enclosing field (see
-     * [PhoneNumberField]) can treat "the country picker is open" as an active state for its own
-     * outline — the prefix is part of the same field, so its interaction should read as the field
-     * being interacted with, not as an unrelated control opening a dialog elsewhere.
-     */
     onOpenChanged: (Boolean) -> Unit = {},
 ) {
     val pickerState = rememberCountryPickerState(
@@ -135,36 +127,43 @@ internal fun EmbeddedPhonePrefix(
         repository = repository,
         recentCountryStore = recentCountryStore,
     )
-
     LaunchedEffect(pickerState.isSheetOpen) { onOpenChanged(pickerState.isSheetOpen) }
 
     val description = phonePrefixContentDescription(selectedCountry)
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val highlight by animateColorAsState(
+        targetValue = if (pressed || pickerState.isSheetOpen) style.colors.surfaceSunken else Color.Transparent,
+        animationSpec = style.motion.color,
+        label = "prefixHighlight",
+    )
 
     Row(
         modifier = modifier
-            // Clipped to a shape close to the field's own rounding rather than left rectangular, so the
-            // ripple does not visually spill past the field's rounded start corners.
-            .clip(PrefixRippleShape)
-            .clickable(enabled = enabled, role = Role.Button, onClick = pickerState::open)
-            .defaultMinSize(minHeight = dimensions.minimumTouchTarget)
-            .padding(horizontal = PREFIX_HORIZONTAL_PADDING)
+            .clip(PrefixShape)
+            .background(highlight)
+            .clickable(interactionSource = interaction, indication = null, enabled = enabled, role = Role.Button, onClick = pickerState::open)
+            .defaultMinSize(minHeight = minHeight)
+            .padding(horizontal = 6.dp)
             .semantics {
                 contentDescription = description
                 role = Role.Button
             },
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(PREFIX_CONTENT_SPACING),
+        // Image flags fill their box edge to edge, unlike an emoji glyph with its side bearings, so
+        // the gap is set for them.
+        horizontalArrangement = Arrangement.spacedBy(9.dp),
     ) {
         PhonePrefixInnerContent(
             country = selectedCountry,
             contentMode = contentMode,
             showDropdownIcon = showDropdownIcon,
             isOpen = pickerState.isSheetOpen,
-            flagConfig = flagConfig,
-            colors = colors,
-            dimensions = dimensions,
-            typography = typography,
-            motion = motion,
+            flagSize = flagSize,
+            flagStyle = flagStyle,
+            textStyle = textStyle,
+            chevronColor = chevronColor,
+            style = style,
             flagContent = flagContent,
         )
     }
@@ -180,139 +179,100 @@ internal fun EmbeddedPhonePrefix(
             recentCountryStore = recentCountryStore,
             title = sheetTitle,
             subtitle = sheetSubtitle,
-            colors = colors,
-            shapes = shapes,
-            dimensions = dimensions,
-            typography = typography,
-            motion = motion,
+            style = style.withDialCodes(),
             flagContent = flagContent,
         )
     }
 }
 
-/**
- * The flag/dial-code/chevron row content shared between [EmbeddedPhonePrefix] (bare, no Surface) and
- * anything else that wants the identical visual — the one place this rendering exists, so a change to
- * how the prefix looks never needs to be made twice.
- */
+/** Flag, dial code (or ISO code) and chevron, as [contentMode] asks. Hidden from accessibility. */
 @Composable
-internal fun PhonePrefixInnerContent(
+private fun PhonePrefixInnerContent(
     country: Country,
     contentMode: PhonePrefixContentMode,
     showDropdownIcon: Boolean,
     isOpen: Boolean,
-    flagConfig: CountryFlagConfig,
-    colors: CountryPickerColors,
-    dimensions: CountryPickerDimensions,
-    typography: CountryPickerTypography,
-    motion: CountryPickerMotion,
+    flagSize: Dp,
+    flagStyle: CountryFlagStyle,
+    textStyle: TextStyle,
+    chevronColor: Color,
+    style: CountryPickerStyle,
     flagContent: (@Composable (Country) -> Unit)?,
 ) {
     if (contentMode.showsFlag) {
         CountryFlag(
             country = country,
-            config = flagConfig,
-            colors = colors,
-            dimensions = dimensions,
-            motion = motion,
+            size = flagSize,
+            style = flagStyle,
             flagContent = flagContent,
         )
     }
-
-    when {
-        contentMode.showsCountryCode -> Text(
+    if (contentMode.showsCountryCode) {
+        // The ISO code stands where the flag would: a small tag, so "KE +254" reads as two parts.
+        Text(
             text = country.iso2Code,
-            style = typography.dialCodeValue.copy(textDirection = CountryPickerBidi.LTR),
-            color = colors.selectorContent,
+            style = style.typography.badge,
+            color = style.colors.textSecondary,
             maxLines = 1,
-            modifier = Modifier.clearAndSetSemantics {},
-        )
-
-        contentMode.showsDialCode -> Text(
-            text = country.dialCode,
-            // Pinned LTR so "+254" never renders as "254+" beside RTL text — see CountryPickerBidi.
-            style = typography.dialCodeValue.copy(textDirection = CountryPickerBidi.LTR),
-            color = colors.selectorContent,
-            maxLines = 1,
-            modifier = Modifier.clearAndSetSemantics {},
+            modifier = Modifier
+                .clip(ISO_TAG_SHAPE)
+                .background(style.colors.surfaceSunken)
+                .padding(horizontal = 6.dp, vertical = 3.dp)
+                .clearAndSetSemantics {},
         )
     }
-
+    if (contentMode.showsDialCode) {
+        AnimatedContent(
+            targetState = country.dialCode,
+            transitionSpec = {
+                (slideInVertically(style.motion.offset) { it } + fadeIn(style.motion.fadeIn)) togetherWith
+                    (slideOutVertically(style.motion.offset) { -it } + fadeOut(style.motion.fadeOut))
+            },
+            modifier = Modifier.clearAndSetSemantics {},
+            label = "prefixCode",
+        ) { value ->
+            Text(
+                text = value,
+                // Pinned LTR so "+254" never renders as "254+" beside RTL text — see CountryPickerBidi.
+                style = textStyle.copy(textDirection = CountryPickerBidi.LTR),
+                color = textStyle.color.takeOrElse { style.colors.textPrimary },
+                maxLines = 1,
+            )
+        }
+    }
     if (showDropdownIcon) {
-        val rotation by animateFloatAsState(
-            targetValue = if (isOpen) PREFIX_CHEVRON_OPEN_ROTATION else 0f,
-            animationSpec = motion.floatSpec,
-            label = "phonePrefixChevron",
-        )
+        val rotation by animateFloatAsState(if (isOpen) 180f else 0f, style.motion.layout, label = "prefixChevron")
         Icon(
-            imageVector = EzzyIcons.ChevronDown,
+            imageVector = PickerIcons.ChevronDown,
             contentDescription = null,
-            tint = colors.chevron,
-            modifier = Modifier
-                .size(dimensions.chevronSize * PREFIX_CHEVRON_SCALE)
-                .rotate(rotation),
+            tint = chevronColor,
+            modifier = Modifier.size(14.dp).rotate(rotation),
         )
     }
 }
 
-/**
- * The vertical divider between the prefix and the number editor.
- *
- * Deliberately lighter than the field's own outline (a fixed low alpha over the border color, never
- * the border color at full strength) — the acceptance criteria calls for a divider that reads as
- * "subtle", and a divider as dark as the outline it sits inside competes with it rather than reading
- * as a lesser internal separator.
- *
- * Takes an explicit [fieldHeight] and computes its own height from it directly, rather than using
- * `Modifier.fillMaxHeight(fraction)` against whatever the ambient constraint happens to be. A `Row`
- * sitting inside a `Surface` with only `defaultMinSize(minHeight = ...)` does not necessarily carry a
- * *bounded* incoming max height — `defaultMinSize` sets a floor, not a ceiling — so `fillMaxHeight` can
- * end up computing a fraction of an effectively unbounded constraint, which is exactly what made an
- * earlier version of this divider (and the row containing it) balloon to fill the rest of the screen
- * instead of sitting at a normal text-field height. Deriving the height directly from a value the
- * caller already knows removes that dependency on constraint propagation entirely.
- *
- * @param visible When `false`, the divider is not just made transparent but removed from the layout
- *   entirely, so hiding it never leaves a dead gap.
- * @param fieldHeight The unified field's own target height, from which [heightFraction] is taken.
- */
+/** The hairline between the prefix and the number, growing in and out as it is shown or hidden. */
 @Composable
 internal fun PhonePrefixDivider(
     visible: Boolean,
-    fieldHeight: Dp,
+    height: Dp,
+    style: CountryPickerStyle,
     modifier: Modifier = Modifier,
-    heightFraction: Float = DIVIDER_HEIGHT_FRACTION,
-    colors: CountryPickerColors = CountryPickerDefaults.colors(),
-    motion: CountryPickerMotion = CountryPickerDefaults.motion(),
 ) {
-    val width by animateDpAsState(
-        targetValue = if (visible) DIVIDER_WIDTH else 0.dp,
-        animationSpec = motion.dpSpec,
-        label = "dividerWidth",
-    )
-    val color by animateColorAsState(
-        targetValue = if (visible) colors.selectorBorder.copy(alpha = DIVIDER_ALPHA) else
-            colors.selectorBorder.copy(alpha = 0f),
-        animationSpec = motion.colorSpec,
-        label = "dividerColor",
-    )
-    if (width <= 0.dp) return
-
+    val alpha by animateFloatAsState(if (visible) 1f else 0f, style.motion.layout, label = "dividerAlpha")
+    if (alpha <= 0f) return
     Box(
         modifier = modifier
-            .padding(vertical = DIVIDER_VERTICAL_INSET)
-            .height((fieldHeight * heightFraction).coerceAtLeast(0.dp))
-            .width(width)
-            .clip(RoundedCornerShape(percent = 50))
-            .background(color),
+            .width(1.dp)
+            .height(height * alpha)
+            .background(style.colors.hairline.copy(alpha = style.colors.hairline.alpha * 1.6f * alpha)),
     )
 }
 
 /**
- * Builds "Kenya, calling code plus two five four. Double tap to change country." — the dial code is
- * spelled out digit-by-digit via `Res.array.ccp_digit_words` rather than left as "+254", since a screen
- * reader given the numeral form tends to read it as a cardinal number ("two hundred fifty-four")
- * instead of a sequence of individual digits.
+ * "Kenya, calling code plus two five four. Double tap to change country." — the dial code spelled
+ * digit by digit, because a screen reader given "+254" tends to read a cardinal number ("two hundred
+ * fifty-four") instead of a sequence of digits.
  */
 @Composable
 private fun phonePrefixContentDescription(country: Country): String {
@@ -324,12 +284,12 @@ private fun phonePrefixContentDescription(country: Country): String {
     return stringResource(Res.string.ccp_phone_prefix_a11y, country.displayName, spokenDialCode)
 }
 
-private const val PREFIX_CHEVRON_OPEN_ROTATION = 180f
-private const val PREFIX_CHEVRON_SCALE = 0.85f
-private const val DIVIDER_ALPHA = 0.6f
-private const val DIVIDER_HEIGHT_FRACTION = 0.48f
-private val DIVIDER_WIDTH = 1.dp
-private val DIVIDER_VERTICAL_INSET = 4.dp
-private val PREFIX_HORIZONTAL_PADDING = 12.dp
-private val PREFIX_CONTENT_SPACING = 8.dp
-private val PrefixRippleShape = RoundedCornerShape(12.dp)
+/**
+ * This style with dial codes on the picker's rows. A country-code picker shows them whatever the
+ * theme says — in that picker they are the very thing being chosen.
+ */
+internal fun CountryPickerStyle.withDialCodes(): CountryPickerStyle =
+    if (layout.showDialCode) this else copy(layout = layout.copy(showDialCode = true))
+
+private val PrefixShape = RoundedCornerShape(10.dp)
+private val ISO_TAG_SHAPE = RoundedCornerShape(6.dp)
