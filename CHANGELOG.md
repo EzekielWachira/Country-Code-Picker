@@ -13,8 +13,11 @@ The public ABI is recorded in [`ccp/api/`](ccp/api) — `android/ccp.api` for th
 
 ## [Unreleased]
 
-A complete visual redesign, with a design system behind it. **Breaking:** every component's styling
-parameters are replaced by a single `style`; see **Removed** for the migration.
+## [0.3.0] - 2026-10-08
+
+Kotlin Multiplatform support for Android and iOS, and a complete visual redesign with a design system
+behind it. **Breaking:** every component's styling parameters are replaced by a single `style`; see
+**Removed** for the migration.
 
 ### Added
 
@@ -43,42 +46,14 @@ parameters are replaced by a single `style`; see **Removed** for the migration.
   animated check that draws itself in, staggered list entrance, and a floating confirmation bar with
   stacked flags in multiple selection.
 - **Phone field:** a floating label, ghost digits showing what is left to type, a progress hairline
-  that turns green on a valid number, a `✓ Mobile` / `✓ Landline` badge, a `variant` parameter, and a
-  clear button shown while editing. Screen readers hear the field's validity as its state.
+  that turns green on a valid number, a `✓ Mobile` / `✓ Landline` badge (a compact check while
+  editing, so the number keeps its room), a `variant` parameter, and a clear button shown while
+  editing. Screen readers hear the field's validity as its state.
 - **New selector variants:** `Elevated` (the default) and `Card`, with a soft focus ring, a shake on
   error and press feedback on every field.
 - **Haptics** for selection, toggles, the A–Z rail, region changes, the selection limit and errors
   (`CountryPickerHaptics`).
 - The sample app's **Showcase** tab: every option of the design system as a live control.
-
-### Changed
-
-- The library's Android manifest now declares `INTERNET`, for flag images. Apps using
-  `CountryFlagSource.Emoji` everywhere can remove it with `tools:node="remove"`.
-- `CountrySelectorVariant.Minimal` is now `Underlined`; the default variant is `Elevated`.
-- Rows show dial codes by default (`CountryPickerLayout.showDialCode`), and the A–Z rail is on by
-  default (`showAlphabetIndex`).
-- `CountryFlag` takes a `source`, and its `style` is now the frame (`CountryFlagStyle`).
-
-### Removed
-
-- `CountryPickerDefaults.colors()`, `shapes()`, `dimensions()`, `typography()` and `motion()`, and the
-  `colors` / `shapes` / `dimensions` / `typography` / `motion` parameters on every component: pass a
-  `CountryPickerStyle` instead — `CountryPickerStyles.signature()` and `copy()` for overrides.
-- `CountryPickerTokens`: success colors are roles of `CountryPickerColors`.
-- `CountryFlagConfig` and `CountryFlagShape`: use `CountryPickerLayout.flagStyle` and `flagSource`.
-- `CountrySelectorContentConfig`, `CountrySelectorDefaults` and the `contentConfig` parameter: use
-  `labelMode` and `supportingContent` on `CountrySelector`.
-- Presentation flags on `CountryPickerConfig` — `showIsoCode`, `showDialCode`, `showFlag`,
-  `flagShape`, `rowFlagStyle`, `showRegionFilters`, `showAlphabetIndex`, `highlightSearchMatches`,
-  `showResultCount`, `showCurrentSelection` — moved to `CountryPickerLayout`, which now owns
-  everything about how the picker looks. The "Current selection" card is replaced by the selected
-  group at the top of the list.
-
-## [0.3.0] - 2026-10-08
-
-### Added
-
 - **iOS support — the library is now Kotlin Multiplatform.** Every component, state holder and
   utility is in common code and runs on Android and iOS (`iosArm64`, `iosSimulatorArm64`) from
   Compose Multiplatform. Gradle consumers keep the same coordinate,
@@ -129,6 +104,12 @@ parameters are replaced by a single `style`; see **Removed** for the migration.
 
 ### Changed
 
+- The library's Android manifest now declares `INTERNET`, for flag images. Apps using
+  `CountryFlagSource.Emoji` everywhere can remove it with `tools:node="remove"`.
+- `CountrySelectorVariant.Minimal` is now `Underlined`; the default variant is `Elevated`.
+- Rows show dial codes by default (`CountryPickerLayout.showDialCode`), and the A–Z rail is on by
+  default (`showAlphabetIndex`).
+- `CountryFlag` takes a `source`, and its `style` is now the frame (`CountryFlagStyle`).
 - **Strings are Compose Multiplatform resources.** `UiText.Resource` and `UiText.Plural` hold a
   `StringResource` / `PluralStringResource` (from the library's or the host's own `Res`), and
   `CountryRegion.labelRes`, `CountrySectionKind.titleRes` and `CountryDetectionSource.labelRes` are
@@ -167,6 +148,18 @@ parameters are replaced by a single `style`; see **Removed** for the migration.
 
 ### Removed
 
+- `CountryPickerDefaults.colors()`, `shapes()`, `dimensions()`, `typography()` and `motion()`, and the
+  `colors` / `shapes` / `dimensions` / `typography` / `motion` parameters on every component: pass a
+  `CountryPickerStyle` instead — `CountryPickerStyles.signature()` and `copy()` for overrides.
+- `CountryPickerTokens`: success colors are roles of `CountryPickerColors`.
+- `CountryFlagConfig` and `CountryFlagShape`: use `CountryPickerLayout.flagStyle` and `flagSource`.
+- `CountrySelectorContentConfig`, `CountrySelectorDefaults` and the `contentConfig` parameter: use
+  `labelMode` and `supportingContent` on `CountrySelector`.
+- Presentation flags on `CountryPickerConfig` — `showIsoCode`, `showDialCode`, `showFlag`,
+  `flagShape`, `rowFlagStyle`, `showRegionFilters`, `showAlphabetIndex`, `highlightSearchMatches`,
+  `showResultCount`, `showCurrentSelection` — moved to `CountryPickerLayout`, which now owns
+  everything about how the picker looks. The "Current selection" card is replaced by the selected
+  group at the top of the list.
 - `UiText.resolve(context: Context)`. Resolve inside composition with `UiText.resolve()`; outside
   it, Compose resources' `getString(…)` reads the library's or your own `Res`.
 - **The bundled flag `ImageVector`s** (131 of them) and `CountryFlagVectors`, `VectorCountryFlag`

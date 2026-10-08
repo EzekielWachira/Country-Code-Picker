@@ -16,6 +16,27 @@ The library ships two layers:
   [Migrating from `PhoneNumberInput`](#migrating-from-phonenumberinput) if you want to move to the newer
   API.
 
+## Screenshots
+
+The Signature style, with [flagcdn.com](https://flagcdn.com) flags, on iOS. The same code renders it on
+Android.
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/assets/screenshots/sheet-light.png" width="260" alt="The country sheet: search, a sliding region filter with counts, quick picks, the selected country and the grouped list with an A–Z rail"><br><sub>Country sheet</sub></td>
+    <td align="center"><img src="docs/assets/screenshots/phone-field.png" width="260" alt="A phone field with a valid UK mobile, a Mobile badge, a green progress line and the parsed E.164 output"><br><sub>Phone field</sub></td>
+    <td align="center"><img src="docs/assets/screenshots/multi-select-dark.png" width="260" alt="Multiple selection in dark mode: four picks pinned at the top and a floating Confirm bar with their flags"><br><sub>Multiple selection</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/assets/screenshots/did-you-mean.png" width="260" alt="A misspelled search, Germny, offering Germany as a suggestion"><br><sub>"Did you mean"</sub></td>
+    <td align="center"><img src="docs/assets/screenshots/sheet-dark.png" width="260" alt="The country sheet in dark mode"><br><sub>Dark mode</sub></td>
+    <td align="center"><img src="docs/assets/screenshots/footprints-dark.png" width="260" alt="Selector footprints in dark mode: an elevated field, a phone field, and compact, flag-only and dial-code pills"><br><sub>Fields and pills</sub></td>
+  </tr>
+</table>
+
+Every option above — presets, accent, density, list style, flag shape, format and frame — is a live
+control in the sample app's **Showcase** tab.
+
 ## Features
 
 - **A complete design system** – One `CountryPickerStyle` (colors, shapes, type, motion, elevation,
