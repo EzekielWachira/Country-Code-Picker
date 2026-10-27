@@ -28,3 +28,6 @@ include(":ccp")
 // iOS framework that iosApp/ embeds; `:app` is the thin Android shell around the same UI.
 include(":sample")
 include(":app")
+
+// Generates the baseline profile :ccp ships, by driving :app through the picker on a device.
+include(":baselineprofile")
