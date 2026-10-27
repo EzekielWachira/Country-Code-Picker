@@ -13,6 +13,14 @@ The public ABI is recorded in [`ccp/api/`](ccp/api) — `android/ccp.api` for th
 
 ## [Unreleased]
 
+### Added
+
+- **A baseline profile in the Android artifact.** The AAR now includes `baseline-prof.txt` for the
+  country sheet, search and phone field, which apps merge automatically so that code is compiled
+  ahead of time on install instead of interpreted on first use. On a Pixel 6 (Android 17), a cold
+  start to a screen showing the picker is 4% faster, and the slowest frames when opening the sheet,
+  searching and typing a number are 5–12% faster. No API change, and nothing to configure.
+
 ## [0.3.0] - 2026-10-08
 
 Kotlin Multiplatform support for Android and iOS, and a complete visual redesign with a design system
