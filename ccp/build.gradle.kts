@@ -22,6 +22,7 @@ plugins {
     // Roborazzi rather than Paparazzi: Paparazzi's layoutlib is pinned per release and lags the
     // current compileSdk on its stable line, which is not something to gate a library's CI on.
     alias(libs.plugins.roborazzi)
+    alias(libs.plugins.baselineprofile)
 }
 
 kotlin {
@@ -169,6 +170,27 @@ compose.resources {
     // never by reaching into the library's Res.
     packageOfResClass = "com.ezzy.ccp.resources"
     publicResClass = false
+}
+
+// ── Baseline profile ───────────────────────────────────────────────────────────────────────────
+//
+// :baselineprofile drives the :app demo through the picker's journeys; the rules it records are
+// filtered to this library and checked in under src/androidMain/generated/baselineProfiles, from
+// where AGP packages them into the AAR. Consuming apps merge them at build time, so the picker's
+// code is AOT-compiled on install instead of interpreted the first time a sheet opens.
+// Regenerate with `./gradlew :ccp:generateBaselineProfile` on a connected device.
+baselineProfile {
+    filter {
+        include("com.ezzy.ccp.**")
+        // The demo shares the library's root package: :app's MainActivity sits in com.ezzy.ccp
+        // and :sample in com.ezzy.ccp.sample (not to be confused with ccp's countrypicker.sample).
+        exclude("com.ezzy.ccp.*")
+        exclude("com.ezzy.ccp.sample.**")
+    }
+}
+
+dependencies {
+    baselineProfile(project(":baselineprofile"))
 }
 
 // ── libPhoneNumber-iOS ─────────────────────────────────────────────────────────────────────────
