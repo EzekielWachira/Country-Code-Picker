@@ -768,9 +768,29 @@ symbol escapes the prefix. To update it, copy the new release's `libPhoneNumber/
 `lib-phone` in `gradle/libs.versions.toml` to the libphonenumber release the new metadata was
 generated from, so Android and iOS stay on the same data.
 
+### The baseline profile
+
+The Android artifact ships `ccp/src/androidMain/generated/baselineProfiles/baseline-prof.txt`, which
+consuming apps merge so the picker's code is compiled ahead of time on install. `:baselineprofile`
+records it by driving the sample app through the sheet, search and phone field, filtered to the
+library's own classes. Regenerate it after changes to those paths:
+
+```bash
+./gradlew :ccp:generateBaselineProfile   # boots a managed API 34 emulator; no device needed
+```
+
+The same module holds the macrobenchmarks that measure it. To compare builds with and without the
+profile, run them on a physical device with the file present and removed:
+
+```bash
+./gradlew :baselineprofile:connectedBenchmarkReleaseAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules=Macrobenchmark
+```
+
 ### Releasing
 
-Push a `v*` tag. `.github/workflows/release.yml` writes the version from the tag into
+Regenerate the baseline profile if the sheet, search or phone field changed since the last release,
+and commit it. Then push a `v*` tag. `.github/workflows/release.yml` writes the version from the tag into
 `gradle.properties`, re-runs the full verification, publishes to Maven Central and drafts the GitHub
 release. It needs `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`, `SIGNING_KEY` and
 `SIGNING_KEY_PASSWORD` as repository secrets.
