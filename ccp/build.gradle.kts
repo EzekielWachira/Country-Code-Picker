@@ -232,7 +232,9 @@ mavenPublishing {
     )
 
     // Signing keys only exist on the release runner. Signing unconditionally would make every
-    // local `publishToMavenLocal` fail.
+    // local `publishToMavenLocal` fail. This must stay the only place signing is enabled:
+    // RELEASE_SIGNING_ENABLED=true in gradle.properties would make the plugin call
+    // signAllPublications() first, and this second call then fails on the finalised property.
     if (providers.gradleProperty("signingInMemoryKey").isPresent) {
         signAllPublications()
     }
