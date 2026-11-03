@@ -65,13 +65,17 @@ jobs:
           :ccp:checkKotlinAbi :ccp:lint :ccp:verifyTranslationParity
           :ccp:verifyPhoneNumberMetadataFootprint --stacktrace
 
+      # publishAndRelease rather than publish: the plain task uploads the bundle as USER_MANAGED,
+      # which then sits in the Central Portal until someone presses Publish by hand. The release
+      # variant waits for the Portal's validation and releases the deployment itself, so a green
+      # run means the artifact is actually on its way to repo1.maven.org.
       - name: Publish
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
-        run: ./gradlew publishToMavenCentral --no-configuration-cache --stacktrace
+        run: ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache --stacktrace
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
