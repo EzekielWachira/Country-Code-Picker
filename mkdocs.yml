@@ -60,8 +60,8 @@ extra:
       link: https://github.com/EzekielWachira/Country-Code-Picker
       name: Source on GitHub
     - icon: material/package-variant
-      link: https://jitpack.io/#EzekielWachira/Country-Code-Picker
-      name: Releases on JitPack
+      link: https://central.sonatype.com/artifact/io.github.ezekielwachira/ccp
+      name: Releases on Maven Central
 
 markdown_extensions:
   - admonition

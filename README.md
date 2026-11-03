@@ -1,6 +1,6 @@
 # Country Code Picker
 
-[![](https://jitpack.io/v/EzekielWachira/Country-Code-Picker.svg)](https://jitpack.io/#EzekielWachira/Country-Code-Picker)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.ezekielwachira/ccp.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.ezekielwachira/ccp)
 
 📖 **Documentation:** [ezekielwachira.github.io/Country-Code-Picker](https://ezekielwachira.github.io/Country-Code-Picker/) — guides, recipes and the [API reference](https://ezekielwachira.github.io/Country-Code-Picker/api/).
 
@@ -80,15 +80,14 @@ control in the sample app's **Showcase** tab.
 
 ## Installation
 
-### From Maven Central
-
-In a Kotlin Multiplatform module, add it to `commonMain`:
+The library is published to [Maven Central](https://central.sonatype.com/artifact/io.github.ezekielwachira/ccp)
+as `io.github.ezekielwachira:ccp`. In a Kotlin Multiplatform module, add it to `commonMain`:
 
 ```kotlin
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.ezekielwachira:ccp:<LATEST_VERSION>")
+            implementation("io.github.ezekielwachira:ccp:0.3.0")
         }
     }
 }
@@ -98,7 +97,7 @@ In an Android-only module, as before:
 
 ```kotlin
 dependencies {
-    implementation("io.github.ezekielwachira:ccp:<LATEST_VERSION>")
+    implementation("io.github.ezekielwachira:ccp:0.3.0")
 }
 ```
 
@@ -124,10 +123,11 @@ fun MainViewController(): UIViewController = ComposeUIViewController {
 **CCP Sample** scheme. It builds the shared [`:sample`](sample) module — the same demo the Android
 [`:app`](app) runs.
 
-### From JitPack (Android only)
+### Versions before 0.3.0 (JitPack, Android only)
 
-JitPack builds on Linux, which cannot produce the iOS artifacts, so use it only for Android-only
-projects. Add the repository to your root `settings.gradle.kts`:
+0.3.0 is the first release on Maven Central. Earlier versions were published only through JitPack,
+under a different coordinate, and are Android-only (JitPack builds on Linux, which cannot produce the
+iOS artifacts). To stay on one of those, add the JitPack repository to your root `settings.gradle.kts`:
 
 ```kotlin
 dependencyResolutionManagement {
@@ -141,7 +141,7 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("com.github.EzekielWachira:Country-Code-Picker:<LATEST_VERSION>")
+    implementation("com.github.EzekielWachira:Country-Code-Picker:0.2.0")
 }
 ```
 

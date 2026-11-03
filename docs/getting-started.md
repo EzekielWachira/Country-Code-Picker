@@ -13,7 +13,8 @@ Flags are rendered as the platform's emoji glyphs, so the library adds no flag b
 
 ## Installation
 
-The library is on Maven Central, which most projects already list in `settings.gradle.kts`.
+The library is published to [Maven Central](https://central.sonatype.com/artifact/io.github.ezekielwachira/ccp)
+as `io.github.ezekielwachira:ccp`. Most projects already list `mavenCentral()` in `settings.gradle.kts`.
 
 === "Kotlin Multiplatform"
 
@@ -21,7 +22,7 @@ The library is on Maven Central, which most projects already list in `settings.g
     kotlin {
         sourceSets {
             commonMain.dependencies {
-                implementation("io.github.ezekielwachira:ccp:<LATEST_VERSION>")
+                implementation("io.github.ezekielwachira:ccp:0.3.0")
             }
         }
     }
@@ -31,7 +32,7 @@ The library is on Maven Central, which most projects already list in `settings.g
 
     ```kotlin
     dependencies {
-        implementation("io.github.ezekielwachira:ccp:<LATEST_VERSION>")
+        implementation("io.github.ezekielwachira:ccp:0.3.0")
     }
     ```
 
@@ -39,7 +40,7 @@ The library is on Maven Central, which most projects already list in `settings.g
 
     ```groovy
     dependencies {
-        implementation 'io.github.ezekielwachira:ccp:<LATEST_VERSION>'
+        implementation 'io.github.ezekielwachira:ccp:0.3.0'
     }
     ```
 
@@ -63,10 +64,11 @@ fun MainViewController(): UIViewController = ComposeUIViewController {
 
 The repository's `iosApp/` is a working Xcode project around the shared sample.
 
-### JitPack (Android only)
+### Versions before 0.3.0 (JitPack, Android only)
 
-JitPack also builds the library, but on Linux, which cannot produce the iOS artifacts — use it only
-from Android-only projects:
+0.3.0 is the first release on Maven Central. Earlier versions were published only through JitPack,
+under a different coordinate, and are Android-only — JitPack builds on Linux, which cannot produce
+the iOS artifacts. To stay on one of those:
 
 ```kotlin
 // settings.gradle.kts
@@ -78,7 +80,7 @@ dependencyResolutionManagement {
 
 // build.gradle.kts
 dependencies {
-    implementation("com.github.EzekielWachira:Country-Code-Picker:<LATEST_VERSION>")
+    implementation("com.github.EzekielWachira:Country-Code-Picker:0.2.0")
 }
 ```
 

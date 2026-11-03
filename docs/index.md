@@ -5,7 +5,7 @@ hide:
 
 # Country Code Picker
 
-[![JitPack](https://jitpack.io/v/EzekielWachira/Country-Code-Picker.svg)](https://jitpack.io/#EzekielWachira/Country-Code-Picker)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.ezekielwachira/ccp.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.ezekielwachira/ccp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-teal.svg)](https://github.com/EzekielWachira/Country-Code-Picker/blob/main/LICENSE.md)
 [![API 24+](https://img.shields.io/badge/API-24%2B-teal.svg)](https://developer.android.com/about/versions/nougat)
 [![Platforms: Android | iOS](https://img.shields.io/badge/platforms-Android%20%7C%20iOS-teal.svg)](getting-started.md)
@@ -96,7 +96,7 @@ Add the dependency from Maven Central — to `commonMain` in a Kotlin Multiplatf
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.ezekielwachira:ccp:<LATEST_VERSION>")
+            implementation("io.github.ezekielwachira:ccp:0.3.0")
         }
     }
 }
